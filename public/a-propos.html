@@ -16,131 +16,240 @@
         .gradient-bg {
             background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
         }
+
+        /* Style pour les listes personnalisées */
+        .custom-list li {
+            position: relative;
+            padding-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .custom-list li::before {
+            content: "•";
+            color: #10b981;
+            font-weight: bold;
+            position: absolute;
+            right: 0;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 
 <body class="bg-gray-50 min-h-screen">
 
-    <!-- Header -->
     <div class="gradient-bg text-white py-12 shadow-lg">
         <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                 <a href="/"
-                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center gap-2">
+                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center gap-2 order-2 md:order-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
                     الرئيسية
                 </a>
-                <h1 class="text-4xl font-bold">من نحن</h1>
-                <div class="w-24"></div>
+                <h1 class="text-4xl font-bold order-1 md:order-2">من نحن</h1>
+                <div class="w-24 hidden md:block order-3"></div>
             </div>
         </div>
     </div>
 
-    <!-- Content -->
     <div class="container mx-auto px-4 py-12">
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-5xl mx-auto">
 
-            <!-- Logo Section -->
             <div class="text-center mb-12">
                 <div class="w-48 h-48 mx-auto mb-6">
                     <img src="/images/AssociationJJJ.jpg" alt="شعار رابطة شباب جدة"
                         class="w-full h-full object-cover rounded-full shadow-2xl border-4 border-green-600">
                 </div>
                 <h2 class="text-3xl font-bold text-gray-800 mb-2">رابطة شباب جدة</h2>
-                <p class="text-xl text-green-700 font-semibold">Association de la Jeunesse de Jeddeta</p>
-            </div>
+                <p class="text-xl text-green-700 font-semibold mb-4">Association de la Jeunesse de Jeddeta</p>
 
-            <!-- Main Content Card -->
-            <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8">
-                <div class="prose prose-lg max-w-none text-right" style="direction: rtl;">
-
-                    <div class="mb-8 leading-relaxed text-gray-700 text-lg space-y-6">
-                        <p>
-                            انطلاقًا من روح العمل الجماعي، وإيمانًا بدور الشباب في خدمة المجتمع وتنمية قدراته، تم بعون
-                            اللّٰه تعالى تأسيس <strong class="text-green-700">رابطة شباب جدة</strong>، كإطار شبابي ثقافي
-                            ورياضي واجتماعي غير ربحي، يهدف إلى جمع شباب المنطقة وتوحيد جهودهم في أنشطة هادفة تخدم الصالح
-                            العام.
-                        </p>
-
-                        <p>
-                            تسعى الرابطة إلى ترسيخ قيم التعاون والانضباط والمواطنة الصالحة والعمل التطوعي، وتنمية
-                            المواهب الشبابية في مختلف المجالات، خاصة الثقافية والرياضية والإعلامية، مع الانفتاح على
-                            محيطها المحلي وبناء الشراكات الإيجابية.
-                        </p>
-
-                        <p>
-                            وقد تم اعتماد هذا التأسيس بإجماع الأعضاء المؤسسين، وبالاتفاق على قانون داخلي وهيكلة تنظيمية
-                            تسهر على حسن التسيير وتحقيق الأهداف المسطرة، على أساس الشفافية والمسؤولية والاحترام
-                            المتبادل.
-                        </p>
-
-                        <p class="text-xl font-bold text-green-800 border-r-4 border-green-600 pr-4">
-                            وعليه، نُعلن رسميًا عن تأسيس رابطة شباب جدة، آملين أن تكون إطارًا فاعلًا يخدم الشباب ويساهم
-                            في تنمية المجتمع
-                        </p>
-                    </div>
-
+                <div
+                    class="inline-block bg-green-100 text-green-800 px-6 py-2 rounded-full text-lg font-bold border border-green-200">
+                    شعارنا: عزيمة، أخوة، بناء
                 </div>
             </div>
 
-            <!-- Values Cards -->
-            <div class="grid md:grid-cols-3 gap-6 mb-8">
-
-                <!-- Card 1 -->
-                <div
-                    class="bg-gradient-to-br from-green-500 to-green-700 rounded-xl shadow-lg p-6 text-white text-center">
-                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                            </path>
-                        </svg>
+            <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 border-t-4 border-green-600">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">التعريف والتأسيس</h3>
+                <div class="prose prose-lg max-w-none text-right text-gray-700 space-y-4" style="direction: rtl;">
+                    <p>
+                        انطلاقًا من روح العمل الجماعي، وإيمانًا بدور الشباب في خدمة المجتمع وتنمية قدراته، تم بعون
+                        اللّٰه تعالى تأسيس <strong class="text-green-700">رابطة شباب جدة</strong>، كإطار شبابي ثقافي
+                        ورياضي واجتماعي غير ربحي، يهدف إلى جمع شباب المنطقة وتوحيد جهودهم في أنشطة هادفة تخدم الصالح
+                        العام.
+                    </p>
+                    <p>
+                        تسعى الرابطة إلى ترسيخ قيم التعاون والانضباط والمواطنة الصالحة والعمل التطوعي، وتنمية
+                        المواهب الشبابية في مختلف المجالات، خاصة الثقافية والرياضية والإعلامية، مع الانفتاح على
+                        محيطها المحلي وبناء الشراكات الإيجابية.
+                    </p>
+                    <div class="bg-green-50 p-4 rounded-lg border-r-4 border-green-600 mt-4">
+                        <p class="font-semibold text-green-900 m-0">
+                            رابطة شباب جدة يداً بيد من أجل مستقبل أفضل لقريتنا
+                        </p>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">العمل الجماعي</h3>
-                    <p class="text-green-100 text-sm">Travail d'équipe</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 border-t-4 border-blue-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">رؤيتنا</h3>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">
+                        بناء رابطة شبابية فاعلة تساهم في تنمية قرية جدة، وتعزز روح التعاون والانتماء، وتعمل على خدمة
+                        الشباب والمجتمع.
+                    </p>
                 </div>
 
-                <!-- Card 2 -->
-                <div
-                    class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-lg p-6 text-white text-center">
-                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
-                            </path>
-                        </svg>
+                <div class="bg-white rounded-2xl shadow-lg p-8 border-t-4 border-yellow-500">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div
+                            class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">أهداف الرابطة</h3>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">تنمية المواهب</h3>
-                    <p class="text-blue-100 text-sm">Développement des talents</p>
+                    <ul class="custom-list text-gray-700 text-sm space-y-2">
+                        <li>توحيد شباب قرية جدة تحت إطار منظم.</li>
+                        <li>تنمية قدرات الشباب ثقافياً، رياضياً، واجتماعياً.</li>
+                        <li>دعم المبادرات التنموية والبيئية داخل القرية.</li>
+                        <li>ترسيخ قيم التطوع، التعاون، والمسؤولية.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">مجالات العمل والأنشطة</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
+
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <h4 class="text-lg font-bold text-green-700 mb-3 flex items-center gap-2">
+                        <span class="text-2xl">📚</span> الأنشطة الثقافية والاجتماعية
+                    </h4>
+                    <ul class="custom-list text-gray-600 text-sm space-y-2">
+                        <li>تنظيم أمسيات ثقافية وتراثية وليال فنية ومسرحية.</li>
+                        <li>تكريم المتفوقين وتنظيم دروس دعم للتلاميذ.</li>
+                        <li>إطلاق حملات توعوية (الصحة، التعليم، السلوك المدني).</li>
+                    </ul>
                 </div>
 
-                <!-- Card 3 -->
-                <div
-                    class="bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-xl shadow-lg p-6 text-white text-center">
-                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">خدمة المجتمع</h3>
-                    <p class="text-yellow-100 text-sm">Service communautaire</p>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <h4 class="text-lg font-bold text-blue-700 mb-3 flex items-center gap-2">
+                        <span class="text-2xl">⚽</span> الأنشطة الرياضية
+                    </h4>
+                    <ul class="custom-list text-gray-600 text-sm space-y-2">
+                        <li>تنظيم بطولات رياضية محلية وسباقات تقليدية.</li>
+                        <li>تشجيع المواهب الرياضية ودعمها.</li>
+                        <li>أنشطة ترفيهية موجهة للشباب.</li>
+                    </ul>
                 </div>
 
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <h4 class="text-lg font-bold text-green-600 mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🌱</span> التنمية الزراعية والبيئية
+                    </h4>
+                    <ul class="custom-list text-gray-600 text-sm space-y-2">
+                        <li>دعم مشاريع زراعية وحملات تشجير وتنظيف.</li>
+                        <li>التوعية بأهمية البيئة واستغلال واد الأبيض في أنشطة مستدامة.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <h4 class="text-lg font-bold text-yellow-600 mb-3 flex items-center gap-2">
+                        <span class="text-2xl">🤝</span> التمكين والعمل التطوعي
+                    </h4>
+                    <ul class="custom-list text-gray-600 text-sm space-y-2">
+                        <li>ورشات تدريبية في القيادة والمهارات الحياتية.</li>
+                        <li>حملات تضامن ودعم الأسر المحتاجة.</li>
+                        <li>المشاركة الفعالة في المناسبات الاجتماعية.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-xl p-8 text-white">
+                <h3 class="text-2xl font-bold text-center mb-2">الهيكلة التنظيمية - المكتب التنفيذي</h3>
+                <p class="text-center text-gray-400 mb-8">2026م</p>
+                <div class="grid md:grid-cols-2 gap-8">
+
+                    <div class="space-y-6">
+                        <div class="bg-white/10 p-5 rounded-xl border border-white/10">
+                            <h4 class="text-green-400 font-bold mb-3 border-b border-white/20 pb-2">الرئاسة والاستشارة
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li><span class="font-bold text-white">رئيس الرابطة:</span> سعدبوه الشيخ محمد فاضل</li>
+                                <li><span class="font-bold text-white">نائب الرئيس:</span> محمد عالي ساكده</li>
+                                <li><span class="font-bold text-white">مستشار الرئيس:</span> الشيخ أحمد اعمر عمو</li>
+                                <li><span class="font-bold text-white">مستشار:</span> تيته لحمود</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white/10 p-5 rounded-xl border border-white/10">
+                            <h4 class="text-green-400 font-bold mb-3 border-b border-white/20 pb-2">الإدارة والمالية
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li><span class="font-bold text-white">مسؤول المالية والناطق الرسمي:</span> امربيه ولد
+                                    البلي</li>
+                                <li><span class="font-bold text-white">مساعد المالية:</span> محمد سيدي</li>
+                                <li><span class="font-bold text-white">الشؤون الداخلية:</span> الشيخ أحمد زنفور</li>
+                                <li><span class="font-bold text-white">الشؤون الخارجية:</span> محمدون ولد اللب</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-white/10 p-5 rounded-xl border border-white/10">
+                            <h4 class="text-green-400 font-bold mb-3 border-b border-white/20 pb-2">الإطار التنظيمي
+                                والرياضي</h4>
+                            <div class="mb-3">
+                                <span class="block font-bold text-white text-xs mb-1">اللجنة التنظيمية:</span>
+                                <span class="text-xs text-gray-300">عبد الله أعبيد الله، اباه احمدو، مولاي اللب، عبودي
+                                    اللب، محمد لمين المحيميد</span>
+                            </div>
+                            <div class="mb-3">
+                                <span class="block font-bold text-white text-xs mb-1">مسؤولو الفريق الأول:</span>
+                                <span class="text-xs text-gray-300">محمد سيدي سليمان، زين الحمود، عبدالله عبدمو، ابوه
+                                    ولد ساكده، ابراهيم محمد جيري</span>
+                            </div>
+                            <div>
+                                <span class="block font-bold text-white text-xs mb-1">مسؤولو الفريق الثاني:</span>
+                                <span class="text-xs text-gray-300">يسلم محمود، محمد دمب، المختار حيبلل</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/10 p-5 rounded-xl border border-white/10">
+                            <h4 class="text-green-400 font-bold mb-3 border-b border-white/20 pb-2">الثقافة والإعلام
+                            </h4>
+                            <ul class="space-y-2 text-sm">
+                                <li><span class="font-bold text-white">مسؤولو الثقافة:</span> سيدي محمد اللب، الشيخ ولد
+                                    النين</li>
+                                <li><span class="font-bold text-white">مسؤول الإعلام:</span> محمد دمب</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-8 mt-16">
         <div class="container mx-auto px-4 text-center">
             <p class="text-sm">© 2026 رابطة شباب جدة - جميع الحقوق محفوظة</p>
-            <p class="text-xs text-gray-400 mt-2">Association de la Jeunesse de Jedda - Mauritanie</p>
+            <p class="text-xs text-gray-400 mt-2">Association de la Jeunesse de Jeddeta - Mauritanie</p>
         </div>
     </footer>
 

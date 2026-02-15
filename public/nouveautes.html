@@ -50,6 +50,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            object-fit: contain;
         }
 
         .close {
@@ -60,6 +61,113 @@
             font-size: 40px;
             font-weight: bold;
             cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @media (max-width: 768px) {
+
+            /* Header plus compact */
+            .header-title {
+                font-size: 1.5rem !important;
+            }
+
+            .header-btn {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.875rem !important;
+            }
+
+            .header-btn svg {
+                width: 1rem !important;
+                height: 1rem !important;
+            }
+
+            /* Espacer le header */
+            .header-container {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+            }
+
+            /* Gallery plus compacte sur mobile */
+            .gallery-container {
+                padding: 1rem !important;
+            }
+
+            .gallery-item {
+                margin-bottom: 1rem;
+            }
+
+            .gallery-item img {
+                height: 200px !important;
+            }
+
+            .gallery-item-content {
+                padding: 0.75rem !important;
+            }
+
+            .gallery-item-title {
+                font-size: 1rem !important;
+            }
+
+            /* Modal responsive */
+            .modal-content {
+                max-width: 95% !important;
+                max-height: 80% !important;
+            }
+
+            .close {
+                top: 10px !important;
+                right: 15px !important;
+                font-size: 30px !important;
+            }
+
+            /* Empty/Loading states */
+            .empty-icon {
+                width: 4rem !important;
+                height: 4rem !important;
+            }
+
+            .empty-title {
+                font-size: 1.125rem !important;
+            }
+
+            /* Supprimer le spacer sur mobile */
+            .header-spacer {
+                display: none !important;
+            }
+
+            /* Bouton "إعلان جديد" caché sur mobile pour économiser l'espace */
+            .mobile-hide {
+                display: none !important;
+            }
+        }
+
+        /* Améliorer le touch sur mobile */
+        @media (hover: none) and (pointer: coarse) {
+            .gallery-item:active {
+                transform: scale(0.98);
+            }
+
+            .gallery-item:hover {
+                transform: none;
+            }
+        }
+
+        /* Animation de chargement */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .skeleton {
+            animation: shimmer 2s infinite;
+            background: linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%);
+            background-size: 1000px 100%;
         }
     </style>
 </head>
@@ -67,45 +175,56 @@
 <body class="bg-gray-50 min-h-screen">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8 shadow-lg">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-4 md:py-8 shadow-lg header-container">
         <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-2">
                 <a href="/"
-                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-3 md:px-4 rounded-lg transition duration-300 flex items-center gap-1 md:gap-2 header-btn">
+                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                     </svg>
-                    الرئيسية
+                    <span class="hidden sm:inline">الرئيسية</span>
+                    <span class="sm:hidden">رجوع</span>
                 </a>
-                <h1 class="text-3xl font-bold">الجديد - Nouveautés</h1>
-                <div class="w-24"></div> <!-- Spacer for centering -->
+
+                <h1 class="text-xl md:text-3xl font-bold header-title text-center flex-1">الجديد</h1>
+
+                <a href="/login.html"
+                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-3 md:px-4 rounded-lg transition duration-300 header-btn mobile-hide">
+                    إعلان جديد
+                </a>
+
+                <div class="header-spacer w-24"></div>
             </div>
         </div>
     </div>
 
     <!-- Gallery Container -->
-    <div class="container mx-auto px-4 py-12">
+    <div class="container mx-auto px-4 py-6 md:py-12 gallery-container">
 
         <!-- Loading State -->
-        <div id="loadingState" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p class="text-gray-600 mt-4">جاري التحميل...</p>
+        <div id="loadingState" class="text-center py-8 md:py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-blue-600">
+            </div>
+            <p class="text-gray-600 mt-4 text-sm md:text-base">جاري التحميل...</p>
         </div>
 
         <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-12">
-            <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="emptyState" class="hidden text-center py-8 md:py-12">
+            <svg class="w-16 h-16 md:w-24 md:h-24 text-gray-300 mx-auto mb-4 empty-icon" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                 </path>
             </svg>
-            <h3 class="text-xl font-bold text-gray-700 mb-2">لا توجد صور حاليا</h3>
-            <p class="text-gray-500">Aucune nouveauté pour le moment</p>
+            <h3 class="text-lg md:text-xl font-bold text-gray-700 mb-2 empty-title">لا توجد صور حاليا</h3>
+            <p class="text-gray-500 text-sm md:text-base">Aucune nouveauté pour le moment</p>
         </div>
 
         <!-- Gallery Grid -->
-        <div id="galleryGrid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div id="galleryGrid"
+            class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             <!-- Images will be loaded here dynamically -->
         </div>
     </div>
@@ -113,9 +232,17 @@
     <!-- Modal for full-size image -->
     <div id="imageModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImage">
-        <div id="caption" class="text-center text-white text-xl mt-4"></div>
+        <img class="modal-content" id="modalImage" alt="Image en plein écran">
+        <div id="caption" class="text-center text-white text-lg md:text-xl mt-4 px-4"></div>
     </div>
+
+    <!-- Bouton flottant pour ajouter sur mobile -->
+    <a href="/login.html"
+        class="md:hidden fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+    </a>
 
     <script>
         let currentImages = [];
@@ -149,10 +276,13 @@
 
             grid.innerHTML = images.map((img, index) => `
                 <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="openModal(${index})">
-                    <img src="${img.url}" alt="${img.titre || 'Image'}" class="w-full h-64 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-bold text-gray-800 text-lg mb-1">${img.titre || 'Sans titre'}</h3>
-                        <p class="text-gray-500 text-sm">${formatDate(img.date)}</p>
+                    <img src="${img.url}" 
+                         alt="${img.titre || 'Image'}" 
+                         class="w-full h-48 md:h-64 object-cover"
+                         loading="lazy">
+                    <div class="p-3 md:p-4 gallery-item-content">
+                        <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 gallery-item-title">${img.titre || 'Sans titre'}</h3>
+                        <p class="text-gray-500 text-xs md:text-sm">${formatDate(img.date)}</p>
                     </div>
                 </div>
             `).join('');
@@ -172,10 +302,15 @@
             modal.style.display = 'block';
             modalImg.src = img.url;
             caption.innerHTML = img.titre || 'Sans titre';
+
+            // Empêcher le scroll sur mobile quand le modal est ouvert
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             document.getElementById('imageModal').style.display = 'none';
+            // Réactiver le scroll
+            document.body.style.overflow = 'auto';
         }
 
         function formatDate(dateString) {
@@ -198,6 +333,26 @@
                 closeModal();
             }
         });
+
+        // Support du swipe pour fermer le modal sur mobile
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.getElementById('imageModal').addEventListener('touchstart', function (event) {
+            touchStartY = event.changedTouches[0].screenY;
+        }, false);
+
+        document.getElementById('imageModal').addEventListener('touchend', function (event) {
+            touchEndY = event.changedTouches[0].screenY;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            // Swipe vers le bas pour fermer
+            if (touchStartY < touchEndY && (touchEndY - touchStartY) > 100) {
+                closeModal();
+            }
+        }
     </script>
 </body>
 
