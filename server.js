@@ -62,10 +62,61 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
     if (err) {
-        console.error('❌ Erreur de connexion MySQL :', err);
+        console.error('Erreur de connexion à la base de données:', err);
         return;
     }
-    console.log('✅ Connecté à MySQL avec succès !');
+    console.log('Connecté à la base de données MySQL');
+
+    // --- CRÉATION AUTOMATIQUE DES TABLES ---
+    
+    // 1. Table Admins
+    const sqlAdmins = `CREATE TABLE IF NOT EXISTS admins (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL
+    )`;
+    db.query(sqlAdmins, (err) => {
+        if (err) console.error(err);
+        else {
+            console.log("Table 'admins' vérifiée.");
+            // Créer l'admin par défaut s'il n'existe pas
+            db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
+                if (results.length === 0) {
+                    db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
+                    console.log("Compte admin par défaut créé !");
+                }
+            });
+        }
+    });
+
+    // 2. Table Membres
+    const sqlMembres = `CREATE TABLE IF NOT EXISTS membres (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nom VARCHAR(255) NOT NULL,
+        telephone VARCHAR(20) NOT NULL,
+        situation VARCHAR(50),
+        montant INT DEFAULT 0,
+        date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`;
+    db.query(sqlMembres, (err) => { if(err) console.error(err); else console.log("Table 'membres' vérifiée."); });
+
+    // 3. Table Femmes
+    const sqlFemmes = `CREATE TABLE IF NOT EXISTS femmes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nom VARCHAR(255) NOT NULL,
+        telephone VARCHAR(20) NOT NULL,
+        date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`;
+    db.query(sqlFemmes, (err) => { if(err) console.error(err); else console.log("Table 'femmes' vérifiée."); });
+
+    // 4. Table Nouveautés
+    const sqlNews = `CREATE TABLE IF NOT EXISTS nouveautes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        titre VARCHAR(255),
+        url VARCHAR(500),
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`;
+    db.query(sqlNews, (err) => { if(err) console.error(err); else console.log("Table 'nouveautes' vérifiée."); });
 });
 
 // --- 3. FONCTION DE SÉCURITÉ (Le Vigile) ---
