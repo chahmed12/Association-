@@ -1,0 +1,48 @@
+# --- Node.js & Dépendances (TRÈS IMPORTANT) ---
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json # Optionnel : Certains préfèrent le garder, d'autres non. Gardez-le si vous travaillez seul.
+
+# --- Sécurité & Environnement (NE JAMAIS PUBLIER) ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Système d'exploitation (Fichiers inutiles) ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Éditeurs de code (VS Code, etc.) ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Base de données (Si vous utilisez SQLite localement) ---
+# On ne veut pas partager la vraie base de données avec les mots de passe
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Fichiers LaTeX (Générés lors de la compilation) ---
+# On garde le .tex et le .pdf final, mais on retire les fichiers temporaires
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# --- Uploads & Médias ---
+# Si vous permettez l'upload de photos de membres, ne pas les mettre sur Git
+uploads/
+images/temp/
+
+# --- Logs du serveur ---
+logs/
+*.log
