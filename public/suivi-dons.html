@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi des Cotisations - رابطة شباب جدة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #065f46 0%, #10b981 100%); }
+        .card-shadow { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        @media (max-width: 768px) { .mobile-card{display:block} .desktop-table{display:none} }
+        @media (min-width: 769px) { .mobile-card{display:none} .desktop-table{display:table} }
+        .total-banner {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+            position: relative; overflow: hidden;
+        }
+        .total-banner::before {
+            content:''; position:absolute; top:-50%; left:-50%;
+            width:200%; height:200%;
+            background:radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation:shimmer 4s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%,100%{transform:translate(0,0)} 50%{transform:translate(10%,10%)} }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.1)} }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <div class="gradient-bg text-white py-8 md:py-12 shadow-lg relative overflow-hidden">
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h1 class="text-2xl md:text-4xl font-bold mb-2">جدول الاشتراكات</h1>
+            <p class="text-base md:text-xl text-green-100 font-medium">Suivi des Cotisations</p>
+            <p class="text-sm md:text-base text-green-200 mt-1">(Février - Août)</p>
+            <div class="mt-6 md:mt-8">
+                <a href="/" class="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 md:px-6 py-2 rounded-full backdrop-blur-md transition border border-white/30 font-bold text-sm md:text-base">
+                    <span>🏠</span><span>Retour à l'accueil</span>
+                </a>
+            </div>
+        </div>
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- BANNIÈRE FINANCIÈRE -->
+    <div class="container mx-auto px-3 md:px-4 pt-4 -mt-4 relative z-20">
+        <div class="total-banner rounded-2xl shadow-2xl p-5 md:p-7 text-white mb-6">
+            <div class="relative z-10">
+
+                <!-- Ligne 1 : 3 grands chiffres -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-5">
+                    <div>
+                        <div class="flex items-center gap-2 justify-center mb-1">
+                            <span class="w-2.5 h-2.5 bg-green-400 rounded-full pulse-dot"></span>
+                            <p class="text-green-200 text-xs uppercase tracking-wider">إجمالي الاشتراكات</p>
+                        </div>
+                        <p class="text-3xl md:text-4xl font-extrabold" id="totalCotisations">—</p>
+                        <p class="text-green-300 text-xs mt-1">MRO</p>
+                    </div>
+                    <div class="border-t md:border-t-0 md:border-x border-white/20 pt-3 md:pt-0">
+                        <p class="text-red-200 text-xs uppercase tracking-wider mb-1">إجمالي المصروفات</p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-red-300" id="totalDepenses">—</p>
+                        <p class="text-red-200 text-xs mt-1">MRO</p>
+                    </div>
+                    <div class="border-t md:border-t-0 border-white/20 pt-3 md:pt-0">
+                        <p class="text-yellow-200 text-xs uppercase tracking-wider mb-1">الرصيد المتبقي</p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-yellow-300" id="solde">—</p>
+                        <p class="text-yellow-200 text-xs mt-1">MRO</p>
+                    </div>
+                </div>
+
+                <!-- Ligne 2 : stats secondaires -->
+                <div class="flex justify-center gap-8 text-center border-t border-white/10 pt-4">
+                    <div>
+                        <p class="text-xl font-bold" id="totalMembers">—</p>
+                        <p class="text-green-300 text-xs mt-0.5">أعضاء / Membres</p>
+                    </div>
+                    <div class="w-px bg-white/20"></div>
+                    <div>
+                        <p class="text-xl font-bold" id="totalPayments">—</p>
+                        <p class="text-green-300 text-xs mt-0.5">دفعات / Paiements</p>
+                    </div>
+                    <div class="w-px bg-white/20"></div>
+                    <div>
+                        <p class="text-xl font-bold" id="avgRate">—%</p>
+                        <p class="text-green-300 text-xs mt-0.5">Taux moyen</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu Principal -->
+    <div class="container mx-auto px-3 md:px-4 pb-6 md:pb-8 flex-grow relative z-20">
+
+        <!-- Barre de recherche -->
+        <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 card-shadow">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="البحث عن اسم... / Rechercher un nom..."
+                    class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition text-right font-medium" />
+                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+            </div>
+            <div id="searchResults" class="mt-2 text-sm text-gray-500 text-center hidden"></div>
+        </div>
+
+        <!-- Tableau Desktop -->
+        <div class="desktop-table bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+            <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="p-6 text-right sticky right-0 bg-gray-50 z-10 font-bold text-gray-700">الاسم (Nom)</th>
+                            <th class="p-4 text-gray-600 font-medium">Cotisation</th>
+                            <th class="p-4 text-gray-600 font-medium">Fév</th>
+                            <th class="p-4 text-gray-600 font-medium">Mar</th>
+                            <th class="p-4 text-gray-600 font-medium">Avr</th>
+                            <th class="p-4 text-gray-600 font-medium">Mai</th>
+                            <th class="p-4 text-gray-600 font-medium">Juin</th>
+                            <th class="p-4 text-gray-600 font-medium">Juil</th>
+                            <th class="p-4 text-gray-600 font-medium">Août</th>
+                            <th class="p-4 text-gray-800 font-bold">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="desktopTableBody" class="divide-y divide-gray-50">
+                        <tr><td colspan="10" class="p-8 text-center text-gray-500">Chargement...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-gray-50 p-4 border-t border-gray-100 flex justify-center gap-8 text-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs shadow-sm">✔</div>
+                    <span class="text-gray-700 font-medium">Payé (تم الدفع)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                    <span class="text-gray-500">Non payé (غير مدفوع)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cartes Mobile -->
+        <div class="mobile-card space-y-4" id="mobileCards">
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center"><p class="text-gray-500">Chargement...</p></div>
+        </div>
+        <div class="mobile-card bg-white rounded-xl shadow-lg p-4 mt-4">
+            <div class="flex flex-col gap-3 text-sm">
+                <div class="flex items-center justify-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-xs">✔</div>
+                    <span class="text-gray-700 font-medium">Payé (تم الدفع)</span>
+                </div>
+                <div class="flex items-center justify-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                    <span class="text-gray-500">Non payé (غير مدفوع)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-6 md:py-8 mt-8 md:mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-xs md:text-sm font-medium">© 2026 رابطة شباب جدة - Association de la Jeunesse de Jeddetta</p>
+            <p class="text-xs text-gray-400 mt-2">Mauritanie - موريتانيا</p>
+        </div>
+    </footer>
+
+    <script>
+        const months = [
+            { num:2, name:'Fév' }, { num:3, name:'Mar' }, { num:4, name:'Avr' },
+            { num:5, name:'Mai' }, { num:6, name:'Juin' }, { num:7, name:'Juil' }, { num:8, name:'Août' }
+        ];
+        let allMembres = [];
+
+        // ── Chargement des deux sources ────────────────────────────────────────
+        async function loadAll() {
+            try {
+                const [resCot, resDep] = await Promise.all([
+                    fetch('/api/cotisations'),
+                    fetch('/api/depenses')
+                ]);
+                allMembres = await resCot.json();
+                const depenses = await resDep.json();
+
+                const totalCot = allMembres.reduce((sum, m) => sum + m.paiements.length * m.montant, 0);
+                const totalDep = depenses.reduce((sum, d) => sum + Number(d.montant), 0);
+                const solde    = totalCot - totalDep;
+
+                const totalPayments = allMembres.reduce((sum, m) => sum + m.paiements.length, 0);
+                const totalPossible = allMembres.length * months.length;
+                const avgRate = totalPossible > 0 ? Math.round((totalPayments / totalPossible) * 100) : 0;
+
+                document.getElementById('totalCotisations').textContent = totalCot.toLocaleString();
+                document.getElementById('totalDepenses').textContent    = totalDep.toLocaleString();
+                document.getElementById('solde').textContent            = solde.toLocaleString();
+                document.getElementById('totalMembers').textContent     = allMembres.length;
+                document.getElementById('totalPayments').textContent    = totalPayments;
+                document.getElementById('avgRate').textContent          = avgRate + '%';
+
+                // Couleur solde
+                document.getElementById('solde').className = solde < 0
+                    ? 'text-3xl md:text-4xl font-extrabold text-red-300'
+                    : 'text-3xl md:text-4xl font-extrabold text-yellow-300';
+
+                renderDesktopTable(allMembres);
+                renderMobileCards(allMembres);
+                initSearch();
+
+            } catch(err) {
+                console.error(err);
+                document.getElementById('desktopTableBody').innerHTML =
+                    '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold">Erreur de chargement.</td></tr>';
+            }
+        }
+
+        // ── Recherche ─────────────────────────────────────────────────────────
+        function initSearch() {
+            const input   = document.getElementById('searchInput');
+            const results = document.getElementById('searchResults');
+            input.addEventListener('input', e => {
+                const term = e.target.value.trim().toLowerCase();
+                if (!term) { renderDesktopTable(allMembres); renderMobileCards(allMembres); results.classList.add('hidden'); return; }
+                const filtered = allMembres.filter(m => m.nom.toLowerCase().includes(term));
+                renderDesktopTable(filtered); renderMobileCards(filtered);
+                results.classList.remove('hidden');
+                results.innerHTML = filtered.length === 0
+                    ? '❌ Aucun membre trouvé'
+                    : `✓ ${filtered.length} membre(s) trouvé(s)`;
+                results.className = `mt-2 text-sm text-center font-medium ${filtered.length === 0 ? 'text-red-500' : 'text-green-600'}`;
+            });
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Escape') { input.value=''; renderDesktopTable(allMembres); renderMobileCards(allMembres); results.classList.add('hidden'); }
+            });
+        }
+
+        // ── Tableau desktop ───────────────────────────────────────────────────
+        function renderDesktopTable(membres) {
+            const tbody = document.getElementById('desktopTableBody');
+            if (!membres.length) { tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-500">Aucun membre trouvé</td></tr>'; return; }
+            tbody.innerHTML = '';
+            membres.forEach(m => {
+                const totalPaid = m.paiements.length * m.montant;
+                let html = `<tr class="hover:bg-green-50/50 transition duration-150 group">
+                    <td class="p-4 text-right font-bold text-gray-800 border-l border-gray-100 sticky right-0 bg-white group-hover:bg-green-50/50 z-10">${m.nom}</td>
+                    <td class="p-4 text-center font-medium text-gray-500 border-l border-gray-100">${m.montant}</td>`;
+                months.forEach(month => {
+                    const isPaid = m.paiements.includes(month.num);
+                    html += `<td class="p-2 border-l border-gray-50 align-middle">
+                        ${isPaid
+                            ? `<div class="w-8 h-8 mx-auto bg-green-500 rounded-full flex items-center justify-center text-white shadow-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`
+                            : `<div class="w-2 h-2 mx-auto bg-gray-200 rounded-full"></div>`
+                        }
+                    </td>`;
+                });
+                html += `<td class="p-4 font-bold text-green-700 bg-gray-50/50">${totalPaid.toLocaleString()}</td></tr>`;
+                tbody.innerHTML += html;
+            });
+        }
+
+        // ── Cartes mobile ─────────────────────────────────────────────────────
+        function renderMobileCards(membres) {
+            const container = document.getElementById('mobileCards');
+            if (!membres.length) { container.innerHTML = '<div class="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500">Aucun membre trouvé</div>'; return; }
+            container.innerHTML = '';
+            membres.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-lg overflow-hidden card-shadow';
+                const paidCount = m.paiements.length;
+                const totalPaid = paidCount * m.montant;
+                const progress  = (paidCount / months.length) * 100;
+                let html = `
+                    <div class="bg-gradient-to-r from-green-600 to-green-500 text-white p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-xl font-bold">${m.nom}</h3>
+                            <div class="bg-white/20 px-3 py-1 rounded-lg text-sm font-bold">${m.montant} MRO</div>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span>Total: <span class="font-bold text-yellow-300 text-lg">${totalPaid.toLocaleString()}</span></span>
+                            <span>${paidCount}/${months.length} mois</span>
+                        </div>
+                        <div class="mt-3 bg-white/30 rounded-full h-2 overflow-hidden">
+                            <div class="bg-white h-full" style="width:${progress}%"></div>
+                        </div>
+                    </div>
+                    <div class="p-4"><div class="grid grid-cols-4 gap-2">`;
+                months.forEach(month => {
+                    const isPaid = m.paiements.includes(month.num);
+                    html += `<div class="text-center">
+                        <div class="text-xs text-gray-500 font-medium mb-1">${month.name}</div>
+                        ${isPaid
+                            ? `<div class="w-10 h-10 mx-auto bg-green-500 rounded-full flex items-center justify-center text-white shadow-md"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`
+                            : `<div class="w-10 h-10 mx-auto bg-gray-100 rounded-full flex items-center justify-center"><div class="w-3 h-3 bg-gray-300 rounded-full"></div></div>`
+                        }
+                    </div>`;
+                });
+                html += `</div></div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        loadAll();
+    </script>
+</body>
+</html>

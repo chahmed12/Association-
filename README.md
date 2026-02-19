@@ -1,125 +1,100 @@
-# Guide d'Installation - Application Association
+# 🌟 Système de Gestion d'Association (Mauritanie-Tunisie)
 
-## 📋 Prérequis
+Une plateforme web moderne et intuitive pour la gestion des membres, des cotisations et des événements d'une association.
 
-1. **XAMPP** installé avec MySQL en cours d'exécution
-2. **Node.js** installé (version 14 ou supérieure)
-3. **Navigateur web** moderne
+![Tech Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20Express%20%7C%20MySQL%20%7C%20Tailwind-blue)
+![Status](https://img.shields.io/badge/Status-Actif-success)
 
-## 🚀 Installation
+## 📋 Table des Matières
+- [Aperçu](#-aperçu)
+- [Fonctionnalités](#-fonctionnalités)
+- [Stack Technique](#-stack-technique)
+- [Installation](#-installation)
+- [Structure du Projet](#-structure-du-projet)
+- [Configuration](#-configuration)
 
-### 1. Configuration de la base de données
+---
 
-1. Ouvrez **phpMyAdmin** (http://localhost/phpmyadmin)
-2. Créez une base de données nommée `association_db`
-3. Importez le fichier `database.sql` dans cette base de données
+## 🚀 Aperçu
+Cette application permet de centraliser la gestion d'une association, facilitant l'inscription des membres, le suivi des dons, et la communication des actualités (nouveautés). Elle dispose d'un espace sécurisé pour l'administration.
 
-**OU** exécutez les commandes SQL suivantes :
+## ✨ Fonctionnalités
 
-```sql
-CREATE DATABASE IF NOT EXISTS association_db;
-USE association_db;
-```
+### 👥 Espace Public
+- **🏠 Accueil Dynamique** : Présentation professionnelle avec accès rapide aux services.
+- **📝 Inscriptions Différenciées** :
+  - **Hommes** : Calcul automatique des cotisations (Travaillant: 2000 UM, Sans emploi: 1000 UM).
+  - **Femmes** : Formulaire d'inscription simplifié.
+- **💰 Suivi des Dons** : Visualisation transparente des contributions.
+- **📸 Galerie de Nouveautés** : Affichage des derniers événements et annonces.
+- **📋 Liste des Membres** : Consultation des membres enregistrés.
+- **ℹ️ À Propos** : Informations détaillées sur l'association.
 
-Puis copiez-collez le contenu du fichier `database.sql`.
+### 🔐 Espace Administration (Privé)
+- **🛠️ Dashboard Admin** : Point d'entrée central pour la gestion.
+- **📰 Gestion des Nouveautés** : Ajout d'événements avec support pour l'upload d'images.
+- **💳 Gestion des Cotisations** : Suivi rigoureux des paiements des membres.
+- **🔑 Session Sécurisée** : Authentification requise pour accéder aux outils de gestion.
 
-### 2. Installation des dépendances Node.js
+## 🛠️ Stack Technique
+- **Frontend** : HTML5, CSS3 (Tailwind CSS), JavaScript (Vanilla).
+- **Backend** : Node.js, Express.js.
+- **Base de données** : MySQL.
+- **Gestion de fichiers** : Multer (pour les uploads d'images).
+- **Sessions** : Express-session avec support MySQL.
 
+## ⚙️ Installation
+
+### 1. Prérequis
+- [Node.js](https://nodejs.org/) (v14+)
+- [XAMPP](https://www.apachefriends.org/) ou serveur MySQL équivalent.
+
+### 2. Configuration SQL
+1. Lancez MySQL via XAMPP.
+2. Créez la base de données : `CREATE DATABASE association_db;`.
+3. Importez le schéma : `mysql -u root association_db < database.sql`.
+
+### 3. Installation du Serveur
 ```bash
-cd /home/chahmed/association
+# Entrer dans le répertoire
+cd /association
+
+# Installer les dépendances
 npm install
-```
 
-### 3. Démarrage du serveur
-
-```bash
+# Lancer l'application
 node server.js
 ```
 
-Vous devriez voir :
-```
-✅ Connecté à MySQL avec succès !
-🚀 Serveur lancé sur http://localhost:3000
-```
+L'application sera accessible sur : `http://localhost:3000`
 
-## 📱 Utilisation
-
-### Pages disponibles :
-
-- **Page d'accueil** : http://localhost:3000
-- **Inscription Hommes** : http://localhost:3000/inscription-hommes.html
-- **Inscription Femmes** : http://localhost:3000/inscription-femmes.html
-- **Nouveautés** : http://localhost:3000/nouveautes.html
-- **Administration** : http://localhost:3000/admin.html
-
-## 🎨 Fonctionnalités
-
-### ✅ Inscription Hommes
-- Nom complet
-- Situation (travaille / sans emploi)
-- Téléphone
-- **Montant calculé automatiquement** :
-  - 2000 UM si travaille
-  - 1000 UM si sans emploi
-
-### ✅ Inscription Femmes
-- Nom complet
-- Téléphone
-- **Pas de montant ni de situation**
-
-### ✅ Galerie de Nouveautés
-- Affichage des images en grille
-- Clic pour agrandir
-- Tri par date (plus récent en premier)
-
-### ✅ Administration
-- Ajouter des nouveautés avec images
-- Aperçu avant upload
-- Gestion des titres
-
-## 🗂️ Structure des fichiers
-
+## 📂 Structure du Projet
 ```
 association/
-├── index.html                 # Page d'accueil avec logo
-├── inscription-hommes.html    # Formulaire hommes
-├── inscription-femmes.html    # Formulaire femmes
-├── nouveautes.html           # Galerie d'images
-├── admin.html                # Interface d'administration
-├── server.js                 # Serveur backend
-├── database.sql              # Script SQL
-├── package.json              # Dépendances
-└── public/
-    ├── images/
-    │   └── logo.png          # Logo de l'association
-    └── uploads/              # Images uploadées
-        ├── event1.png
-        └── event2.png
+├── prive/                # Espace administration (Accès protégé)
+│   ├── admin.html
+│   ├── gestion-cotisations.html
+│   └── gestion-nouveautes.html
+├── public/               # Fichiers publics (Accessibles à tous)
+│   ├── index.html        # Accueil
+│   ├── suivi-dons.html   # Suivi des dons
+│   ├── images/           # Logo et assets statiques
+│   └── uploads/          # Images postées par l'admin
+├── server.js             # Logique backend & API
+├── database.sql          # Schéma de la base de données
+└── package.json          # Dépendances Node.js
 ```
 
 ## 🔧 Configuration
-
-Si vous devez changer le mot de passe MySQL, modifiez dans `server.js` :
-
+Pour modifier la connexion à la base de données, éditez le fichier `server.js` :
 ```javascript
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'votre_mot_de_passe',  // Changez ici
+    password: 'votre_mot_de_passe',
     database: 'association_db'
 });
 ```
 
-## 📝 Notes
-
-- Le logo s'affiche automatiquement s'il existe dans `/public/images/logo.png`
-- Les images sont stockées dans `/public/uploads/`
-- Les inscriptions sont sauvegardées dans MySQL
-- Format d'images supporté : PNG, JPG, GIF
-
-## 🎯 Prochaines étapes
-
-Pour personnaliser davantage :
-1. Remplacez le logo par le vôtre dans `public/images/logo.png`
-2. Ajoutez des nouveautés via http://localhost:3000/admin.html
-3. Personnalisez les couleurs dans les fichiers HTML (classes Tailwind)
+---
+*Développé pour l'Association des jeunes de jeddeta.*

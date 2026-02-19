@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Cotisations - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #065f46 0%, #10b981 100%); }
+
+        @media (max-width: 768px) {
+            .mobile-card { display: block; }
+            .desktop-table { display: none; }
+        }
+        @media (min-width: 769px) {
+            .mobile-card { display: none; }
+            .desktop-table { display: table; }
+        }
+
+        .payment-badge { transition: all 0.2s ease; }
+        .payment-badge:active { transform: scale(0.95); }
+
+        .total-card {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .total-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(10%, 10%); }
+        }
+        .counter-anim {
+            transition: all 0.6s ease;
+        }
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* ===== PRINT STYLES ===== */
+        #printTable { display: none; }
+
+        @media print {
+            @page {
+                margin: 1cm;
+                size: A4 landscape;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 9pt !important;
+            }
+            body > *:not(#printTable) {
+                display: none !important;
+            }
+            #printTable {
+                display: block !important;
+                visibility: visible !important;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <div class="gradient-bg text-white py-6 md:py-8 shadow-lg">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-right">
+                <h1 class="text-xl md:text-2xl font-bold">Gestion des Cotisations (الإشتراكات)</h1>
+                <p class="text-green-100 text-xs md:text-sm">Administration</p>
+            </div>
+            <div class="flex gap-3">
+                <!-- Bouton Imprimer / PDF -->
+                <button onclick="preparePrint()"
+                    class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-bold text-sm backdrop-blur-sm transition border border-white/20 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    طباعة / PDF
+                </button>
+                <a href="/admin.html"
+                    class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-bold text-sm backdrop-blur-sm transition border border-white/20">
+                    ← Retour Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNIÈRE TOTAL ENCAISSÉ -->
+    <div class="container mx-auto px-3 md:px-4 pt-6">
+        <div class="total-card rounded-2xl shadow-2xl p-6 md:p-8 text-white">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                
+                <!-- Bloc principal -->
+                <div class="text-center md:text-right">
+                    <div class="flex items-center gap-3 justify-center md:justify-end mb-2">
+                        <span class="w-3 h-3 bg-green-400 rounded-full pulse-dot"></span>
+                        <p class="text-green-200 text-sm font-medium uppercase tracking-wider">Total Cotisations Encaissées</p>
+                    </div>
+                    <p class="text-5xl md:text-6xl font-extrabold tracking-tight counter-anim" id="totalAmount">—</p>
+                    <p class="text-green-300 text-base mt-1">أوقية موريتانية (MRO)</p>
+                </div>
+
+                <!-- Stats secondaires -->
+                <div class="flex gap-6 md:gap-10 text-center">
+                    <div>
+                        <p class="text-3xl font-bold" id="totalMembers">—</p>
+                        <p class="text-green-300 text-xs mt-1">أعضاء / Membres</p>
+                    </div>
+                    <div class="w-px bg-white/20"></div>
+                    <div>
+                        <p class="text-3xl font-bold" id="totalPayments">—</p>
+                        <p class="text-green-300 text-xs mt-1">دفعات / Paiements</p>
+                    </div>
+                    <div class="w-px bg-white/20"></div>
+                    <div>
+                        <p class="text-3xl font-bold" id="avgRate">—%</p>
+                        <p class="text-green-300 text-xs mt-1">Taux moyen</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container mx-auto px-3 md:px-4 py-6 md:py-8 flex-grow">
+
+        <!-- Barre de recherche -->
+        <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="البحث عن عضو... / Rechercher un membre..."
+                    class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition text-right font-medium" />
+                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="searchResults" class="mt-2 text-sm text-gray-500 text-center hidden"></div>
+        </div>
+
+        <!-- VERSION DESKTOP : Tableau -->
+        <div class="desktop-table bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-center border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="p-4 text-right sticky right-0 bg-gray-50 z-10 font-bold text-gray-700">الاسم (Nom)</th>
+                            <th class="p-4 text-gray-600 font-medium">Cotisation</th>
+                            <th class="p-4 text-gray-600 font-medium">Fév (2)</th>
+                            <th class="p-4 text-gray-600 font-medium">Mars (3)</th>
+                            <th class="p-4 text-gray-600 font-medium">Avr (4)</th>
+                            <th class="p-4 text-gray-600 font-medium">Mai (5)</th>
+                            <th class="p-4 text-gray-600 font-medium">Juin (6)</th>
+                            <th class="p-4 text-gray-600 font-medium">Juil (7)</th>
+                            <th class="p-4 text-gray-600 font-medium">Août (8)</th>
+                            <th class="p-4 text-gray-800 font-bold">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="desktopTableBody" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="10" class="p-8 text-center text-gray-500">Chargement des données...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VERSION MOBILE : Cartes -->
+        <div class="mobile-card space-y-4" id="mobileCards">
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <p class="text-gray-500">Chargement des données...</p>
+            </div>
+        </div>
+
+        <!-- Légende Mobile -->
+        <div class="mobile-card bg-white rounded-xl shadow-lg p-4 mt-4">
+            <div class="flex flex-col gap-3 text-sm">
+                <div class="text-center text-gray-600 font-bold mb-2">💡 Astuce</div>
+                <div class="text-center text-gray-500">Appuyez sur les badges pour basculer le statut de paiement</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 md:py-6 mt-auto">
+        <div class="container mx-auto px-4 text-center text-xs md:text-sm text-gray-400">
+            © 2026 رابطة شباب جدة - Administration
+        </div>
+    </footer>
+
+    <!-- TABLE CACHÉE POUR IMPRESSION -->
+    <div id="printTable"></div>
+
+    <script>
+        const months = [
+            { num: 2, name: 'Fév', nameFull: 'Février' },
+            { num: 3, name: 'Mar', nameFull: 'Mars' },
+            { num: 4, name: 'Avr', nameFull: 'Avril' },
+            { num: 5, name: 'Mai', nameFull: 'Mai' },
+            { num: 6, name: 'Juin', nameFull: 'Juin' },
+            { num: 7, name: 'Juil', nameFull: 'Juillet' },
+            { num: 8, name: 'Août', nameFull: 'Août' }
+        ];
+
+        let allMembres = [];
+        let currentDisplayData = [];
+
+        function updateStats(membres) {
+            let total = 0;
+            let totalPayments = 0;
+            let totalPossible = 0;
+
+            membres.forEach(m => {
+                total += m.paiements.length * m.montant;
+                totalPayments += m.paiements.length;
+                totalPossible += months.length;
+            });
+
+            const avgRate = totalPossible > 0 ? Math.round((totalPayments / totalPossible) * 100) : 0;
+
+            document.getElementById('totalAmount').textContent = total.toLocaleString();
+            document.getElementById('totalMembers').textContent = membres.length;
+            document.getElementById('totalPayments').textContent = totalPayments;
+            document.getElementById('avgRate').textContent = avgRate + '%';
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch('/api/cotisations');
+                allMembres = await res.json();
+                currentDisplayData = allMembres;
+                updateStats(allMembres);
+                renderDesktopTable(allMembres);
+                renderMobileCards(allMembres);
+                initSearch();
+            } catch (e) {
+                console.error(e);
+                document.getElementById('desktopTableBody').innerHTML =
+                    '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold">Erreur de chargement des données.</td></tr>';
+                document.getElementById('mobileCards').innerHTML =
+                    '<div class="bg-white rounded-xl shadow-lg p-4 text-center text-red-500 font-bold">Erreur de chargement des données.</div>';
+            }
+        }
+
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+
+            searchInput.addEventListener('input', function (e) {
+                const searchTerm = e.target.value.trim().toLowerCase();
+
+                if (searchTerm === '') {
+                    currentDisplayData = allMembres;
+                    renderDesktopTable(allMembres);
+                    renderMobileCards(allMembres);
+                    updateStats(allMembres);
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                const filteredMembres = allMembres.filter(m => m.nom.toLowerCase().includes(searchTerm));
+                currentDisplayData = filteredMembres;
+                renderDesktopTable(filteredMembres);
+                renderMobileCards(filteredMembres);
+
+                searchResults.classList.remove('hidden');
+                if (filteredMembres.length === 0) {
+                    searchResults.innerHTML = '❌ Aucun membre trouvé / لا يوجد عضو';
+                    searchResults.className = 'mt-2 text-sm text-red-500 text-center font-medium';
+                } else {
+                    searchResults.innerHTML = `✓ ${filteredMembres.length} membre(s) trouvé(s)`;
+                    searchResults.className = 'mt-2 text-sm text-green-600 text-center font-medium';
+                }
+            });
+
+            searchInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    searchInput.value = '';
+                    currentDisplayData = allMembres;
+                    renderDesktopTable(allMembres);
+                    renderMobileCards(allMembres);
+                    updateStats(allMembres);
+                    searchResults.classList.add('hidden');
+                }
+            });
+        }
+
+        function renderDesktopTable(membres) {
+            const tbody = document.getElementById('desktopTableBody');
+
+            if (membres.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-500">Aucun membre trouvé</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            membres.forEach(m => {
+                const totalPaid = m.paiements.length * m.montant;
+
+                let html = `<tr class="hover:bg-green-50/30 transition duration-150 group">
+                <td class="p-4 text-right font-bold text-gray-800 border-l border-gray-100 group-hover:bg-green-50/30">${m.nom}</td>
+                <td class="p-4 text-center font-medium text-gray-500 border-l border-gray-100">${m.montant}</td>`;
+
+                months.forEach(month => {
+                    const isPaid = m.paiements.includes(month.num);
+                    const colorClass = isPaid ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-300';
+                    const icon = isPaid ? '✔' : '-';
+                    html += `
+                    <td class="p-3 border-l border-gray-50 cursor-pointer align-middle" 
+                        onclick="togglePayment(${m.id}, ${month.num}, this)">
+                        <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center font-bold ${colorClass} transition transform hover:scale-110 payment-badge">
+                            ${icon}
+                        </div>
+                    </td>`;
+                });
+
+                html += `<td class="p-4 font-bold text-green-700 bg-gray-50/30">${totalPaid.toLocaleString()}</td></tr>`;
+                tbody.innerHTML += html;
+            });
+        }
+
+        function renderMobileCards(membres) {
+            const container = document.getElementById('mobileCards');
+
+            if (membres.length === 0) {
+                container.innerHTML = '<div class="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500">Aucun membre trouvé</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            membres.forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-lg overflow-hidden';
+                const paidCount = m.paiements.length;
+                const totalPaid = paidCount * m.montant;
+                const progressPercent = (paidCount / months.length) * 100;
+
+                let html = `
+                    <div class="bg-gradient-to-r from-green-600 to-green-500 text-white p-4">
+                        <div class="flex justify-between items-center mb-2">
+                             <h3 class="text-xl font-bold text-right">${m.nom}</h3>
+                             <div class="bg-white/20 px-3 py-1 rounded-lg text-sm font-bold">${m.montant} MRO</div>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span>Total: <span class="font-bold text-yellow-300 text-lg">${totalPaid.toLocaleString()}</span></span>
+                            <span>${paidCount}/${months.length} mois</span>
+                        </div>
+                        <div class="mt-2 bg-white/30 rounded-full h-2 overflow-hidden">
+                            <div class="bg-white h-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-xs text-gray-500 text-center mb-3 font-medium">👆 Appuyez pour basculer le statut</div>
+                        <div class="grid grid-cols-4 gap-3">`;
+
+                months.forEach(month => {
+                    const isPaid = m.paiements.includes(month.num);
+                    const colorClass = isPaid ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-400';
+                    const icon = isPaid ? '✔' : '-';
+                    html += `
+                        <div class="text-center">
+                            <div class="text-xs text-gray-500 font-medium mb-2">${month.name}</div>
+                            <button onclick="togglePaymentMobile(${m.id}, ${month.num}, this)"
+                                class="w-12 h-12 mx-auto rounded-full flex items-center justify-center font-bold ${colorClass} transition transform active:scale-95 payment-badge">
+                                ${icon}
+                            </button>
+                        </div>`;
+                });
+
+                html += `</div></div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        async function togglePayment(membreId, mois, cell) {
+            const div = cell.querySelector('div');
+            const wasPaid = div.classList.contains('bg-green-500');
+            if (wasPaid) {
+                div.className = "w-8 h-8 mx-auto rounded-full flex items-center justify-center font-bold bg-gray-100 text-gray-300 transition transform hover:scale-110 payment-badge";
+                div.innerText = "-";
+            } else {
+                div.className = "w-8 h-8 mx-auto rounded-full flex items-center justify-center font-bold bg-green-500 text-white shadow-md transition transform hover:scale-110 payment-badge";
+                div.innerText = "✔";
+            }
+            try {
+                const res = await fetch('/api/cotisations/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ membre_id: membreId, mois: mois })
+                });
+                if (!res.ok) throw new Error('Erreur serveur');
+                await loadData();
+            } catch (e) {
+                alert("Erreur de connexion !");
+                loadData();
+            }
+        }
+
+        async function togglePaymentMobile(membreId, mois, button) {
+            const wasPaid = button.classList.contains('bg-green-500');
+            if (wasPaid) {
+                button.className = "w-12 h-12 mx-auto rounded-full flex items-center justify-center font-bold bg-gray-100 text-gray-400 transition transform active:scale-95 payment-badge";
+                button.innerText = "-";
+            } else {
+                button.className = "w-12 h-12 mx-auto rounded-full flex items-center justify-center font-bold bg-green-500 text-white shadow-md transition transform active:scale-95 payment-badge";
+                button.innerText = "✔";
+            }
+            try {
+                const res = await fetch('/api/cotisations/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ membre_id: membreId, mois: mois })
+                });
+                if (!res.ok) throw new Error('Erreur serveur');
+                await loadData();
+            } catch (e) {
+                alert("Erreur de connexion !");
+                loadData();
+            }
+        }
+
+        // ===== FONCTION IMPRESSION / PDF =====
+        function preparePrint() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const timeStr = now.toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Calcul des stats globales pour l'affichage
+            let totalEncaisse = 0;
+            let totalPaiements = 0;
+            currentDisplayData.forEach(m => {
+                totalEncaisse += m.paiements.length * m.montant;
+                totalPaiements += m.paiements.length;
+            });
+            const totalPossible = currentDisplayData.length * months.length;
+            const tauxMoyen = totalPossible > 0 ? Math.round((totalPaiements / totalPossible) * 100) : 0;
+
+            // Construire les colonnes de mois
+            const monthHeaders = months.map(mo =>
+                `<th style="border: 1px solid #333; padding: 6px 4px; text-align: center; font-weight: bold; color: black; background-color: #e5e7eb;">${mo.nameFull}</th>`
+            ).join('');
+
+            // Construire les lignes
+            let rowsHtml = '';
+            currentDisplayData.forEach((m, index) => {
+                const totalPaid = m.paiements.length * m.montant;
+                const monthCells = months.map(mo => {
+                    const isPaid = m.paiements.includes(mo.num);
+                    return `<td style="border: 1px solid #333; padding: 6px 4px; text-align: center; color: ${isPaid ? '#065f46' : '#9ca3af'}; font-weight: ${isPaid ? 'bold' : 'normal'}; background-color: ${isPaid ? '#d1fae5' : 'white'};">
+                        ${isPaid ? '✔' : '–'}
+                    </td>`;
+                }).join('');
+
+                const bgRow = index % 2 === 0 ? 'white' : '#f9fafb';
+                rowsHtml += `
+                    <tr style="background-color: ${bgRow};">
+                        <td style="border: 1px solid #333; padding: 6px 8px; text-align: right; font-weight: 600; color: black;">${m.nom}</td>
+                        <td style="border: 1px solid #333; padding: 6px 8px; text-align: center; color: #374151;">${m.montant}</td>
+                        ${monthCells}
+                        <td style="border: 1px solid #333; padding: 6px 8px; text-align: center; font-weight: bold; color: #065f46; background-color: #ecfdf5;">${totalPaid.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            const html = `
+                <div style="padding: 20px; font-family: Cairo, sans-serif; direction: rtl;">
+
+                    <!-- En-tête -->
+                    <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #065f46;">
+                        <h1 style="font-size: 22pt; font-weight: bold; margin-bottom: 6px; color: #065f46;">رابطة شباب جدة</h1>
+                        <h2 style="font-size: 14pt; margin-bottom: 6px; color: #555;">Association de la Jeunesse de Jeddetta</h2>
+                        <p style="font-size: 10pt; color: #888;">Imprimé le ${dateStr} à ${timeStr}</p>
+                    </div>
+
+                    <!-- Titre -->
+                    <h2 style="font-size: 15pt; font-weight: bold; text-align: center; margin: 15px 0; color: #064e3b;">
+                        كشف الاشتراكات الشهرية — Tableau des Cotisations Mensuelles
+                    </h2>
+
+                    <!-- Stats résumé -->
+                    <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;">
+                        <div style="background: #d1fae5; border: 1px solid #6ee7b7; border-radius: 8px; padding: 10px 20px; text-align: center;">
+                            <div style="font-size: 18pt; font-weight: bold; color: #065f46;">${totalEncaisse.toLocaleString()}</div>
+                            <div style="font-size: 9pt; color: #047857;">Total Encaissé (MRO)</div>
+                        </div>
+                        <div style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 10px 20px; text-align: center;">
+                            <div style="font-size: 18pt; font-weight: bold; color: #1d4ed8;">${currentDisplayData.length}</div>
+                            <div style="font-size: 9pt; color: #1e40af;">Membres / أعضاء</div>
+                        </div>
+                        <div style="background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 20px; text-align: center;">
+                            <div style="font-size: 18pt; font-weight: bold; color: #92400e;">${tauxMoyen}%</div>
+                            <div style="font-size: 9pt; color: #b45309;">Taux de paiement</div>
+                        </div>
+                    </div>
+
+                    <!-- Tableau principal -->
+                    <table style="width: 100%; border-collapse: collapse; font-size: 9pt; border: 1px solid #333;" dir="rtl">
+                        <thead>
+                            <tr style="background-color: #065f46;">
+                                <th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: white; min-width: 130px;">الاسم (Nom)</th>
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold; color: white;">Cotisation</th>
+                                ${monthHeaders}
+                                <th style="border: 1px solid #333; padding: 8px; text-align: center; font-weight: bold; color: white; background-color: #047857;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+
+                    <!-- Pied de page -->
+                    <div style="margin-top: 20px; text-align: center; font-size: 8pt; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+                        © 2026 رابطة شباب جدة — Administration
+                    </div>
+
+                </div>
+            `;
+
+            document.getElementById('printTable').innerHTML = html;
+
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

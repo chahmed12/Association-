@@ -28,8 +28,15 @@ CREATE TABLE IF NOT EXISTS membres (
     date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Table pour les paiements (modifié de paiements -> payments)
+CREATE TABLE IF NOT EXISTS payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    membre_id INT NOT NULL,
+    mois INT NOT NULL,
+    FOREIGN KEY (membre_id) REFERENCES membres(id) ON DELETE CASCADE
+);
+
 -- Insérer quelques exemples de nouveautés
 INSERT INTO nouveautes (titre, url, date) VALUES 
 ('Événement culturel 2026', '/uploads/event1.png', NOW()),
 ('Activité sportive', '/uploads/event2.png', NOW());
-
