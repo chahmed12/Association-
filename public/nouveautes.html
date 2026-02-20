@@ -4,157 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الجديد - Nouveautés</title>
+    <title>الجديد - Nouveautés | رابطة شباب جدة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body {
             font-family: 'Cairo', sans-serif;
         }
 
-        .gallery-item {
-            transition: all 0.3s ease;
-            overflow: hidden;
+        /* ===== GRADIENT HEADER ===== */
+        .gradient-bg {
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
         }
 
-        .gallery-item:hover {
-            transform: scale(1.05);
-        }
-
-        .gallery-item img {
-            transition: all 0.3s ease;
-        }
-
-        .gallery-item:hover img {
-            filter: brightness(0.9);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
+        /* ===== HERO IMAGE ===== */
+        .hero-img {
             width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-
-        .modal-content {
-            margin: auto;
+            height: 420px;
+            object-fit: cover;
             display: block;
-            max-width: 90%;
-            max-height: 90%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            object-fit: contain;
+            transition: transform 0.5s ease;
         }
 
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1001;
-        }
-
-        /* --- RESPONSIVE MOBILE --- */
         @media (max-width: 768px) {
-
-            /* Header plus compact */
-            .header-title {
-                font-size: 1.5rem !important;
-            }
-
-            .header-btn {
-                padding: 0.5rem 0.75rem !important;
-                font-size: 0.875rem !important;
-            }
-
-            .header-btn svg {
-                width: 1rem !important;
-                height: 1rem !important;
-            }
-
-            /* Espacer le header */
-            .header-container {
-                padding-top: 1rem !important;
-                padding-bottom: 1rem !important;
-            }
-
-            /* Gallery plus compacte sur mobile */
-            .gallery-container {
-                padding: 1rem !important;
-            }
-
-            .gallery-item {
-                margin-bottom: 1rem;
-            }
-
-            .gallery-item img {
-                height: 200px !important;
-            }
-
-            .gallery-item-content {
-                padding: 0.75rem !important;
-            }
-
-            .gallery-item-title {
-                font-size: 1rem !important;
-            }
-
-            /* Modal responsive */
-            .modal-content {
-                max-width: 95% !important;
-                max-height: 80% !important;
-            }
-
-            .close {
-                top: 10px !important;
-                right: 15px !important;
-                font-size: 30px !important;
-            }
-
-            /* Empty/Loading states */
-            .empty-icon {
-                width: 4rem !important;
-                height: 4rem !important;
-            }
-
-            .empty-title {
-                font-size: 1.125rem !important;
-            }
-
-            /* Supprimer le spacer sur mobile */
-            .header-spacer {
-                display: none !important;
-            }
-
-            /* Bouton "إعلان جديد" caché sur mobile pour économiser l'espace */
-            .mobile-hide {
-                display: none !important;
+            .hero-img {
+                height: 240px;
             }
         }
 
-        /* Améliorer le touch sur mobile */
-        @media (hover: none) and (pointer: coarse) {
-            .gallery-item:active {
-                transform: scale(0.98);
-            }
-
-            .gallery-item:hover {
-                transform: none;
-            }
+        .hero-overlay {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 60%);
         }
 
-        /* Animation de chargement */
-        @keyframes shimmer {
+        /* ===== SKELETON LOADING ===== */
+        @keyframes skeleton-shimmer {
             0% {
                 background-position: -1000px 0;
             }
@@ -165,189 +49,340 @@
         }
 
         .skeleton {
-            animation: shimmer 2s infinite;
-            background: linear-gradient(to right, #f0f0f0 4%, #e0e0e0 25%, #f0f0f0 36%);
+            animation: skeleton-shimmer 1.6s infinite linear;
+            background: linear-gradient(to right, #f3f4f6 4%, #e5e7eb 25%, #f3f4f6 36%);
             background-size: 1000px 100%;
+            border-radius: 0.75rem;
+        }
+
+        /* ===== GALLERY CARDS ===== */
+        .gallery-card {
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallery-card img {
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-card:hover img {
+            transform: scale(1.07);
+        }
+
+        /* ===== LIGHTBOX ===== */
+        #lightbox {
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(8px);
+        }
+
+        #lightbox img {
+            max-height: 85vh;
+            max-width: 90vw;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .lb-arrow {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 1.3rem;
+            user-select: none;
+        }
+
+        .lb-arrow:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* touch / hover media */
+        @media (hover: none) and (pointer: coarse) {
+            .gallery-card:hover {
+                transform: none;
+            }
+
+            .gallery-card:active {
+                transform: scale(0.98);
+            }
         }
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-4 md:py-8 shadow-lg header-container">
-        <div class="container mx-auto px-4">
+    <!-- ===== HEADER ===== -->
+    <div class="gradient-bg text-white py-8 md:py-12 shadow-lg relative overflow-hidden">
+        <div class="container mx-auto px-4 relative z-10">
             <div class="flex items-center justify-between gap-2">
                 <a href="/"
-                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-3 md:px-4 rounded-lg transition duration-300 flex items-center gap-1 md:gap-2 header-btn">
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     <span class="hidden sm:inline">الرئيسية</span>
                     <span class="sm:hidden">رجوع</span>
                 </a>
 
-                <h1 class="text-xl md:text-3xl font-bold header-title text-center flex-1">الجديد</h1>
+                <div class="text-center flex-1">
+                    <h1 class="text-2xl md:text-4xl font-extrabold">الجديد</h1>
+                    <p class="text-green-200 text-sm mt-1">Nouveautés — رابطة شباب جدة</p>
+                </div>
 
-
-                <div class="header-spacer w-24"></div>
+                <div class="w-24"></div><!-- spacer -->
             </div>
         </div>
-    </div>
-
-    <!-- Gallery Container -->
-    <div class="container mx-auto px-4 py-6 md:py-12 gallery-container">
-
-        <!-- Loading State -->
-        <div id="loadingState" class="text-center py-8 md:py-12">
-            <div class="inline-block animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-blue-600">
-            </div>
-            <p class="text-gray-600 mt-4 text-sm md:text-base">جاري التحميل...</p>
-        </div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-8 md:py-12">
-            <svg class="w-16 h-16 md:w-24 md:h-24 text-gray-300 mx-auto mb-4 empty-icon" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                </path>
+        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
             </svg>
-            <h3 class="text-lg md:text-xl font-bold text-gray-700 mb-2 empty-title">لا توجد صور حاليا</h3>
-            <p class="text-gray-500 text-sm md:text-base">Aucune nouveauté pour le moment</p>
-        </div>
-
-        <!-- Gallery Grid -->
-        <div id="galleryGrid"
-            class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            <!-- Images will be loaded here dynamically -->
         </div>
     </div>
 
-    <!-- Modal for full-size image -->
-    <div id="imageModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImage" alt="Image en plein écran">
-        <div id="caption" class="text-center text-white text-lg md:text-xl mt-4 px-4"></div>
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="flex-grow">
+
+        <!-- Skeleton loading (visible pendant le chargement) -->
+        <div id="skeletonState" class="container mx-auto px-4 py-8">
+            <!-- Hero skeleton -->
+            <div class="skeleton w-full h-64 md:h-96 rounded-2xl mb-6"></div>
+            <!-- Grid skeleton -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="skeleton h-48 rounded-xl"></div>
+                <div class="skeleton h-48 rounded-xl"></div>
+                <div class="skeleton h-48 rounded-xl hidden md:block"></div>
+                <div class="skeleton h-48 rounded-xl hidden lg:block"></div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden container mx-auto px-4 py-20 text-center">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-600 mb-2">لا توجد صور حاليًا</h3>
+            <p class="text-gray-400">Aucune nouveauté pour le moment.</p>
+        </div>
+
+        <!-- Actual Content (hidden until loaded) -->
+        <div id="mainContent" class="hidden">
+
+            <!-- ===== HERO IMAGE (dernière ajoutée) ===== -->
+            <div id="heroSection" class="relative overflow-hidden cursor-pointer mb-2 md:mb-0"
+                onclick="openLightbox(0)">
+                <img id="heroImg" src="" alt="" loading="eager" class="hero-img">
+                <div class="hero-overlay absolute inset-0"></div>
+                <div class="absolute bottom-0 right-0 p-5 md:p-8 text-white max-w-xl">
+                    <span class="inline-block bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">✨
+                        آخر إضافة</span>
+                    <h2 id="heroTitle" class="text-2xl md:text-3xl font-extrabold leading-tight drop-shadow-lg"></h2>
+                    <p id="heroDate" class="text-green-300 text-sm mt-2"></p>
+                </div>
+            </div>
+
+            <!-- ===== GALLERY GRID ===== -->
+            <div class="container mx-auto px-4 py-8">
+                <div class="flex items-center justify-between mb-6">
+                    <p id="imageCount" class="text-sm text-gray-400"></p>
+                    <h2 class="text-xl font-bold text-gray-800">الصور الأخيرة</h2>
+                </div>
+                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                </div>
+            </div>
+
+        </div><!-- /mainContent -->
     </div>
 
-    <!-- Bouton flottant pour ajouter sur mobile -->
-    <a href="/login.html"
-        class="md:hidden fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all z-50">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-    </a>
+    <!-- ===== LIGHTBOX ===== -->
+    <div id="lightbox" class="fixed inset-0 z-50 hidden flex-col items-center justify-center"
+        onclick="if(event.target===this||event.target.id==='lightbox') closeLightbox()">
+
+        <!-- Top bar -->
+        <div class="absolute top-0 left-0 right-0 flex items-center justify-between px-5 py-4 z-10">
+            <button onclick="closeLightbox()"
+                class="text-white/60 hover:text-white transition text-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span class="hidden sm:inline">إغلاق</span>
+            </button>
+            <div class="text-right">
+                <p id="lbTitle" class="text-white font-bold text-sm md:text-base"></p>
+                <p id="lbDate" class="text-white/50 text-xs"></p>
+            </div>
+        </div>
+
+        <!-- Image + arrows -->
+        <div class="flex items-center gap-3 md:gap-6 px-4 w-full justify-center">
+            <button class="lb-arrow flex-shrink-0" onclick="prevImage()" id="lbPrev">&#8592;</button>
+            <img id="lbImg" src="" alt="" class="select-none">
+            <button class="lb-arrow flex-shrink-0" onclick="nextImage()" id="lbNext">&#8594;</button>
+        </div>
+
+        <!-- Counter -->
+        <div class="absolute bottom-5 left-1/2 -translate-x-1/2">
+            <span id="lbCounter"
+                class="bg-white/20 text-white text-xs font-bold px-4 py-1.5 rounded-full backdrop-blur-sm"></span>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-gray-800 text-white py-6 mt-4">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-xs md:text-sm font-medium">© 2026 رابطة شباب جدة - Association de la Jeunesse de Jeddetta</p>
+            <p class="text-xs text-gray-400 mt-2">Mauritanie - موريتانيا</p>
+        </div>
+    </footer>
 
     <script>
-        let currentImages = [];
+        let images = [];
+        let currentIndex = 0;
 
-        // Charger les images au chargement de la page
-        window.addEventListener('DOMContentLoaded', loadImages);
-
-        async function loadImages() {
+        // ===== LOAD =====
+        window.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('/api/nouveautes');
-                const data = await response.json();
+                const res = await fetch('/api/nouveautes');
+                const data = await res.json();
 
                 if (data.success && data.images && data.images.length > 0) {
-                    currentImages = data.images;
-                    displayImages(data.images);
+                    images = data.images;
+                    render();
                 } else {
-                    showEmptyState();
+                    showEmpty();
                 }
-            } catch (error) {
-                console.error('Erreur:', error);
-                showEmptyState();
-            }
-        }
-
-        function displayImages(images) {
-            const grid = document.getElementById('galleryGrid');
-            const loadingState = document.getElementById('loadingState');
-
-            loadingState.classList.add('hidden');
-            grid.classList.remove('hidden');
-
-            grid.innerHTML = images.map((img, index) => `
-                <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer" onclick="openModal(${index})">
-                    <img src="${img.url}" 
-                         alt="${img.titre || 'Image'}" 
-                         class="w-full h-48 md:h-64 object-cover"
-                         loading="lazy">
-                    <div class="p-3 md:p-4 gallery-item-content">
-                        <h3 class="font-bold text-gray-800 text-base md:text-lg mb-1 gallery-item-title">${img.titre || 'Sans titre'}</h3>
-                        <p class="text-gray-500 text-xs md:text-sm">${formatDate(img.date)}</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function showEmptyState() {
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('emptyState').classList.remove('hidden');
-        }
-
-        function openModal(index) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            const caption = document.getElementById('caption');
-
-            const img = currentImages[index];
-            modal.style.display = 'block';
-            modalImg.src = img.url;
-            caption.innerHTML = img.titre || 'Sans titre';
-
-            // Empêcher le scroll sur mobile quand le modal est ouvert
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
-            // Réactiver le scroll
-            document.body.style.overflow = 'auto';
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('ar-MA');
-        }
-
-        // Fermer le modal en cliquant en dehors de l'image
-        window.onclick = function (event) {
-            const modal = document.getElementById('imageModal');
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-
-        // Fermer avec la touche Escape
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                closeModal();
+            } catch (e) {
+                console.error(e);
+                showEmpty();
             }
         });
 
-        // Support du swipe pour fermer le modal sur mobile
-        let touchStartY = 0;
-        let touchEndY = 0;
+        // ===== RENDER =====
+        function render() {
+            document.getElementById('skeletonState').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
 
-        document.getElementById('imageModal').addEventListener('touchstart', function (event) {
-            touchStartY = event.changedTouches[0].screenY;
-        }, false);
+            // ── Hero (image la plus récente) ──
+            const hero = images[0];
+            const heroImg = document.getElementById('heroImg');
+            heroImg.src = hero.url;
+            heroImg.alt = hero.titre || 'Image';
+            document.getElementById('heroTitle').textContent = hero.titre || '';
+            document.getElementById('heroDate').textContent = hero.date ? formatDate(hero.date) : '';
 
-        document.getElementById('imageModal').addEventListener('touchend', function (event) {
-            touchEndY = event.changedTouches[0].screenY;
-            handleSwipe();
-        }, false);
+            // ── Grid (toutes les images sauf la première) ──
+            const grid = document.getElementById('galleryGrid');
+            document.getElementById('imageCount').textContent =
+                `${images.length} photo${images.length > 1 ? 's' : ''}`;
 
-        function handleSwipe() {
-            // Swipe vers le bas pour fermer
-            if (touchStartY < touchEndY && (touchEndY - touchStartY) > 100) {
-                closeModal();
+            grid.innerHTML = images.slice(1).map((img, i) => `
+                <div class="gallery-card bg-white rounded-xl shadow-md cursor-pointer"
+                     onclick="openLightbox(${i + 1})">
+                    <div class="overflow-hidden rounded-t-xl">
+                        <img src="${img.url}"
+                             alt="${img.titre || 'Image'}"
+                             loading="lazy"
+                             class="w-full h-44 md:h-52 object-cover"
+                             onerror="this.closest('.gallery-card').style.display='none'">
+                    </div>
+                    <div class="p-3">
+                        <p class="font-bold text-gray-800 text-sm truncate">${img.titre || 'Sans titre'}</p>
+                        <p class="text-gray-400 text-xs mt-0.5">${img.date ? formatDate(img.date) : ''}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Si un seul élément pas de section "الصور الأخيرة"
+            if (images.length === 1) {
+                document.querySelector('.container .flex.items-center.justify-between').classList.add('hidden');
             }
+        }
+
+        function showEmpty() {
+            document.getElementById('skeletonState').classList.add('hidden');
+            document.getElementById('emptyState').classList.remove('hidden');
+        }
+
+        // ===== LIGHTBOX =====
+        function openLightbox(index) {
+            currentIndex = index;
+            updateLightbox();
+            const lb = document.getElementById('lightbox');
+            lb.classList.remove('hidden');
+            lb.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lb = document.getElementById('lightbox');
+            lb.classList.add('hidden');
+            lb.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        function updateLightbox() {
+            const img = images[currentIndex];
+            document.getElementById('lbImg').src = img.url;
+            document.getElementById('lbImg').alt = img.titre || '';
+            document.getElementById('lbTitle').textContent = img.titre || 'Sans titre';
+            document.getElementById('lbDate').textContent = img.date ? formatDate(img.date) : '';
+            document.getElementById('lbCounter').textContent = `${currentIndex + 1} / ${images.length}`;
+            // Masquer flèches si pas de suivant/précédent
+            document.getElementById('lbPrev').style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+            document.getElementById('lbNext').style.visibility = currentIndex < images.length - 1 ? 'visible' : 'hidden';
+        }
+
+        function prevImage() {
+            if (currentIndex > 0) { currentIndex--; updateLightbox(); }
+        }
+
+        function nextImage() {
+            if (currentIndex < images.length - 1) { currentIndex++; updateLightbox(); }
+        }
+
+        // ===== KEYBOARD =====
+        document.addEventListener('keydown', e => {
+            const lb = document.getElementById('lightbox');
+            if (lb.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') nextImage(); // RTL: droite = suivant
+            if (e.key === 'ArrowRight' || e.key === 'ArrowUp') prevImage();
+        });
+
+        // ===== SWIPE MOBILE =====
+        let touchStartX = 0;
+        document.getElementById('lightbox').addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        document.getElementById('lightbox').addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 60) {
+                // RTL : swipe gauche = suivant, swipe droite = précédent
+                if (diff > 0) nextImage(); else prevImage();
+            }
+        }, { passive: true });
+
+        // ===== DATE FORMAT =====
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('fr-FR', {
+                day: 'numeric', month: 'long', year: 'numeric'
+            });
         }
     </script>
 </body>

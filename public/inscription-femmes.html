@@ -3,11 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تسجيل النساء - Inscription Femmes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل النساء - مغلق</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -15,10 +14,10 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-pink-50 to-purple-50 min-h-screen flex items-center justify-center p-3">
+<body class="bg-gradient-to-br from-pink-50 to-purple-50 min-h-screen flex items-center justify-center p-4">
 
     <a href="/"
-        class="fixed top-3 left-3 bg-white hover:bg-gray-100 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-sm z-50">
+        class="fixed top-4 left-4 bg-white hover:bg-gray-100 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-sm z-50">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
             </path>
@@ -26,60 +25,60 @@
         الرئيسية
     </a>
 
-    <div class="bg-white rounded-xl shadow-xl w-full overflow-hidden">
-        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-5 text-center">
-            <h1 class="text-white text-xl font-bold">تسجيل النساء</h1>
-            <p class="text-pink-100 text-xs mt-1">Formulaire d'adhésion - Femmes</p>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+
+        <!-- En-tête -->
+        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-6 text-center">
+            <h1 class="text-white text-2xl font-bold">تسجيل النساء</h1>
+            <p class="text-pink-100 text-sm mt-1">Inscription Femmes</p>
         </div>
 
-        <div class="p-5">
-            <form id="memberFormFemmes" class="space-y-4">
+        <!-- Corps principal -->
+        <div class="p-8 text-center">
 
-                <!-- Nom complet -->
-                <div>
-                    <label for="nom" class="block text-gray-700 font-semibold mb-2 text-sm">
-                        الاسم واللقب (Nom Complet)
-                    </label>
-                    <input type="text" id="nom" name="nom" required
-                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200 placeholder-gray-400 text-sm"
-                        placeholder="أدخل اسمك هنا...">
+            <!-- Icône de cadenas -->
+            <div class="flex justify-center mb-6">
+                <div class="bg-pink-100 rounded-full p-5">
+                    <svg class="w-16 h-16 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                        </path>
+                    </svg>
                 </div>
+            </div>
 
-                <!-- Téléphone -->
-                <div>
-                    <label for="telephone" class="block text-gray-700 font-semibold mb-2 text-sm">
-                        رقم الهاتف (Numéro de Téléphone)
-                    </label>
-                    <input type="tel" id="telephone" name="telephone" required
-                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition duration-200 placeholder-gray-400 text-right text-sm"
-                        placeholder="...أدخل رقم الهاتف" dir="rtl">
-                </div>
+            <!-- Message principal -->
+            <h2 class="text-2xl font-black text-gray-800 mb-4 leading-relaxed">
+                انتهى التسجيل
+            </h2>
 
-                <!-- Bouton de soumission -->
-                <button type="submit" id="submitBtn"
-                    class="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 active:from-pink-700 active:to-purple-800 text-white font-bold py-3 rounded-lg shadow-md hover:shadow-lg transition duration-300 text-sm">
-                    تسجيل (Enregistrer)
-                </button>
-            </form>
+            <div class="bg-pink-50 border border-pink-200 rounded-xl p-5 mb-6">
+                <p class="text-gray-700 text-base leading-loose font-semibold">
+                    لقد انتهت مرحلة التسجيل في الجمعية.
+                </p>
+                <p class="text-gray-600 text-sm leading-loose mt-2">
+                    إذا كنتِ ترغبين في التسجيل، يُرجى التواصل مع أحد أعضاء الإدارة في الجمعية.
+                </p>
+            </div>
 
-            <!-- Message de succès -->
-            <div id="successMessage" class="hidden mt-5 bg-pink-50 border border-pink-200 rounded-lg p-4 text-center">
-                <svg class="w-12 h-12 text-pink-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Icône contact -->
+            <div class="flex items-center justify-center gap-3 bg-purple-50 border border-purple-200 rounded-xl p-4">
+                <svg class="w-6 h-6 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
+                    </path>
                 </svg>
-                <h3 class="text-lg font-bold text-pink-800">تم التسجيل بنجاح!</h3>
-                <p class="text-pink-600 text-sm mt-1">Merci, vos informations ont été enregistrées.</p>
-                <button onclick="window.location.href='/'"
-                    class="mt-4 bg-pink-500 hover:bg-pink-600 active:bg-pink-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300 text-sm">
-                    العودة للرئيسية
-                </button>
+                <p class="text-purple-700 font-bold text-sm">
+                    تواصلي مع أحد المشرفين على الجمعية
+                </p>
             </div>
 
-            <!-- Message d'erreur -->
-            <div id="errorMessage" class="hidden mt-5 bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                <p id="errorText" class="text-red-600 font-bold text-sm">حدث خطأ، حاول مرة أخرى.</p>
-            </div>
+            <!-- Bouton retour -->
+            <a href="/"
+                class="mt-6 inline-block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-md hover:shadow-lg">
+                العودة إلى الرئيسية
+            </a>
         </div>
 
         <div class="bg-gray-50 p-3 text-center text-xs text-gray-500 border-t">
@@ -87,55 +86,6 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('memberFormFemmes').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerText;
-            const errorMessage = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-
-            errorMessage.classList.add('hidden');
-
-            btn.disabled = true;
-            btn.innerText = "جاري الإرسال...";
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-
-            const formData = {
-                nom: document.getElementById('nom').value,
-                telephone: document.getElementById('telephone').value
-            };
-
-            try {
-                const response = await fetch('/api/inscrire-femme', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    document.getElementById('memberFormFemmes').classList.add('hidden');
-                    document.getElementById('successMessage').classList.remove('hidden');
-                } else {
-                    errorText.textContent = result.message || 'حدث خطأ، حاول مرة أخرى.';
-                    errorMessage.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                errorText.textContent = 'حدث خطأ، حاول مرة أخرى.';
-                errorMessage.classList.remove('hidden');
-            } finally {
-                if (document.getElementById('memberFormFemmes').classList.contains('hidden') === false) {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
-                }
-            }
-        });
-    </script>
 </body>
 
 </html>

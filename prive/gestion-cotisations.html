@@ -6,29 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Cotisations - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #065f46 0%, #10b981 100%); }
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+        }
 
         @media (max-width: 768px) {
-            .mobile-card { display: block; }
-            .desktop-table { display: none; }
-        }
-        @media (min-width: 769px) {
-            .mobile-card { display: none; }
-            .desktop-table { display: table; }
+            .mobile-card {
+                display: block;
+            }
+
+            .desktop-table {
+                display: none;
+            }
         }
 
-        .payment-badge { transition: all 0.2s ease; }
-        .payment-badge:active { transform: scale(0.95); }
+        @media (min-width: 769px) {
+            .mobile-card {
+                display: none;
+            }
+
+            .desktop-table {
+                display: table;
+            }
+        }
+
+        .payment-badge {
+            transition: all 0.2s ease;
+        }
+
+        .payment-badge:active {
+            transform: scale(0.95);
+        }
 
         .total-card {
             background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
             position: relative;
             overflow: hidden;
         }
+
         .total-card::before {
             content: '';
             position: absolute;
@@ -36,36 +59,73 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
             animation: shimmer 4s ease-in-out infinite;
         }
+
         @keyframes shimmer {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(10%, 10%); }
+
+            0%,
+            100% {
+                transform: translate(0, 0);
+            }
+
+            50% {
+                transform: translate(10%, 10%);
+            }
         }
+
         .counter-anim {
             transition: all 0.6s ease;
         }
+
         .pulse-dot {
             animation: pulse 2s infinite;
         }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .member-name-btn {
+            cursor: pointer;
+        }
+
+        .member-name-btn:hover {
+            text-decoration: underline;
+            color: #065f46;
+        }
+
+        .modal-overlay {
+            backdrop-filter: blur(4px);
         }
 
         /* ===== PRINT STYLES ===== */
-        #printTable { display: none; }
+        #printTable {
+            display: none;
+        }
 
         @media print {
             @page {
                 margin: 1cm;
                 size: A4 landscape;
             }
+
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
+
             body {
                 background: white !important;
                 color: black !important;
@@ -73,9 +133,11 @@
                 padding: 0 !important;
                 font-size: 9pt !important;
             }
-            body > *:not(#printTable) {
+
+            body>*:not(#printTable) {
                 display: none !important;
             }
+
             #printTable {
                 display: block !important;
                 visibility: visible !important;
@@ -121,12 +183,13 @@
     <div class="container mx-auto px-3 md:px-4 pt-6">
         <div class="total-card rounded-2xl shadow-2xl p-6 md:p-8 text-white">
             <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-                
+
                 <!-- Bloc principal -->
                 <div class="text-center md:text-right">
                     <div class="flex items-center gap-3 justify-center md:justify-end mb-2">
                         <span class="w-3 h-3 bg-green-400 rounded-full pulse-dot"></span>
-                        <p class="text-green-200 text-sm font-medium uppercase tracking-wider">Total Cotisations Encaissées</p>
+                        <p class="text-green-200 text-sm font-medium uppercase tracking-wider">Total Cotisations
+                            Encaissées</p>
                     </div>
                     <p class="text-5xl md:text-6xl font-extrabold tracking-tight counter-anim" id="totalAmount">—</p>
                     <p class="text-green-300 text-base mt-1">أوقية موريتانية (MRO)</p>
@@ -158,17 +221,34 @@
     <!-- Content -->
     <div class="container mx-auto px-3 md:px-4 py-6 md:py-8 flex-grow">
 
-        <!-- Barre de recherche -->
+        <!-- Barre de recherche + Filtres -->
         <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
-            <div class="relative">
-                <input type="text" id="searchInput" placeholder="البحث عن عضو... / Rechercher un membre..."
-                    class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition text-right font-medium" />
-                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+            <div class="flex flex-col md:flex-row gap-3">
+                <!-- Recherche par nom -->
+                <div class="relative flex-grow">
+                    <input type="text" id="searchInput" placeholder="البحث عن عضو... / Rechercher un membre..."
+                        class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition text-right font-medium" />
+                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
                 </div>
+                <!-- Filtre situation -->
+                <select id="filterSituation" onchange="applyFilters()"
+                    class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition font-medium bg-white text-gray-700 text-sm">
+                    <option value="">👔 كل الوضعيات</option>
+                    <option value="نعم">✅ يعمل (Travaille)</option>
+                    <option value="لا">❌ لا يعمل (Sans emploi)</option>
+                </select>
+                <!-- Filtre statut paiement mois courant -->
+                <select id="filterPayment" onchange="applyFilters()"
+                    class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition font-medium bg-white text-gray-700 text-sm">
+                    <option value="">💰 كل الأعضاء</option>
+                    <option value="paid">✔ دفع هذا الشهر</option>
+                    <option value="unpaid">⏳ لم يدفع هذا الشهر</option>
+                </select>
             </div>
             <div id="searchResults" class="mt-2 text-sm text-gray-500 text-center hidden"></div>
         </div>
@@ -180,7 +260,8 @@
                     <thead>
                         <tr class="bg-gray-50 border-b border-gray-100">
 
-                            <th class="p-4 text-right sticky right-0 bg-gray-50 z-10 font-bold text-gray-700">الاسم (Nom)</th>
+                            <th class="p-4 text-right sticky right-0 bg-gray-50 z-10 font-bold text-gray-700">الاسم
+                                (Nom)</th>
 
                             <th class="p-4 text-gray-600 font-medium">Cotisation</th>
                             <th class="p-4 text-gray-600 font-medium">Fév (2)</th>
@@ -219,6 +300,18 @@
 
     </div>
 
+    <!-- Historique mensuel des cotisations -->
+    <div class="container mx-auto px-3 md:px-4 pb-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-5 text-right border-b pb-3">
+                📅 الإجمالي الشهري للاشتراكات
+                <span class="block text-sm font-normal text-gray-500 mt-1">Historique mensuel des cotisations</span>
+            </h2>
+            <div id="monthlyHistory" class="space-y-3">
+                <div class="text-center text-gray-400 py-4">Chargement...</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
 
@@ -232,6 +325,55 @@
     <!-- TABLE CACHÉE POUR IMPRESSION -->
     <div id="printTable"></div>
 
+    <!-- Modal profil membre -->
+    <div id="profileModal"
+        class="fixed inset-0 bg-black/50 modal-overlay hidden z-50 flex items-center justify-center p-4"
+        onclick="if(event.target===this) closeProfileModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div id="profileModalHeader" class="bg-gradient-to-r from-green-700 to-green-500 p-5 text-white">
+                <div class="flex items-center justify-between">
+                    <button onclick="closeProfileModal()" class="text-white/70 hover:text-white transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <div class="text-right">
+                        <p id="profileName" class="text-xl font-bold"></p>
+                        <p id="profileSub" class="text-green-200 text-sm mt-0.5"></p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-green-200 mb-1">
+                        <span id="profileRate">0%</span>
+                        <span>نسبة التزامه / Taux</span>
+                    </div>
+                    <div class="bg-white/20 rounded-full h-2 overflow-hidden">
+                        <div id="profileProgressBar" class="h-full rounded-full bg-white transition-all duration-700"
+                            style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5">
+                <div class="grid grid-cols-3 gap-3 mb-5 text-center">
+                    <div class="bg-green-50 rounded-xl p-3">
+                        <p id="profileTotal" class="text-2xl font-extrabold text-green-700">—</p>
+                        <p class="text-xs text-gray-500">إجمالي مدفوع (MRO)</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-3">
+                        <p id="profilePaidMonths" class="text-2xl font-extrabold text-blue-700">—</p>
+                        <p class="text-xs text-gray-500">أشهر مدفوعة</p>
+                    </div>
+                    <div class="bg-red-50 rounded-xl p-3">
+                        <p id="profileUnpaidMonths" class="text-2xl font-extrabold text-red-500">—</p>
+                        <p class="text-xs text-gray-500">أشهر غير مدفوعة</p>
+                    </div>
+                </div>
+                <div id="profileMonthsGrid" class="grid grid-cols-4 gap-3"></div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         const months = [
@@ -244,6 +386,8 @@
             { num: 8, name: 'Août', nameFull: 'Août' }
         ];
 
+
+        const CURRENT_MONTH = new Date().getMonth() + 1; // mois courant (1-12)
 
         let allMembres = [];
         let currentDisplayData = [];
@@ -277,6 +421,7 @@
                 updateStats(allMembres);
                 renderDesktopTable(allMembres);
                 renderMobileCards(allMembres);
+                renderMonthlyHistory(allMembres);
                 initSearch();
 
             } catch (e) {
@@ -290,55 +435,128 @@
 
 
 
-        function initSearch() {
-            const searchInput = document.getElementById('searchInput');
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filterSit = document.getElementById('filterSituation').value;
+            const filterPay = document.getElementById('filterPayment').value;
             const searchResults = document.getElementById('searchResults');
 
-            searchInput.addEventListener('input', function (e) {
-                const searchTerm = e.target.value.trim().toLowerCase();
+            let filtered = allMembres.filter(m => {
+                const matchName = !searchTerm || m.nom.toLowerCase().includes(searchTerm);
+                const matchSit = !filterSit || m.situation === filterSit;
+                const matchPay = !filterPay ||
+                    (filterPay === 'paid' && m.paiements.includes(CURRENT_MONTH)) ||
+                    (filterPay === 'unpaid' && !m.paiements.includes(CURRENT_MONTH));
+                return matchName && matchSit && matchPay;
+            });
 
-                if (searchTerm === '') {
+            currentDisplayData = filtered;
+            renderDesktopTable(filtered);
+            renderMobileCards(filtered);
+            updateStats(filtered);
 
-                    currentDisplayData = allMembres;
-                    renderDesktopTable(allMembres);
-                    renderMobileCards(allMembres);
-                    updateStats(allMembres);
-
-                    searchResults.classList.add('hidden');
-                    return;
-                }
-
-
-                const filteredMembres = allMembres.filter(m => m.nom.toLowerCase().includes(searchTerm));
-                currentDisplayData = filteredMembres;
-                renderDesktopTable(filteredMembres);
-                renderMobileCards(filteredMembres);
-
-
+            const hasFilter = searchTerm || filterSit || filterPay;
+            if (!hasFilter) {
+                searchResults.classList.add('hidden');
+            } else {
                 searchResults.classList.remove('hidden');
-                if (filteredMembres.length === 0) {
-                    searchResults.innerHTML = '❌ Aucun membre trouvé / لا يوجد عضو';
+                if (filtered.length === 0) {
+                    searchResults.innerHTML = '❌ لا يوجد عضو / Aucun membre trouvé';
                     searchResults.className = 'mt-2 text-sm text-red-500 text-center font-medium';
-
                 } else {
-                    searchResults.innerHTML = `✓ ${filteredMembres.length} membre(s) trouvé(s)`;
-
+                    searchResults.innerHTML = `✓ ${filtered.length} membre(s) trouvé(s)`;
                     searchResults.className = 'mt-2 text-sm text-green-600 text-center font-medium';
                 }
-            });
+            }
+        }
 
-
-            searchInput.addEventListener('keydown', function (e) {
+        function initSearch() {
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('searchInput').addEventListener('keydown', e => {
                 if (e.key === 'Escape') {
-                    searchInput.value = '';
-                    currentDisplayData = allMembres;
-                    renderDesktopTable(allMembres);
-                    renderMobileCards(allMembres);
-                    updateStats(allMembres);
-
-                    searchResults.classList.add('hidden');
+                    e.target.value = '';
+                    document.getElementById('filterSituation').value = '';
+                    document.getElementById('filterPayment').value = '';
+                    applyFilters();
                 }
             });
+        }
+
+        // ===== MODAL PROFIL MEMBRE =====
+        function openProfileModal(membreId) {
+            const m = allMembres.find(x => x.id === membreId);
+            if (!m) return;
+            const paid = m.paiements.length;
+            const total = paid * m.montant;
+            const unpaid = months.length - paid;
+            const rate = months.length > 0 ? Math.round((paid / months.length) * 100) : 0;
+
+            document.getElementById('profileName').textContent = m.nom;
+            document.getElementById('profileSub').textContent = `${m.montant} MRO / mois — ${m.situation === 'نعم' ? 'يعمل ✅' : 'لا يعمل ❌'}`;
+            document.getElementById('profileTotal').textContent = total.toLocaleString();
+            document.getElementById('profilePaidMonths').textContent = paid;
+            document.getElementById('profileUnpaidMonths').textContent = unpaid;
+            document.getElementById('profileRate').textContent = rate + '%';
+            document.getElementById('profileProgressBar').style.width = rate + '%';
+
+            const grid = document.getElementById('profileMonthsGrid');
+            grid.innerHTML = months.map(mo => {
+                const isPaid = m.paiements.includes(mo.num);
+                return `
+                <div class="text-center rounded-xl p-3 ${isPaid ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-100'}">
+                    <p class="text-xs font-bold text-gray-600 mb-1">${mo.nameFull}</p>
+                    <div class="w-10 h-10 mx-auto rounded-full flex items-center justify-center text-lg font-bold ${isPaid ? 'bg-green-500 text-white' : 'bg-red-100 text-red-300'}">
+                        ${isPaid ? '✔' : '✕'}
+                    </div>
+                    ${isPaid ? `<p class="text-xs text-green-700 font-bold mt-1">${m.montant.toLocaleString()}</p>` : '<p class="text-xs text-red-400 mt-1">0</p>'}
+                </div>`;
+            }).join('');
+
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        // ===== HISTORIQUE MENSUEL =====
+        function renderMonthlyHistory(membres) {
+            const container = document.getElementById('monthlyHistory');
+            if (!membres.length) {
+                container.innerHTML = '<div class="text-center text-gray-400 py-4">Aucune donnée</div>';
+                return;
+            }
+
+            // Trouver le max pour les barres
+            const monthTotals = months.map(mo => {
+                const count = membres.filter(m => m.paiements.includes(mo.num)).length;
+                const amount = membres.filter(m => m.paiements.includes(mo.num)).reduce((s, m) => s + m.montant, 0);
+                return { mo, count, amount };
+            });
+            const maxAmount = Math.max(...monthTotals.map(x => x.amount), 1);
+
+            container.innerHTML = monthTotals.map(({ mo, count, amount }) => {
+                const percent = Math.round((amount / maxAmount) * 100);
+                const monthNum = mo.num;
+                const isCurrent = monthNum === CURRENT_MONTH;
+                const barColor = isCurrent ? 'bg-green-500' : 'bg-green-300';
+                return `
+                <div class="flex items-center gap-4 p-3 rounded-xl ${isCurrent ? 'bg-green-50 border border-green-200' : 'hover:bg-gray-50'} transition">
+                    <div class="w-24 text-right flex-shrink-0">
+                        <p class="font-bold text-gray-800 text-sm">${mo.nameFull} ${isCurrent ? '<span class="text-xs text-green-600 font-normal">(الشهر الحالي)</span>' : ''}</p>
+                        <p class="text-xs text-gray-500">${count} / ${membres.length} عضو</p>
+                    </div>
+                    <div class="flex-grow bg-gray-100 rounded-full h-5 overflow-hidden">
+                        <div class="h-full rounded-full flex items-center justify-end pr-2 ${barColor} transition-all duration-700" style="width: ${percent}%">
+                            ${percent > 20 ? `<span class="text-white text-xs font-bold">${percent}%</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="w-28 text-left flex-shrink-0 text-right">
+                        <p class="font-extrabold text-gray-800 text-sm">${amount.toLocaleString()}</p>
+                        <p class="text-xs text-gray-400">MRO</p>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
 
@@ -359,7 +577,9 @@
                 const totalPaid = m.paiements.length * m.montant;
 
                 let html = `<tr class="hover:bg-green-50/30 transition duration-150 group">
-                <td class="p-4 text-right font-bold text-gray-800 border-l border-gray-100 group-hover:bg-green-50/30">${m.nom}</td>
+                <td class="p-4 text-right border-l border-gray-100 group-hover:bg-green-50/30">
+                    <button onclick="openProfileModal(${m.id})" class="member-name-btn font-bold text-gray-800 hover:text-green-700 transition text-right">${m.nom}</button>
+                </td>
                 <td class="p-4 text-center font-medium text-gray-500 border-l border-gray-100">${m.montant}</td>`;
 
                 months.forEach(month => {
@@ -407,7 +627,7 @@
                 let html = `
                     <div class="bg-gradient-to-r from-green-600 to-green-500 text-white p-4">
                         <div class="flex justify-between items-center mb-2">
-                             <h3 class="text-xl font-bold text-right">${m.nom}</h3>
+                             <button onclick="openProfileModal(${m.id})" class="text-xl font-bold text-right text-white member-name-btn hover:underline">${m.nom}</button>
                              <div class="bg-white/20 px-3 py-1 rounded-lg text-sm font-bold">${m.montant} MRO</div>
                         </div>
                         <div class="flex items-center justify-between text-sm">
