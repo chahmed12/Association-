@@ -8,9 +8,49 @@
     <title>Suivi des Cotisations - رابطة شباب جدة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 pour les notifications "Toast" -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         body {
             font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-header {
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .gradient-bg {
@@ -19,6 +59,17 @@
 
         .card-shadow {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modern Hover Effects */
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -5px rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -90,31 +141,41 @@
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col text-gray-800">
 
     <!-- Header -->
+    <header class="glass-header text-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
+        <div class="container mx-auto px-4 py-12 text-center relative z-10">
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-3 font-cairo drop-shadow-lg">جدول الاشتراكات</h1>
+            <p class="text-base md:text-xl text-green-100 font-medium font-inter tracking-wide drop-shadow-md">Suivi des
+                Cotisations</p>
+            <p class="text-sm md:text-base text-green-200 mt-2 font-inter opacity-90">(Février - Août)</p>
 
-    <div class="gradient-bg text-white py-8 md:py-12 shadow-lg relative overflow-hidden">
-        <div class="container mx-auto px-4 text-center relative z-10">
-            <h1 class="text-2xl md:text-4xl font-bold mb-2">جدول الاشتراكات</h1>
-            <p class="text-base md:text-xl text-green-100 font-medium">Suivi des Cotisations</p>
-            <p class="text-sm md:text-base text-green-200 mt-1">(Février - Août)</p>
 
-
-            <div class="mt-6 md:mt-8">
+            <div class="mt-8 flex justify-center">
                 <a href="/"
-                    class="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 md:px-6 py-2 rounded-full backdrop-blur-md transition border border-white/30 font-bold text-sm md:text-base">
-                    <span>🏠</span><span>Retour à l'accueil</span>
+                    class="inline-flex items-center gap-3 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full backdrop-blur-sm transition border border-white/20 shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] font-inter font-bold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Retour à l'accueil</span>
                 </a>
             </div>
         </div>
-        <div class="absolute top-0 left-0 w-full h-full opacity-10">
-            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
 
+        <!-- Bottom Wave SVG -->
+        <div class="absolute bottom-0 w-full overflow-hidden leading-none z-0">
+            <svg class="relative block w-full h-[50px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path
+                    d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,121.32,201.5,115.68c70-5.63,143.91-17.16,206.88-41.46Z"
+                    fill="#f0fdf4"></path>
             </svg>
         </div>
-    </div>
+    </header>
 
 
     <!-- BANNIÈRE FINANCIÈRE -->
@@ -159,26 +220,24 @@
 
 
         <!-- Barre de recherche -->
-        <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 card-shadow">
-            <div class="relative">
+        <div class="glass-card rounded-2xl p-6 md:p-8 mb-8 mt-2 max-w-4xl mx-auto border-t-4 border-emerald-500">
+            <div class="relative max-w-2xl mx-auto">
                 <input type="text" id="searchInput" placeholder="البحث عن اسم... / Rechercher un nom..."
-                    class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition text-right font-medium" />
-                <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
+                    class="w-full px-5 py-4 pr-14 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all text-right font-medium text-lg bg-white/80 shadow-inner" />
+                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-emerald-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-
                     </svg>
                 </div>
             </div>
-            <div id="searchResults" class="mt-2 text-sm text-gray-500 text-center hidden"></div>
+            <div id="searchResults" class="mt-4 text-sm font-medium text-center hidden"></div>
         </div>
 
 
         <!-- Tableau Desktop -->
 
-        <div class="desktop-table bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+        <div class="desktop-table glass-card rounded-3xl overflow-hidden card-shadow max-w-6xl mx-auto">
             <div class="overflow-x-auto">
                 <table class="w-full text-center border-collapse min-w-[800px]">
                     <thead>
@@ -246,10 +305,11 @@
     </div>
 
 
-    <footer class="bg-gray-800 text-white py-6 md:py-8 mt-8 md:mt-12">
+    <footer class="bg-gray-900 border-t border-gray-800 text-gray-400 py-8 mt-auto relative z-20">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-xs md:text-sm font-medium">© 2026 رابطة شباب جدة - Association de la Jeunesse de Jeddetta</p>
-            <p class="text-xs text-gray-400 mt-2">Mauritanie - موريتانيا</p>
+            <p class="text-xs md:text-sm font-medium tracking-wide">© 2026 رابطة شباب جدة - Association de la Jeunesse
+                de Jeddetta</p>
+            <p class="text-xs font-inter mt-3">Mauritanie - موريتانيا</p>
         </div>
     </footer>
 

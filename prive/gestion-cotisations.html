@@ -8,14 +8,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         body {
             font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
-        .gradient-bg {
-            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-header {
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @media (max-width: 768px) {
@@ -148,36 +183,50 @@
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen flex flex-col">
-
+<body class="min-h-screen flex flex-col text-gray-800">
 
     <!-- Header -->
+    <header class="glass-header text-white pt-8 pb-12 shadow-2xl relative overflow-hidden no-print">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-right">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-lg font-cairo">Gestion des
+                        Cotisations <span class="text-green-300">(الإشتراكات)</span></h1>
+                    <p class="text-green-50 text-sm md:text-base font-inter tracking-wide drop-shadow-md mt-2">
+                        Administration associative</p>
+                </div>
 
-    <div class="gradient-bg text-white py-6 md:py-8 shadow-lg">
-        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-right">
-                <h1 class="text-xl md:text-2xl font-bold">Gestion des Cotisations (الإشتراكات)</h1>
-                <p class="text-green-100 text-xs md:text-sm">Administration</p>
-            </div>
-
-            <div class="flex gap-3">
-                <!-- Bouton Imprimer / PDF -->
-                <button onclick="preparePrint()"
-                    class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-bold text-sm backdrop-blur-sm transition border border-white/20 flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                        </path>
-                    </svg>
-                    طباعة / PDF
-                </button>
-                <a href="/admin.html"
-                    class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-bold text-sm backdrop-blur-sm transition border border-white/20">
-                    ← Retour Dashboard
-                </a>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <!-- Bouton Imprimer / PDF -->
+                    <button onclick="preparePrint()"
+                        class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        <span class="font-inter">طباعة / PDF</span>
+                    </button>
+                    <a href="/prive/admin.html"
+                        class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        <span class="font-inter">← Retour Dashboard</span>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+
+        <!-- Bottom Wave SVG -->
+        <div class="absolute bottom-0 w-full overflow-hidden leading-none">
+            <svg class="relative block w-full h-[30px] md:h-[50px]" data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path
+                    d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,121.32,201.5,115.68c70-5.63,143.91-17.16,206.88-41.46Z"
+                    fill="#f0fdf4"></path>
+            </svg>
+        </div>
+    </header>
 
     <!-- BANNIÈRE TOTAL ENCAISSÉ -->
     <div class="container mx-auto px-3 md:px-4 pt-6">
@@ -219,16 +268,16 @@
     </div>
 
     <!-- Content -->
-    <div class="container mx-auto px-3 md:px-4 py-6 md:py-8 flex-grow">
+    <div class="container mx-auto px-3 md:px-4 py-6 md:py-8 flex-grow relative z-20">
 
         <!-- Barre de recherche + Filtres -->
-        <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
-            <div class="flex flex-col md:flex-row gap-3">
+        <div class="glass-card rounded-2xl p-5 md:p-6 mb-8 mt-4 border border-white/60">
+            <div class="flex flex-col md:flex-row gap-4 max-w-5xl mx-auto items-stretch">
                 <!-- Recherche par nom -->
                 <div class="relative flex-grow">
                     <input type="text" id="searchInput" placeholder="البحث عن عضو... / Rechercher un membre..."
-                        class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition text-right font-medium" />
-                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        class="w-full px-5 py-3.5 pr-12 border-2 border-white/60 bg-white/70 backdrop-blur-sm rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right" />
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -237,46 +286,67 @@
                 </div>
                 <!-- Filtre situation -->
                 <select id="filterSituation" onchange="applyFilters()"
-                    class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition font-medium bg-white text-gray-700 text-sm">
+                    class="px-5 py-3.5 border-2 border-white/60 bg-white/70 backdrop-blur-sm rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-medium text-gray-700 text-sm md:w-48 appearance-none cursor-pointer">
                     <option value="">👔 كل الوضعيات</option>
                     <option value="نعم">✅ يعمل (Travaille)</option>
                     <option value="لا">❌ لا يعمل (Sans emploi)</option>
                 </select>
                 <!-- Filtre statut paiement mois courant -->
                 <select id="filterPayment" onchange="applyFilters()"
-                    class="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition font-medium bg-white text-gray-700 text-sm">
+                    class="px-5 py-3.5 border-2 border-white/60 bg-white/70 backdrop-blur-sm rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-medium text-gray-700 text-sm md:w-56 appearance-none cursor-pointer">
                     <option value="">💰 كل الأعضاء</option>
                     <option value="paid">✔ دفع هذا الشهر</option>
                     <option value="unpaid">⏳ لم يدفع هذا الشهر</option>
                 </select>
             </div>
-            <div id="searchResults" class="mt-2 text-sm text-gray-500 text-center hidden"></div>
+            <div id="searchResults" class="mt-4 text-sm font-inter text-center hidden mb-2"></div>
         </div>
 
         <!-- VERSION DESKTOP : Tableau -->
-        <div class="desktop-table bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-            <div class="p-6 overflow-x-auto">
+        <div class="desktop-table w-full glass-card rounded-3xl shadow-2xl overflow-hidden border border-white/60">
+            <div class="overflow-x-auto">
                 <table class="w-full text-center border-collapse min-w-[800px]">
                     <thead>
-                        <tr class="bg-gray-50 border-b border-gray-100">
-
-                            <th class="p-4 text-right sticky right-0 bg-gray-50 z-10 font-bold text-gray-700">الاسم
+                        <tr class="bg-white/60 border-b border-gray-200/50 backdrop-blur-md">
+                            <th
+                                class="p-5 text-right sticky right-0 bg-white/80 z-10 font-bold text-gray-700 font-inter whitespace-nowrap border-l border-gray-200/30">
+                                الاسم
                                 (Nom)</th>
-
-                            <th class="p-4 text-gray-600 font-medium">Cotisation</th>
-                            <th class="p-4 text-gray-600 font-medium">Fév (2)</th>
-                            <th class="p-4 text-gray-600 font-medium">Mars (3)</th>
-                            <th class="p-4 text-gray-600 font-medium">Avr (4)</th>
-                            <th class="p-4 text-gray-600 font-medium">Mai (5)</th>
-                            <th class="p-4 text-gray-600 font-medium">Juin (6)</th>
-                            <th class="p-4 text-gray-600 font-medium">Juil (7)</th>
-                            <th class="p-4 text-gray-600 font-medium">Août (8)</th>
-                            <th class="p-4 text-gray-800 font-bold">Total</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Cotisation</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Fév (2)</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Mars (3)</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Avr (4)</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Mai (5)</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Juin (6)</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Juil (7)</th>
+                            <th
+                                class="p-5 text-gray-600 font-bold uppercase tracking-wider text-xs font-inter border-l border-gray-200/30">
+                                Août (8)</th>
+                            <th class="p-5 text-gray-800 font-extrabold font-inter uppercase tracking-wider">Total</th>
                         </tr>
                     </thead>
-                    <tbody id="desktopTableBody" class="divide-y divide-gray-100">
+                    <tbody id="desktopTableBody" class="bg-white/40 divide-y divide-gray-100/50">
                         <tr>
-                            <td colspan="10" class="p-8 text-center text-gray-500">Chargement des données...</td>
+                            <td colspan="10" class="p-12 text-center text-gray-500 font-inter">
+                                <div
+                                    class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-200 border-t-green-600 mb-2">
+                                </div>
+                                <p>Chargement des données...</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -301,14 +371,15 @@
     </div>
 
     <!-- Historique mensuel des cotisations -->
-    <div class="container mx-auto px-3 md:px-4 pb-8">
-        <div class="bg-white rounded-2xl shadow-lg p-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-5 text-right border-b pb-3">
+    <div class="container mx-auto px-3 md:px-4 pb-12 relative z-20">
+        <div class="glass-card rounded-3xl shadow-2xl p-6 md:p-8 max-w-5xl mx-auto border border-white/60">
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-6 text-right border-b border-gray-200/50 pb-4">
                 📅 الإجمالي الشهري للاشتراكات
-                <span class="block text-sm font-normal text-gray-500 mt-1">Historique mensuel des cotisations</span>
+                <span class="block text-sm font-inter text-gray-500 mt-2 font-medium tracking-wide">Historique mensuel
+                    des cotisations</span>
             </h2>
-            <div id="monthlyHistory" class="space-y-3">
-                <div class="text-center text-gray-400 py-4">Chargement...</div>
+            <div id="monthlyHistory" class="space-y-4">
+                <div class="text-center text-gray-400 py-6 font-inter">Chargement de l'historique...</div>
             </div>
         </div>
     </div>
@@ -576,20 +647,20 @@
             membres.forEach(m => {
                 const totalPaid = m.paiements.length * m.montant;
 
-                let html = `<tr class="hover:bg-green-50/30 transition duration-150 group">
-                <td class="p-4 text-right border-l border-gray-100 group-hover:bg-green-50/30">
-                    <button onclick="openProfileModal(${m.id})" class="member-name-btn font-bold text-gray-800 hover:text-green-700 transition text-right">${m.nom}</button>
+                let html = `<tr class="hover:bg-green-50/50 transition duration-150 group">
+                <td class="p-4.5 text-right border-l border-gray-200/30 group-hover:bg-green-50/30 bg-white/20">
+                    <button onclick="openProfileModal(${m.id})" class="member-name-btn font-bold text-gray-800 hover:text-green-700 transition text-right px-2">${m.nom}</button>
                 </td>
-                <td class="p-4 text-center font-medium text-gray-500 border-l border-gray-100">${m.montant}</td>`;
+                <td class="p-4.5 text-center font-bold text-gray-500 border-l border-gray-200/30 font-inter bg-white/10">${m.montant}</td>`;
 
                 months.forEach(month => {
                     const isPaid = m.paiements.includes(month.num);
-                    const colorClass = isPaid ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-300';
+                    const colorClass = isPaid ? 'bg-green-500 text-white shadow-md' : 'bg-white text-gray-300 border border-gray-200';
                     const icon = isPaid ? '✔' : '-';
 
 
                     html += `
-                    <td class="p-3 border-l border-gray-50 cursor-pointer align-middle" 
+                    <td class="p-3 border-l border-gray-200/30 cursor-pointer align-middle bg-white/5" 
                         onclick="togglePayment(${m.id}, ${month.num}, this)">
                         <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center font-bold ${colorClass} transition transform hover:scale-110 payment-badge">
                             ${icon}
@@ -598,7 +669,7 @@
                     </td>`;
                 });
 
-                html += `<td class="p-4 font-bold text-green-700 bg-gray-50/30">${totalPaid.toLocaleString()}</td></tr>`;
+                html += `<td class="p-4.5 font-bold text-green-700 bg-green-50/40 font-inter">${totalPaid.toLocaleString()}</td></tr>`;
 
                 tbody.innerHTML += html;
             });

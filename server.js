@@ -1,25 +1,24 @@
 require('dotenv').config();
 
-const express    = require('express');
-const mysql      = require('mysql2');
+const express = require('express');
+const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 
-const path       = require('path');
-const cors       = require('cors');
-const multer     = require('multer');
-const fs         = require('fs');
-const session    = require('express-session');
+const path = require('path');
+const cors = require('cors');
+const multer = require('multer');
+const fs = require('fs');
+const session = require('express-session');
 
 const MySQLStore = require('express-mysql-session')(session);
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 
 // ═══════════════════════════════════════════════════════════════
 //  1. CONFIGURATION GÉNÉRALE
 // ═══════════════════════════════════════════════════════════════
-
 
 app.set('trust proxy', 1); // Obligatoire pour Ngrok / proxy HTTPS
 
@@ -44,24 +43,28 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // ═══════════════════════════════════════════════════════════════
-//  2. CONNEXION BASE DE DONNÉES
+//  2. CONNEXION BASE DE DONNÉES (POOL au lieu de createConnection)
 // ═══════════════════════════════════════════════════════════════
 
-const db = mysql.createConnection({
-    host:     process.env.MYSQLHOST,
-    user:     process.env.MYSQLUSER,
+// ✅ FIX: Utilisation d'un POOL pour éviter les coupures de connexion
+const db = mysql.createPool({
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE,
-    port:     process.env.MYSQLPORT
+    port: process.env.MYSQLPORT,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-
-db.connect((err) => {
+// Vérification de la connexion au démarrage
+db.query('SELECT 1', (err) => {
     if (err) {
         console.error('❌ Erreur de connexion à la base de données:', err.message);
         return;
     }
-    console.log('✅ Connecté à la base de données MySQL');
+    console.log('✅ Connecté à la base de données MySQL (Pool)');
     createTables();
 });
 
@@ -152,18 +155,23 @@ function createTables() {
 //  3. SESSION
 // ═══════════════════════════════════════════════════════════════
 
+// ✅ FIX: MySQLStore avec pool
 const sessionStore = new MySQLStore({}, db);
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
-    key:    'session_cookie_name',
+    key: 'session_cookie_name',
     secret: process.env.SESSION_SECRET || 'votre_secret_tres_complique_et_long_2026',
-    store:  sessionStore,
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure:   true,   // Obligatoire HTTPS (Ngrok)
-        sameSite: 'none', // Obligatoire cross-origin (Ngrok)
-        maxAge:   24 * 60 * 60 * 1000 // 24h
+        // ✅ FIX: secure=false en dev (HTTP local), true seulement en prod HTTPS
+        secure: isProduction,
+        // ✅ FIX: sameSite='lax' en dev, 'none' en prod (cross-origin HTTPS)
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24h
     }
 }));
 
@@ -172,7 +180,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── Middleware d'authentification ────────────────────────────
 function isAuthenticated(req, res, next) {
-    if (req.session.loggedin) return next();
+    if (req.session && req.session.loggedin) return next();
+    // ✅ FIX: Retourner JSON si requête API, sinon redirect
+    if (req.path.startsWith('/api/')) {
+        return res.status(401).json({ success: false, message: 'Non autorisé' });
+    }
     res.redirect('/login.html');
 }
 
@@ -184,6 +196,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// ✅ FIX: Route login explicite (fichier dans public/)
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 // ═══════════════════════════════════════════════════════════════
 //  5. AUTHENTIFICATION
 // ═══════════════════════════════════════════════════════════════
@@ -191,13 +208,21 @@ app.get('/', (req, res) => {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
+    if (!username || !password) {
+        return res.status(400).json({ success: false, message: 'Identifiants manquants' });
+    }
+
     db.query("SELECT * FROM admins WHERE username = ? AND password = ?", [username, password], (err, results) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
 
         if (results.length > 0) {
             req.session.loggedin = true;
             req.session.username = username;
-            res.json({ success: true, redirect: '/admin.html' });
+            // ✅ FIX: Sauvegarder la session AVANT de répondre
+            req.session.save((err) => {
+                if (err) return res.status(500).json({ success: false, message: 'Erreur session' });
+                res.json({ success: true, redirect: '/admin.html' });
+            });
         } else {
             res.json({ success: false, message: 'Identifiants incorrects' });
         }
@@ -205,20 +230,36 @@ app.post('/api/login', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+    req.session.destroy((err) => {
+        if (err) console.error('Erreur destroy session:', err);
+        res.redirect('/');
+    });
 });
 
 // ═══════════════════════════════════════════════════════════════
 //  6. PAGES ADMIN (PROTÉGÉES)
 // ═══════════════════════════════════════════════════════════════
 
+app.get('/admin.html', isAuthenticated, (req, res) =>
+    res.sendFile(path.join(__dirname, 'prive', 'admin.html')));
 
-app.get('/admin.html',              isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'admin.html')));
-app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html')));
-app.get('/liste-membres.html',      isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'liste-membres.html')));
-app.get('/gestion-cotisations.html',isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-cotisations.html')));
-app.get('/gestion-depenses.html',   isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-depenses.html')));
+app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) =>
+    res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html')));
+
+app.get('/liste-membres.html', isAuthenticated, (req, res) =>
+    res.sendFile(path.join(__dirname, 'prive', 'liste-membres.html')));
+
+app.get('/gestion-cotisations.html', isAuthenticated, (req, res) =>
+    res.sendFile(path.join(__dirname, 'prive', 'gestion-cotisations.html')));
+
+app.get('/gestion-depenses.html', isAuthenticated, (req, res) =>
+    res.sendFile(path.join(__dirname, 'prive', 'gestion-depenses.html')));
+
+// ✅ FIX: Bloquer l'accès direct au dossier /prive/ (sécurité)
+app.get('/prive/*', isAuthenticated, (req, res) => {
+    const filename = path.basename(req.path);
+    res.sendFile(path.join(__dirname, 'prive', filename));
+});
 
 // ═══════════════════════════════════════════════════════════════
 //  7. API COTISATIONS
@@ -260,7 +301,6 @@ app.post('/api/cotisations/toggle', isAuthenticated, (req, res) => {
 //  8. API DÉPENSES
 // ═══════════════════════════════════════════════════════════════
 
-// GET — toutes les dépenses (accessible publiquement pour l'affichage du solde)
 app.get('/api/depenses', (req, res) => {
     db.query("SELECT * FROM depenses ORDER BY created_at DESC", (err, results) => {
         if (err) return res.status(500).json({ error: err });
@@ -268,7 +308,6 @@ app.get('/api/depenses', (req, res) => {
     });
 });
 
-// POST — ajouter une dépense (admin uniquement)
 app.post('/api/depenses', isAuthenticated, (req, res) => {
     const { label, montant, categorie, date, note } = req.body;
     if (!label || !montant) return res.status(400).json({ success: false, message: 'label et montant requis' });
@@ -282,7 +321,6 @@ app.post('/api/depenses', isAuthenticated, (req, res) => {
     );
 });
 
-// DELETE — supprimer une dépense (admin uniquement)
 app.delete('/api/depenses/:id', isAuthenticated, (req, res) => {
     db.query("DELETE FROM depenses WHERE id = ?", [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err });
@@ -296,10 +334,9 @@ app.delete('/api/depenses/:id', isAuthenticated, (req, res) => {
 
 app.post('/api/nouveautes', isAuthenticated, upload.single('image'), (req, res) => {
     const { titre } = req.body;
-    const imageUrl  = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
     if (!imageUrl) return res.status(400).json({ success: false, message: 'Image requise.' });
     db.query("INSERT INTO nouveautes (titre, url, date) VALUES (?, ?, NOW())", [titre || 'Sans titre', imageUrl], (err) => {
-
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur.' });
         res.json({ success: true, message: 'Nouveauté ajoutée avec succès!' });
     });
@@ -312,12 +349,10 @@ app.get('/api/nouveautes', (req, res) => {
     });
 });
 
-
 // ═══════════════════════════════════════════════════════════════
 //  10. API INSCRIPTIONS
 // ═══════════════════════════════════════════════════════════════
 
-// Inscrire un homme
 app.post('/api/inscrire', (req, res) => {
     const { nom, telephone, situation } = req.body;
     if (!nom || !telephone || !situation) return res.status(400).json({ success: false });
@@ -333,7 +368,6 @@ app.post('/api/inscrire', (req, res) => {
     });
 });
 
-// Inscrire une femme
 app.post('/api/inscrire-femme', (req, res) => {
     const { nom, telephone } = req.body;
     if (!nom || !telephone) return res.status(400).json({ success: false });
@@ -343,13 +377,9 @@ app.post('/api/inscrire-femme', (req, res) => {
         db.query("INSERT INTO femmes (nom, telephone) VALUES (?, ?)", [nom, telephone], (err) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
             res.json({ success: true, message: 'Inscription réussie!' });
-
         });
     });
 });
-
-
-// Liste des membres
 
 app.get('/api/membres', (req, res) => {
     db.query("SELECT * FROM membres ORDER BY date_inscription DESC", (err, results) => {
@@ -358,7 +388,6 @@ app.get('/api/membres', (req, res) => {
     });
 });
 
-// Liste des femmes
 app.get('/api/femmes', (req, res) => {
     db.query("SELECT * FROM femmes ORDER BY date_inscription DESC", (err, results) => {
         if (err) return res.status(500).json({ success: false });
@@ -384,7 +413,6 @@ app.get('/init', (req, res) => {
     function next(err) {
         if (err) return res.send(`❌ Erreur : ${err.message}`);
         if (i >= tables.length) {
-            // Créer admin par défaut
             db.query("SELECT * FROM admins WHERE username = 'admin'", (err, results) => {
                 if (!err && results.length === 0) {
                     db.query("INSERT INTO admins (username, password) VALUES ('admin', '123456')");
@@ -406,7 +434,6 @@ app.get('/init', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
-
-    console.log(`🔒 Mode Sécurisé (MySQL Sessions) activé`);
-
+    console.log(`🔒 Mode: ${isProduction ? 'PRODUCTION' : 'DÉVELOPPEMENT'}`);
+    console.log(`🔒 Sessions MySQL activées`);
 });

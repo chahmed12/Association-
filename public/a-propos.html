@@ -11,6 +11,43 @@
     <style>
         body {
             font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-header {
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .gradient-bg {
@@ -35,24 +72,41 @@
     </style>
 </head>
 
-<body class="bg-gray-50 min-h-screen">
+<body class="min-h-screen flex flex-col text-gray-800">
 
-    <div class="gradient-bg text-white py-12 shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+    <!-- Header -->
+    <header class="glass-header text-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
+        <div class="container mx-auto px-4 py-12 relative z-10 text-center">
+
+            <div class="w-full flex items-center justify-between mb-4">
                 <a href="/"
-                    class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center gap-2 order-2 md:order-1">
+                    class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2 px-6 rounded-full transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    الرئيسية
+                    <span class="font-inter text-sm">Retour</span>
                 </a>
-                <h1 class="text-4xl font-bold order-1 md:order-2">من نحن</h1>
-                <div class="w-24 hidden md:block order-3"></div>
             </div>
+
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-2 tracking-tight drop-shadow-lg font-cairo">من <span
+                    class="text-green-300">نحن</span></h1>
+            <p class="text-green-50 text-base md:text-lg font-inter tracking-wide drop-shadow-md">À propos de
+                l'association</p>
         </div>
-    </div>
+
+        <!-- Bottom Wave SVG -->
+        <div class="absolute bottom-0 w-full overflow-hidden leading-none z-0">
+            <svg class="relative block w-full h-[50px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path
+                    d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,121.32,201.5,115.68c70-5.63,143.91-17.16,206.88-41.46Z"
+                    fill="#f0fdf4"></path>
+            </svg>
+        </div>
+    </header>
 
     <div class="container mx-auto px-4 py-12">
         <div class="max-w-5xl mx-auto">
@@ -246,10 +300,11 @@
         </div>
     </div>
 
-    <footer class="bg-gray-800 text-white py-8 mt-16">
+    <footer class="bg-gray-900 border-t border-gray-800 text-gray-400 py-8 mt-auto relative z-20">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-sm">© 2026 رابطة شباب جدة - جميع الحقوق محفوظة</p>
-            <p class="text-xs text-gray-400 mt-2">Association de la Jeunesse de Jeddeta - Mauritanie</p>
+            <p class="text-xs md:text-sm font-medium tracking-wide">© 2026 رابطة شباب جدة - Association de la Jeunesse
+                de Jeddetta</p>
+            <p class="text-xs font-inter mt-3">Mauritanie - موريتانيا</p>
         </div>
     </footer>
 

@@ -10,36 +10,77 @@
     <style>
         body {
             font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #fdf4ff, #f3e8ff, #fce7f3, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBGFemmes 15s ease infinite;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBGFemmes {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-card-femmes {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.07);
+        }
+
+        .glass-header-femmes {
+            background: linear-gradient(135deg, rgba(219, 39, 119, 0.95) 0%, rgba(147, 51, 234, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-pink-50 to-purple-50 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
     <a href="/"
-        class="fixed top-4 left-4 bg-white hover:bg-gray-100 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 flex items-center gap-2 text-sm z-50">
+        class="fixed top-4 left-4 bg-white/40 hover:bg-white/60 backdrop-blur-md text-gray-800 font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 flex items-center gap-2 text-sm z-50 border border-white/50">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
             </path>
         </svg>
-        الرئيسية
+        <span class="font-inter">Retour</span>
     </a>
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div
+        class="glass-card-femmes rounded-3xl w-full max-w-md overflow-hidden relative border-t-4 border-pink-500 shadow-2xl">
 
         <!-- En-tête -->
-        <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-6 text-center">
-            <h1 class="text-white text-2xl font-bold">تسجيل النساء</h1>
-            <p class="text-pink-100 text-sm mt-1">Inscription Femmes</p>
+        <div class="glass-header-femmes p-6 text-center relative overflow-hidden text-white">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+            </div>
+            <h1 class="text-3xl font-extrabold font-cairo drop-shadow-md">تسجيل النساء</h1>
+            <p class="text-pink-100 text-sm mt-1 font-inter opacity-90 tracking-wide">Inscription Femmes</p>
         </div>
 
         <!-- Corps principal -->
-        <div class="p-8 text-center">
+        <div class="p-8 text-center bg-white/40">
 
             <!-- Icône de cadenas -->
             <div class="flex justify-center mb-6">
-                <div class="bg-pink-100 rounded-full p-5">
-                    <svg class="w-16 h-16 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div
+                    class="bg-gradient-to-br from-pink-100 to-purple-200 rounded-2xl p-5 shadow-inner border border-pink-200/50">
+                    <svg class="w-16 h-16 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
                         </path>
@@ -48,41 +89,42 @@
             </div>
 
             <!-- Message principal -->
-            <h2 class="text-2xl font-black text-gray-800 mb-4 leading-relaxed">
+            <h2 class="text-2xl font-black text-gray-800 mb-4 leading-relaxed font-cairo">
                 انتهى التسجيل
             </h2>
 
-            <div class="bg-pink-50 border border-pink-200 rounded-xl p-5 mb-6">
-                <p class="text-gray-700 text-base leading-loose font-semibold">
+            <div class="bg-white/80 backdrop-blur-sm border border-pink-200/80 rounded-xl p-5 mb-6 shadow-sm">
+                <p class="text-gray-700 text-base leading-loose font-semibold font-cairo text-right">
                     لقد انتهت مرحلة التسجيل في الجمعية.
                 </p>
-                <p class="text-gray-600 text-sm leading-loose mt-2">
+                <p class="text-gray-600 text-sm leading-loose mt-2 font-cairo text-right">
                     إذا كنتِ ترغبين في التسجيل، يُرجى التواصل مع أحد أعضاء الإدارة في الجمعية.
                 </p>
             </div>
 
             <!-- Icône contact -->
-            <div class="flex items-center justify-center gap-3 bg-purple-50 border border-purple-200 rounded-xl p-4">
-                <svg class="w-6 h-6 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor"
+            <div
+                class="flex items-center justify-center gap-3 bg-white/80 backdrop-blur-sm border border-purple-200/80 rounded-xl p-4 shadow-sm">
+                <svg class="w-6 h-6 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z">
                     </path>
                 </svg>
-                <p class="text-purple-700 font-bold text-sm">
+                <p class="text-gray-700 font-bold text-sm font-cairo">
                     تواصلي مع أحد المشرفين على الجمعية
                 </p>
             </div>
 
             <!-- Bouton retour -->
             <a href="/"
-                class="mt-6 inline-block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 shadow-md hover:shadow-lg">
+                class="mt-8 inline-block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-xl transition duration-300 shadow-md hover:shadow-lg hover:-translate-y-1 w-full text-lg">
                 العودة إلى الرئيسية
             </a>
         </div>
 
-        <div class="bg-gray-50 p-3 text-center text-xs text-gray-500 border-t">
-            Mauritanie © 2026 - جميع الحقوق محفوظة
+        <div class="bg-gray-100/80 p-4 text-center text-xs text-gray-500 border-t border-gray-200/50 font-inter">
+            Mauritanie © 2026 - Assoc. Jeunesse
         </div>
     </div>
 
