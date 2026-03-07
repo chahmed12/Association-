@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - رابطة شباب جدة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        /* Animation de fond */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Effet de flottement */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+
+        /* Effet de brillance (Shimmer) */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: rotate(45deg);
+            transition: all 0.5s;
+        }
+        .shimmer:hover::after {
+            left: 100%;
+            top: 100%;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.03);
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+    </head>
+
+    <body class="min-h-screen text-gray-800">
+    <!-- Loader -->
+    <div id="loader">
+        <div class="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Header Graphique Commun -->
+    <header class="glass-header text-white shadow-2xl relative overflow-hidden bg-green-800 py-12">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="container mx-auto px-4 relative z-10 text-center" data-aos="fade-down">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-2 tracking-tight drop-shadow-lg">
+                <span class="text-white">رابطة</span>
+                <span class="text-green-300">شباب</span>
+                <span class="text-white">جدة</span>
+            </h1>
+            <p class="text-lg font-light text-green-50 animate-pulse">Association de la Jeunesse de Jeddetta</p>
+    ...
+    </header>
+    <main class="container mx-auto px-4 py-12">
+
+    <script>
+        // Initialiser AOS
+        window.addEventListener('load', () => {
+            AOS.init({ duration: 800, once: true });
+            const loader = document.getElementById('loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        });
+    </script>
+
+                <a href="/" class="hover:text-green-300 transition">Accueil</a>
+                <a href="/nouveautes" class="hover:text-green-300 transition">Nouveautés</a>
+                <a href="/login.html" class="hover:text-green-300 transition">Admin</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8">

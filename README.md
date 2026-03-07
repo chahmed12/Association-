@@ -1,101 +1,102 @@
-# 🌟 Système de Gestion d'Association (Mauritanie-Tunisie)
+# 🌟 Association de la Jeunesse de Jeddetta (AJJ)
 
-Une plateforme web moderne et intuitive pour la gestion des membres, des cotisations et des événements d'une association.
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![Framework: Express](https://img.shields.io/badge/framework-Express-blue)](https://expressjs.com/)
+[![Database: MySQL](https://img.shields.io/badge/database-MySQL-orange)](https://www.mysql.com/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
 
-![Tech Stack](https://img.shields.io/badge/Stack-Node.js%20%7C%20Express%20%7C%20MySQL%20%7C%20Tailwind-blue)
-![Status](https://img.shields.io/badge/Status-Actif-success)
-
-## 📋 Table des Matières
-- [Aperçu](#-aperçu)
-- [Fonctionnalités](#-fonctionnalités)
-- [Stack Technique](#-stack-technique)
-- [Installation](#-installation)
-- [Structure du Projet](#-structure-du-projet)
-- [Configuration](#-configuration)
+Une application web complète et sécurisée pour la gestion des membres, des cotisations et des activités de l'**Association de la Jeunesse de Jeddetta** (Mauritanie).
 
 ---
 
-## 🚀 Aperçu
-Cette application permet de centraliser la gestion d'une association, facilitant l'inscription des membres, le suivi des dons, et la communication des actualités (nouveautés). Elle dispose d'un espace sécurisé pour l'administration.
+## 🚀 Fonctionnalités
 
-## ✨ Fonctionnalités
+- 🔐 **Administration Sécurisée** : Authentification avec hachage Bcrypt et protection contre les attaques brute-force.
+- 👥 **Gestion des Membres** : Inscription dynamique pour les hommes et les femmes.
+- 💰 **Suivi Financier** : Gestion des cotisations mensuelles (Toggle API) et suivi des dépenses.
+- 📰 **Actualités & Médias** : Système d'upload d'images sécurisé pour les nouveautés de l'association.
+- 📱 **Interface Moderne** : Design "Glassmorphism" responsive avec TailwindCSS et EJS.
 
-### 👥 Espace Public
-- **🏠 Accueil Dynamique** : Présentation professionnelle avec accès rapide aux services.
-- **📝 Inscriptions Différenciées** :
-  - **Hommes** : Calcul automatique des cotisations (Travaillant: 2000 UM, Sans emploi: 1000 UM).
-  - **Femmes** : Formulaire d'inscription simplifié.
-- **💰 Suivi des Dons** : Visualisation transparente des contributions.
-- **📸 Galerie de Nouveautés** : Affichage des derniers événements et annonces.
-- **📋 Liste des Membres** : Consultation des membres enregistrés.
-- **ℹ️ À Propos** : Informations détaillées sur l'association.
+---
 
-### 🔐 Espace Administration (Privé)
-- **🛠️ Dashboard Admin** : Point d'entrée central pour la gestion.
-- **📰 Gestion des Nouveautés** : Ajout d'événements avec support pour l'upload d'images.
-- **💳 Gestion des Cotisations** : Suivi rigoureux des paiements des membres.
-- **🔑 Session Sécurisée** : Authentification requise pour accéder aux outils de gestion.
+## 🛡️ Sécurité (Hardened Core)
 
-## 🛠️ Stack Technique
-- **Frontend** : HTML5, CSS3 (Tailwind CSS), JavaScript (Vanilla).
-- **Backend** : Node.js, Express.js.
-- **Base de données** : MySQL.
-- **Gestion de fichiers** : Multer (pour les uploads d'images).
-- **Sessions** : Express-session avec support MySQL.
+Le projet a été audité et renforcé avec les standards industriels :
+- **Helmet.js** : Protection des headers HTTP contre les vulnérabilités courantes (XSS, Clickjacking).
+- **Bcrypt** : Hachage des mots de passe avec sel (SaltRounds: 10).
+- **Joi Validation** : Validation stricte des schémas de données (Entrées API).
+- **Express Rate Limit** : Limitation des requêtes pour prévenir les dénis de service (DoS) et le brute-force.
+- **MySQL Sessions** : Stockage sécurisé des sessions côté serveur.
 
-## ⚙️ Installation
+---
+
+## 🏗️ Architecture Modulaire
+
+L'application suit une structure **MVC-light** pour une maintenance simplifiée :
+
+```text
+/
+├── config/             # Configuration Base de données (Pool)
+├── middleware/         # Auth, Validators, Security
+├── routes/             # Endpoints API (Auth, Membres, Dépenses...)
+├── views/              # Templates EJS (Partials, Pages)
+├── public/             # Assets statiques (CSS, Images, Uploads)
+├── prive/              # Pages HTML protégées (Admin)
+└── server.js           # Point d'entrée (Slim & Clean)
+```
+
+---
+
+## 🛠️ Installation & Configuration
 
 ### 1. Prérequis
-- [Node.js](https://nodejs.org/) (v14+)
-- [XAMPP](https://www.apachefriends.org/) ou serveur MySQL équivalent.
+- Node.js (v18+)
+- MySQL Server
 
-### 2. Configuration SQL
-1. Lancez MySQL via XAMPP.
-2. Créez la base de données : `CREATE DATABASE association_db;`.
-3. Importez le schéma : `mysql -u root association_db < database.sql`.
-
-### 3. Installation du Serveur
+### 2. Installation
 ```bash
-# Entrer dans le répertoire
-cd /association
-
-# Installer les dépendances
+git clone [votre-repo]
+cd association
 npm install
-
-# Lancer l'application
-node server.js
 ```
 
-L'application sera accessible sur : `http://localhost:3000`
-
-## 📂 Structure du Projet
-```
-association/
-├── prive/                # Espace administration (Accès protégé)
-│   ├── admin.html
-│   ├── gestion-cotisations.html
-│   └── gestion-nouveautes.html
-├── public/               # Fichiers publics (Accessibles à tous)
-│   ├── index.html        # Accueil
-│   ├── suivi-dons.html   # Suivi des dons
-│   ├── images/           # Logo et assets statiques
-│   └── uploads/          # Images postées par l'admin
-├── server.js             # Logique backend & API
-├── database.sql          # Schéma de la base de données
-└── package.json          # Dépendances Node.js
+### 3. Variables d'Environnement (`.env`)
+Créez un fichier `.env` à la racine :
+```env
+MYSQLHOST=localhost
+MYSQLUSER=root
+MYSQLPASSWORD=votre_password
+MYSQLDATABASE=association_db
+MYSQLPORT=3306
+PORT=3000
+SESSION_SECRET=votre_secret_tres_long_et_aleatoire
 ```
 
-## 🔧 Configuration
-Pour modifier la connexion à la base de données, éditez le fichier `server.js` :
-```javascript
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'votre_mot_de_passe',
-    database: 'association_db'
-});
+### 4. Initialisation
+Démarrez le serveur et accédez à `/init` (une fois connecté ou temporairement déprotégé) pour créer automatiquement les tables SQL.
+
+---
+
+## 🚀 Déploiement (Production)
+
+Pour une mise en production robuste, utilisez **PM2** et **Nginx** :
+
+```bash
+# Lancer avec PM2
+npm install -g pm2
+pm2 start server.js --name "ajj-app"
+
+# Configuration Nginx recommandée (Reverse Proxy)
+# location / {
+#     proxy_pass http://localhost:3000;
+#     proxy_set_header Host $host;
+# }
 ```
 
 ---
-*Développé pour l'Association des jeunes de jeddeta.*
-# association
+
+## 📝 Auteur
+**Cheikh Ahmed Zenvour** - *Ingénieur Développement*
+
+---
+✨ *Développé avec passion pour la Jeunesse de Jeddetta.*
