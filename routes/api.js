@@ -176,8 +176,9 @@ router.post('/login', validate('login'), (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ success: false, message: 'Identifiants manquants' });
 
-    db.query("SELECT * FROM admins WHERE username = ?", [username], async (err, results) => {
+    db.query("SELECT * FROM admins WHERE username = $1", [username], async (err, result) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const results = result ? result.rows : [];
         if (results.length > 0) {
             const admin = results[0];
             const match = await bcrypt.compare(password, admin.password);
@@ -198,10 +199,12 @@ router.post('/login', validate('login'), (req, res) => {
 //  2. COTISATIONS
 // ═══════════════════════════════════════════════════════════════
 router.get('/cotisations', (req, res) => {
-    db.query("SELECT * FROM membres ORDER BY nom ASC", (err, membres) => {
+    db.query("SELECT * FROM membres ORDER BY nom ASC", (err, resMembres) => {
         if (err) return res.status(500).json({ error: err });
-        db.query("SELECT * FROM payments", (err, paiements) => {
+        const membres = resMembres ? resMembres.rows : [];
+        db.query("SELECT * FROM payments", (err, resPaiements) => {
             if (err) return res.status(500).json({ error: err });
+            const paiements = resPaiements ? resPaiements.rows : [];
             const data = membres.map(m => ({
                 ...m,
                 paiements: paiements.filter(p => p.membre_id === m.id).map(p => p.mois)
@@ -213,14 +216,15 @@ router.get('/cotisations', (req, res) => {
 
 router.post('/cotisations/toggle', isAuthenticated, (req, res) => {
     const { membre_id, mois } = req.body;
-    db.query("SELECT * FROM payments WHERE membre_id = ? AND mois = ?", [membre_id, mois], (err, results) => {
+    db.query("SELECT * FROM payments WHERE membre_id = $1 AND mois = $2", [membre_id, mois], (err, result) => {
         if (err) return res.status(500).json({ error: err });
+        const results = result ? result.rows : [];
         if (results.length > 0) {
-            db.query("DELETE FROM payments WHERE membre_id = ? AND mois = ?", [membre_id, mois], () => {
+            db.query("DELETE FROM payments WHERE membre_id = $1 AND mois = $2", [membre_id, mois], () => {
                 res.json({ success: true, status: 'removed' });
             });
         } else {
-            db.query("INSERT INTO payments (membre_id, mois) VALUES (?, ?)", [membre_id, mois], () => {
+            db.query("INSERT INTO payments (membre_id, mois) VALUES ($1, $2)", [membre_id, mois], () => {
                 res.json({ success: true, status: 'added' });
             });
         }
@@ -231,25 +235,25 @@ router.post('/cotisations/toggle', isAuthenticated, (req, res) => {
 //  3. DÉPENSES
 // ═══════════════════════════════════════════════════════════════
 router.get('/depenses', (req, res) => {
-    db.query("SELECT * FROM depenses ORDER BY created_at DESC", (err, results) => {
+    db.query("SELECT * FROM depenses ORDER BY created_at DESC", (err, result) => {
         if (err) return res.status(500).json({ error: err });
-        res.json(results);
+        res.json(result ? result.rows : []);
     });
 });
 
 router.post('/depenses', isAuthenticated, validate('depense'), (req, res) => {
     const { label, montant, categorie, date, note } = req.body;
     if (!label || !montant) return res.status(400).json({ success: false });
-    db.query("INSERT INTO depenses (label, montant, categorie, date, note) VALUES (?, ?, ?, ?, ?)",
+    db.query("INSERT INTO depenses (label, montant, categorie, date, note) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         [label, montant, categorie || 'autre', date || null, note || ''],
         (err, result) => {
             if (err) return res.status(500).json({ error: err });
-            res.json({ success: true, id: result.insertId });
+            res.json({ success: true, id: result.rows[0].id });
         });
 });
 
 router.delete('/depenses/:id', isAuthenticated, (req, res) => {
-    db.query("DELETE FROM depenses WHERE id = ?", [req.params.id], (err) => {
+    db.query("DELETE FROM depenses WHERE id = $1", [req.params.id], (err) => {
         if (err) return res.status(500).json({ error: err });
         res.json({ success: true });
     });
@@ -262,30 +266,48 @@ router.post('/nouveautes', isAuthenticated, upload.single('image'), (req, res) =
     const { titre } = req.body;
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
     if (!imageUrl) return res.status(400).json({ success: false, message: 'Image requise.' });
-    db.query("INSERT INTO nouveautes (titre, url, date) VALUES (?, ?, NOW())", [titre || 'Sans titre', imageUrl], (err) => {
+    db.query("INSERT INTO nouveautes (titre, url, date) VALUES ($1, $2, NOW())", [titre || 'Sans titre', imageUrl], (err) => {
         if (err) return res.status(500).json({ success: false });
         res.json({ success: true, message: 'Nouveauté ajoutée!' });
     });
 });
 
 router.get('/nouveautes', (req, res) => {
-    db.query("SELECT * FROM nouveautes ORDER BY date DESC", (err, results) => {
+    db.query("SELECT * FROM nouveautes ORDER BY date DESC", (err, result) => {
         if (err) return res.status(500).json({ success: false });
-        res.json({ success: true, images: results });
+        res.json({ success: true, images: result ? result.rows : [] });
     });
 });
 
 // ═══════════════════════════════════════════════════════════════
-//  5. INSCRIPTIONS
+//  5. FEMMES ET MEMBRES
+// ═══════════════════════════════════════════════════════════════
+router.get('/femmes', (req, res) => {
+    db.query("SELECT * FROM femmes ORDER BY date_inscription DESC", (err, result) => {
+        if (err) return res.status(500).json({ success: false, error: err });
+        res.json({ success: true, femmes: result ? result.rows : [] });
+    });
+});
+
+router.get('/membres', (req, res) => {
+    db.query("SELECT * FROM membres ORDER BY date_inscription DESC", (err, result) => {
+        if (err) return res.status(500).json({ success: false, error: err });
+        res.json({ success: true, membres: result ? result.rows : [] });
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  6. INSCRIPTIONS
 // ═══════════════════════════════════════════════════════════════
 router.post('/inscrire', validate('inscription'), (req, res) => {
     const { nom, telephone, situation } = req.body;
     if (!nom || !telephone || !situation) return res.status(400).json({ success: false });
-    db.query("SELECT * FROM membres WHERE telephone = ?", [telephone], (err, results) => {
+    db.query("SELECT * FROM membres WHERE telephone = $1", [telephone], (err, result) => {
         if (err) return res.status(500).json({ success: false });
+        const results = result ? result.rows : [];
         if (results.length > 0) return res.status(400).json({ success: false, message: 'Numéro déjà enregistré!' });
         const montant = (situation === 'نعم') ? 2000 : 1000;
-        db.query("INSERT INTO membres (nom, telephone, situation, montant) VALUES (?, ?, ?, ?)",
+        db.query("INSERT INTO membres (nom, telephone, situation, montant) VALUES ($1, $2, $3, $4)",
             [nom, telephone, situation, montant], (err) => {
                 if (err) return res.status(500).json({ success: false });
                 res.json({ success: true, message: 'Inscription réussie!' });
@@ -299,12 +321,15 @@ router.post('/inscrire', validate('inscription'), (req, res) => {
 
 router.get('/pdf/rapport-financier', isAuthenticated, (req, res) => {
     // Charger toutes les données en parallèle
-    db.query("SELECT * FROM membres", (err, membres) => {
+    db.query("SELECT * FROM membres", (err, resMembres) => {
         if (err) return res.status(500).send('Erreur DB');
-        db.query("SELECT * FROM payments", (err, paiements) => {
+        const membres = resMembres ? resMembres.rows : [];
+        db.query("SELECT * FROM payments", (err, resPaiements) => {
             if (err) return res.status(500).send('Erreur DB');
-            db.query("SELECT * FROM depenses ORDER BY date DESC", (err, depenses) => {
+            const paiements = resPaiements ? resPaiements.rows : [];
+            db.query("SELECT * FROM depenses ORDER BY date DESC", (err, resDepenses) => {
                 if (err) return res.status(500).send('Erreur DB');
+                const depenses = resDepenses ? resDepenses.rows : [];
 
                 // ── Calculs financiers ──────────────────────────────────
                 const totalCot = membres.reduce((sum, m) => {

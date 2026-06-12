@@ -28,6 +28,10 @@ Desktop.ini
 *.sqlite3
 *.db
 
+# Exports de base de données PostgreSQL/MySQL
+*_export*.sql
+database_export*.sql
+
 # --- Fichiers LaTeX (Générés lors de la compilation) ---
 # On garde le .tex et le .pdf final, mais on retire les fichiers temporaires
 *.aux

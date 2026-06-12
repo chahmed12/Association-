@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
+const pgSession = require('connect-pg-simple')(session);
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
@@ -38,7 +38,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 2. SESSIONS
-const sessionStore = new MySQLStore({}, db);
+const sessionStore = new pgSession({
+    pool: db,
+    tableName: 'sessions',
+    createTableIfMissing: true
+});
 app.use(session({
     key: 'association_session',
     secret: process.env.SESSION_SECRET || 'secret_pro_2026_assoc',

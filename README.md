@@ -96,7 +96,6 @@ pm2 start server.js --name "ajj-app"
 ---
 
 ## 📝 Auteur
-**Cheikh Ahmed Zenvour** - *Ingénieur Développement*
+**Cheikh Ahmed Zenvour** 
 
----
-✨ *Développé avec passion pour la Jeunesse de Jeddetta.*
+
