@@ -9,6 +9,8 @@ const path = require('path');
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const ArabicReshaperModule = require('arabic-persian-reshaper');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 // Utilisation de la méthode statique directe
 const ArabicShaper = ArabicReshaperModule.ArabicShaper;
@@ -143,17 +145,13 @@ function barChart(doc, x, y, width, height, data, maxVal, barColor) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  CONFIGURATION MULTER
+//  CONFIGURATION MULTER (CLOUDINARY)
 // ─────────────────────────────────────────────────────────────────
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = path.join(__dirname, '../public/uploads');
-        if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'association_images',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
     }
 });
 
@@ -264,7 +262,7 @@ router.delete('/depenses/:id', isAuthenticated, (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 router.post('/nouveautes', isAuthenticated, upload.single('image'), (req, res) => {
     const { titre } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? req.file.path : null;
     if (!imageUrl) return res.status(400).json({ success: false, message: 'Image requise.' });
     db.query("INSERT INTO nouveautes (titre, url, date) VALUES ($1, $2, NOW())", [titre || 'Sans titre', imageUrl], (err) => {
         if (err) return res.status(500).json({ success: false });

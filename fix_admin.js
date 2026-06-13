@@ -15,7 +15,7 @@ async function fix() {
     const hash = await bcrypt.hash('123456', 10);
     await db.query("DELETE FROM admins WHERE username = 'admin'");
     await db.query("INSERT INTO admins (username, password) VALUES ('admin', $1)", [hash]);
-    
+
     console.log("✅ Compte 'admin' recréé avec le mot de passe : 123456");
     await db.end();
 }

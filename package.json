@@ -11,6 +11,7 @@
     "bcrypt": "^6.0.0",
     "bidi-js": "^1.0.3",
     "body-parser": "^1.20.2",
+    "cloudinary": "^1.41.3",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
@@ -21,6 +22,7 @@
     "helmet": "^8.1.0",
     "joi": "^18.0.2",
     "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "pdfkit": "^0.17.2",
     "pg": "^8.21.0"
   }
