@@ -1,56 +1,89 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الجديد - Nouveautés | رابطة شباب جدة</title>
+    <meta name="description" content="آخر أخبار وصور رابطة شباب جدة - موريتانيا">
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
 
     <style>
+        :root {
+            --bg-grad-1: #f0fdf4; --bg-grad-2: #dcfce7; --bg-grad-3: #ecfdf5; --bg-grad-4: #ffffff;
+            --card-bg: rgba(255,255,255,0.8); --card-border: rgba(255,255,255,0.5);
+            --text-primary: #1f2937; --text-muted: #6b7280;
+        }
+        [data-theme="dark"] {
+            --bg-grad-1: #0f172a; --bg-grad-2: #1e293b; --bg-grad-3: #0f172a; --bg-grad-4: #1e293b;
+            --card-bg: rgba(30,41,59,0.9); --card-border: rgba(255,255,255,0.08);
+            --text-primary: #f1f5f9; --text-muted: #94a3b8;
+        }
+        * { transition: background-color 0.3s, color 0.3s; }
         body {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg-grad-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            color: var(--text-primary);
         }
-
-        .font-inter {
-            font-family: 'Inter', sans-serif;
-        }
-
+        .font-inter { font-family: 'Inter', sans-serif; }
         @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-
-        /* Glassmorphism Classes */
         .glass-card {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            background: var(--card-bg);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.07);
         }
-
         .glass-header {
-            background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(6,95,70,0.97) 0%, rgba(16,185,129,0.93) 100%);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
+        [data-theme="dark"] .text-gray-800 { color: #f1f5f9 !important; }
+        [data-theme="dark"] .text-gray-700 { color: #e2e8f0 !important; }
+        [data-theme="dark"] .text-gray-500 { color: #94a3b8 !important; }
+        [data-theme="dark"] .text-gray-400 { color: #64748b !important; }
+        [data-theme="dark"] footer { background: #0f172a !important; }
+        [data-theme="dark"] .skeleton {
+            background: linear-gradient(to right, #1e293b 4%, #334155 25%, #1e293b 36%);
+            background-size: 1000px 100%;
+        }
+        /* ── DARK TOGGLE ── */
+        #darkToggle {
+            position: fixed; top: 1rem; left: 1rem; z-index: 1000;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        #darkToggle:hover { transform: scale(1.1) rotate(20deg); }
+        /* ── REVEAL ── */
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        /* ── MOBILE NAV ── */
+        #mobileNav { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border-top: 1px solid var(--card-border);
+            padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.1); }
+        @media (max-width: 768px) { #mobileNav { display: flex; } body { padding-bottom: 80px; } }
+        .mobile-nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            gap: 2px; padding: 6px 4px; border-radius: 12px; text-decoration: none;
+            color: var(--text-muted); font-size: 0.6rem; font-family: 'Inter',sans-serif; font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .mobile-nav-item svg { width: 22px; height: 22px; }
+        .mobile-nav-item.active { color: #10b981; }
+        .mobile-nav-item.whatsapp { color: #25d366; }
 
         /* ===== HERO IMAGE ===== */
         .hero-img {
@@ -159,7 +192,9 @@
     </style>
 </head>
 
-<body class="min-h-screen text-gray-800 flex flex-col">
+<body class="min-h-screen flex flex-col">
+    <!-- Dark Toggle -->
+    <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
 
     <!-- ===== HEADER ===== -->
     <header class="glass-header text-white shadow-2xl relative overflow-hidden">
@@ -314,13 +349,53 @@
     <!-- ===== FOOTER ===== -->
     <footer class="bg-gray-900 border-t border-gray-800 text-gray-400 py-8 mt-auto relative z-20">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-xs md:text-sm font-medium tracking-wide">© 2026 رابطة شباب جدة - Association de la Jeunesse
-                de Jeddetta</p>
+            <p class="text-xs md:text-sm font-medium tracking-wide">© 2026 رابطة شباب جدة - Association de la Jeunesse de Jeddetta</p>
             <p class="text-xs font-inter mt-3">Mauritanie - موريتانيا</p>
         </div>
     </footer>
 
+    <!-- Mobile Bottom Nav -->
+    <nav id="mobileNav" class="justify-around items-center">
+        <a href="/" class="mobile-nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>الرئيسية</span>
+        </a>
+        <a href="/nouveautes.html" class="mobile-nav-item active">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>أخبار</span>
+        </a>
+        <a href="/liste-membres.html" class="mobile-nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>أعضاء</span>
+        </a>
+        <a href="https://wa.me/22242413948" target="_blank" class="mobile-nav-item" style="color:#25d366">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771z"/></svg>
+            <span>واتساب</span>
+        </a>
+        <a href="/login.html" class="mobile-nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>إدارة</span>
+        </a>
+    </nav>
+
     <script>
+        // ── DARK MODE ──
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        function toggleDark() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('darkToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+        document.getElementById('darkToggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        // ── SCROLL REVEAL ──
+        const revealObs = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
         let images = [];
         let currentIndex = 0;
 
@@ -361,7 +436,7 @@
                 `${images.length} photo${images.length > 1 ? 's' : ''}`;
 
             grid.innerHTML = images.slice(1).map((img, i) => `
-                <div class="gallery-card rounded-2xl shadow-lg cursor-pointer flex flex-col group"
+                <div class="gallery-card rounded-2xl shadow-lg cursor-pointer flex flex-col group reveal"
                      onclick="openLightbox(${i + 1})">
                     <div class="overflow-hidden rounded-t-2xl relative">
                         <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 z-10"></div>
@@ -378,9 +453,12 @@
                 </div>
             `).join('');
 
+            // Observe new cards
+            document.querySelectorAll('#galleryGrid .reveal').forEach(el => revealObs.observe(el));
+
             // Si un seul élément pas de section "الصور الأخيرة"
             if (images.length === 1) {
-                document.querySelector('.container .flex.items-center.justify-between').classList.add('hidden');
+                document.querySelector('.container .flex.items-center.justify-between')?.classList.add('hidden');
             }
         }
 
