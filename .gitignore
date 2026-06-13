@@ -50,3 +50,11 @@ images/temp/
 # --- Logs du serveur ---
 logs/
 *.log
+
+# --- Scripts utilitaires (migration, debug) ---
+migrate_images.js
+fix_admin.js
+fix_sessions.js
+convert_to_pg.js
+run_import.js
+check_data.js
