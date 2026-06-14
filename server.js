@@ -7,6 +7,7 @@ const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 
 const db = require('./config/db');
 const { isAuthenticated } = require('./middleware/auth');
@@ -24,13 +25,14 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(helmet({
     contentSecurityPolicy: false, // Désactivé pour simplifier le chargement des scripts/images locaux
 }));
+app.use(compression()); // Compresser les réponses (HTML, CSS, JS, JSON)
 
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
     message: "Trop de requêtes, veuillez réessayer plus tard."
 });
-app.use(globalLimiter);
+// Le limiteur sera appliqué APRES les fichiers statiques pour ne pas bloquer les images
 
 app.set('trust proxy', 1);
 app.use(cors());
@@ -57,7 +59,8 @@ app.use(session({
 }));
 
 // 3. ROUTES STATIQUES & PAGES PROTÉGÉES
-app.use(express.static(path.join(__dirname, 'public')));
+// Ajout d'un cache de 7 jours pour soulager le serveur sur les fichiers statiques (images, css, js)
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 
 app.get('/', (req, res) => {
     res.render('index', { title: 'Accueil' });
@@ -71,7 +74,8 @@ app.get('/gestion-depenses.html', isAuthenticated, (req, res) => res.sendFile(pa
 app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html')));
 
 // 4. ROUTES API
-app.use('/api', apiRoutes);
+// On applique le limiteur uniquement sur les requêtes API (et non sur les fichiers statiques)
+app.use('/api', globalLimiter, apiRoutes);
 
 app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));

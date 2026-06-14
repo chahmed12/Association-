@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 
 
 <head>
@@ -12,11 +12,31 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* ── CSS VARIABLES (Light / Dark) ── */
+        :root {
+            --bg-grad-1: #f0fdf4; --bg-grad-2: #dcfce7; --bg-grad-3: #ecfdf5; --bg-grad-4: #ffffff;
+            --card-bg: rgba(255,255,255,0.75); --card-border: rgba(255,255,255,0.5);
+            --text-primary: #1f2937; --text-secondary: #6b7280;
+            --table-bg: rgba(255,255,255,0.8); --table-hover: rgba(16,185,129,0.05);
+            --mobile-card-bg: #ffffff;
+            --input-bg: rgba(255,255,255,0.8);
+        }
+        [data-theme="dark"] {
+            --bg-grad-1: #0f172a; --bg-grad-2: #1e293b; --bg-grad-3: #0f172a; --bg-grad-4: #1e293b;
+            --card-bg: rgba(30,41,59,0.9); --card-border: rgba(255,255,255,0.08);
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+            --table-bg: rgba(15,23,42,0.8); --table-hover: rgba(16,185,129,0.08);
+            --mobile-card-bg: #1e293b;
+            --input-bg: rgba(30,41,59,0.8);
+        }
+        * { transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+
         body {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg-grad-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            color: var(--text-primary);
         }
 
         .font-inter {
@@ -24,27 +44,20 @@
         }
 
         @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* Glassmorphism Classes */
         .glass-card {
-            background: rgba(255, 255, 255, 0.75);
+            background: var(--card-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--card-border);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
+        [data-theme="dark"] .glass-card { box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3); }
 
         .glass-header {
             background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
@@ -71,6 +84,43 @@
             box-shadow: 0 20px 40px -5px rgba(16, 185, 129, 0.2);
             border-color: rgba(16, 185, 129, 0.4);
         }
+
+        /* ── DARK MODE TOGGLE ── */
+        #darkToggle {
+            position: fixed; top: 1rem; left: 1rem; z-index: 1000;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        #darkToggle:hover { transform: scale(1.1) rotate(20deg); }
+
+        /* ── DARK TEXT OVERRIDES ── */
+        [data-theme="dark"] .text-gray-800 { color: #f1f5f9 !important; }
+        [data-theme="dark"] .text-gray-700 { color: #e2e8f0 !important; }
+        [data-theme="dark"] .text-gray-600 { color: #cbd5e1 !important; }
+        [data-theme="dark"] .text-gray-500 { color: #94a3b8 !important; }
+        [data-theme="dark"] .text-gray-400 { color: #64748b !important; }
+        [data-theme="dark"] footer { background: #0f172a !important; color: #64748b !important; }
+        [data-theme="dark"] .bg-white { background-color: #1e293b !important; }
+        [data-theme="dark"] .bg-white\/80 { background-color: rgba(30,41,59,0.85) !important; }
+        [data-theme="dark"] .bg-white\/60 { background-color: rgba(30,41,59,0.7) !important; }
+        [data-theme="dark"] .bg-white\/40 { background-color: rgba(30,41,59,0.5) !important; }
+        [data-theme="dark"] .bg-white\/20 { background-color: rgba(30,41,59,0.3) !important; }
+        [data-theme="dark"] .bg-white\/10 { background-color: rgba(30,41,59,0.1) !important; }
+        [data-theme="dark"] .bg-gray-50 { background-color: #0f172a !important; }
+        [data-theme="dark"] .bg-gray-50\/50 { background-color: rgba(15,23,42,0.5) !important; }
+        [data-theme="dark"] .bg-gray-100 { background-color: #1e293b !important; }
+        [data-theme="dark"] .bg-gray-200 { background-color: #334155 !important; }
+        [data-theme="dark"] .border-gray-200\/50 { border-color: rgba(51,65,85,0.5) !important; }
+        [data-theme="dark"] .border-gray-100 { border-color: #334155 !important; }
+        [data-theme="dark"] .border-gray-50 { border-color: #1e293b !important; }
+        [data-theme="dark"] .border-gray-200 { border-color: #334155 !important; }
+        [data-theme="dark"] .divide-gray-50 > * + * { border-color: #1e293b !important; }
+        [data-theme="dark"] tr.hover\:bg-green-50\/50:hover { background-color: rgba(16,185,129,0.08) !important; }
+        [data-theme="dark"] .group-hover\:bg-green-50\/50 { background-color: rgba(30,41,59,0.9) !important; }
+        [data-theme="dark"] input#searchInput { background-color: var(--input-bg) !important; color: #f1f5f9; border-color: #334155; }
 
         @media (max-width: 768px) {
             .mobile-card {
@@ -142,6 +192,17 @@
 </head>
 
 <body class="min-h-screen flex flex-col text-gray-800">
+
+    <!-- Dark Mode Toggle -->
+    <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
+
+    <!-- Scroll To Top -->
+    <button id="scrollTop"
+        onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        title="Retour en haut"
+        style="position:fixed;bottom:2rem;left:1rem;z-index:999;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.4);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
+        ↑
+    </button>
 
     <!-- Header -->
     <header class="glass-header text-white shadow-2xl relative overflow-hidden">
@@ -219,19 +280,35 @@
     <div class="container mx-auto px-3 md:px-4 pb-6 md:pb-8 flex-grow relative z-20">
 
 
-        <!-- Barre de recherche -->
+        <!-- Barre de recherche et actions -->
         <div class="glass-card rounded-2xl p-6 md:p-8 mb-8 mt-2 max-w-4xl mx-auto border-t-4 border-emerald-500">
-            <div class="relative max-w-2xl mx-auto">
-                <input type="text" id="searchInput" placeholder="البحث عن اسم... / Rechercher un nom..."
-                    class="w-full px-5 py-4 pr-14 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all text-right font-medium text-lg bg-white/80 shadow-inner" />
-                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-emerald-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center max-w-2xl mx-auto">
+                <div class="relative w-full">
+                    <input type="text" id="searchInput" placeholder="البحث عن اسم... / Rechercher un nom..."
+                        class="w-full px-5 py-4 pl-10 pr-14 border border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all text-right font-medium text-lg bg-white/80 shadow-inner" />
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-emerald-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <!-- Bouton Clear (X) -->
+                    <button id="searchClearBtn"
+                        onclick="document.getElementById('searchInput').value='';document.getElementById('searchInput').dispatchEvent(new Event('input'));this.style.display='none';"
+                        style="display:none;position:absolute;left:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:#e5e7eb;border:none;cursor:pointer;align-items:center;justify-content:center;font-size:16px;color:#6b7280;transition:all 0.2s;"
+                        title="Effacer la recherche">×</button>
                 </div>
+                
+                <button onclick="refreshData()" title="Actualiser"
+                    class="w-full md:w-auto px-6 py-4 rounded-xl text-base font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span class="">تحديث / Actualiser</span>
+                </button>
             </div>
             <div id="searchResults" class="mt-4 text-sm font-medium text-center hidden"></div>
+            <div class="flex justify-center mt-3">
+                <span id="lastRefreshed" class="text-xs text-gray-400 font-inter"></span>
+            </div>
         </div>
 
 
@@ -356,6 +433,9 @@
                 renderMobileCards(allMembres);
                 initSearch();
 
+                const el = document.getElementById('lastRefreshed');
+                if (el) el.textContent = 'Mis à jour : ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+
             } catch (err) {
                 console.error(err);
                 document.getElementById('desktopTableBody').innerHTML =
@@ -367,31 +447,50 @@
         function initSearch() {
             const input = document.getElementById('searchInput');
             const results = document.getElementById('searchResults');
+            const clearBtn = document.getElementById('searchClearBtn');
             input.addEventListener('input', e => {
                 const term = e.target.value.trim().toLowerCase();
+                if (clearBtn) clearBtn.style.display = term ? 'flex' : 'none';
+                
                 if (!term) { renderDesktopTable(allMembres); renderMobileCards(allMembres); results.classList.add('hidden'); return; }
                 const filtered = allMembres.filter(m => m.nom.toLowerCase().includes(term));
-                renderDesktopTable(filtered); renderMobileCards(filtered);
+                renderDesktopTable(filtered, term); renderMobileCards(filtered);
                 results.classList.remove('hidden');
                 results.innerHTML = filtered.length === 0
                     ? '❌ Aucun membre trouvé'
                     : `✓ ${filtered.length} membre(s) trouvé(s)`;
-                results.className = `mt-2 text-sm text-center font-medium ${filtered.length === 0 ? 'text-red-500' : 'text-green-600'}`;
+                results.className = `mt-4 text-sm text-center font-medium ${filtered.length === 0 ? 'text-red-500' : 'text-green-600'}`;
             });
             input.addEventListener('keydown', e => {
-                if (e.key === 'Escape') { input.value = ''; renderDesktopTable(allMembres); renderMobileCards(allMembres); results.classList.add('hidden'); }
+                if (e.key === 'Escape') { input.value = ''; input.dispatchEvent(new Event('input')); }
             });
         }
 
         // ── Tableau desktop ───────────────────────────────────────────────────
-        function renderDesktopTable(membres) {
+        function renderDesktopTable(membres, searchTerm = '') {
             const tbody = document.getElementById('desktopTableBody');
             if (!membres.length) { tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-500">Aucun membre trouvé</td></tr>'; return; }
             tbody.innerHTML = '';
+            
+            function highlight(text, term) {
+                if (!term || !text) return text || '';
+                const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                return text.toString().replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#bbf7d0;color:#065f46;border-radius:3px;padding:0 2px;">$1</mark>');
+            }
+
             membres.forEach(m => {
                 const totalPaid = m.paiements.length * m.montant;
-                let html = `<tr class="hover:bg-green-50/50 transition duration-150 group">
-                    <td class="p-4 text-right font-bold text-gray-800 border-l border-gray-100 sticky right-0 bg-white group-hover:bg-green-50/50 z-10">${m.nom}</td>
+                const paidCount = m.paiements.length;
+                const progress = (paidCount / months.length) * 100;
+                let progressColor = progress < 50 ? 'bg-red-500' : progress < 80 ? 'bg-orange-500' : 'bg-green-500';
+
+                let html = `<tr class="hover:bg-green-50/50 transition duration-150 group relative">
+                    <td class="p-4 text-right font-bold text-gray-800 border-l border-gray-100 sticky right-0 bg-white group-hover:bg-green-50/50 z-10 w-48">
+                        ${highlight(m.nom, searchTerm)}
+                        <div class="absolute bottom-0 right-0 left-0 h-1 bg-gray-100">
+                            <div class="h-full ${progressColor}" style="width: ${progress}%"></div>
+                        </div>
+                    </td>
                     <td class="p-4 text-center font-medium text-gray-500 border-l border-gray-100">${m.montant}</td>`;
                 months.forEach(month => {
                     const isPaid = m.paiements.includes(month.num);
@@ -452,6 +551,38 @@
             });
         }
 
+        async function refreshData() {
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div><span class="">جاري التحديث...</span>';
+            btn.disabled = true;
+
+            await loadAll();
+
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            
+            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+            Toast.fire({ icon: 'success', title: 'تم تحديث البيانات ✅' });
+        }
+
+        // ── DARK MODE ──
+        const _savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', _savedTheme);
+        document.getElementById('darkToggle').textContent = _savedTheme === 'dark' ? '☀️' : '🌙';
+
+        function toggleDark() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('darkToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+
+        // ── SCROLL TO TOP ──
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            scrollTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+        });
 
         loadAll();
     </script>

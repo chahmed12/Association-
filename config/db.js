@@ -7,7 +7,7 @@ const db = new Pool({
     password: process.env.PGPASSWORD || process.env.MYSQLPASSWORD,
     database: process.env.PGDATABASE || process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE,
     port: process.env.PGPORT || process.env.MYSQLPORT || 5432,
-    max: 10 // équivalent à connectionLimit
+    max: 25 // Augmenté pour gérer 200-300 utilisateurs simultanés (Render free = 50 max)
 });
 
 db.query('SELECT 1', (err) => {

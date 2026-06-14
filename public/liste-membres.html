@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -13,11 +13,31 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* ── CSS VARIABLES (Light / Dark) ── */
+        :root {
+            --bg-grad-1: #f0fdf4; --bg-grad-2: #dcfce7; --bg-grad-3: #ecfdf5; --bg-grad-4: #ffffff;
+            --card-bg: rgba(255,255,255,0.75); --card-border: rgba(255,255,255,0.5);
+            --text-primary: #1f2937; --text-secondary: #6b7280;
+            --table-bg: rgba(255,255,255,0.8); --table-hover: rgba(16,185,129,0.05);
+            --member-card-bg: #ffffff; --member-card-border: #e5e7eb;
+            --input-bg: rgba(255,255,255,0.7);
+        }
+        [data-theme="dark"] {
+            --bg-grad-1: #0f172a; --bg-grad-2: #1e293b; --bg-grad-3: #0f172a; --bg-grad-4: #1e293b;
+            --card-bg: rgba(30,41,59,0.9); --card-border: rgba(255,255,255,0.08);
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+            --table-bg: rgba(15,23,42,0.8); --table-hover: rgba(16,185,129,0.08);
+            --member-card-bg: #1e293b; --member-card-border: #334155;
+            --input-bg: rgba(30,41,59,0.8);
+        }
+        * { transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+
         body {
             font-family: 'Cairo', sans-serif;
-            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg-grad-4));
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            color: var(--text-primary);
         }
 
         .font-inter {
@@ -40,12 +60,13 @@
 
         /* Glassmorphism Classes */
         .glass-card {
-            background: rgba(255, 255, 255, 0.75);
+            background: var(--card-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--card-border);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
+        [data-theme="dark"] .glass-card { box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3); }
 
         .glass-header {
             background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
@@ -64,6 +85,39 @@
             box-shadow: 0 20px 40px -5px rgba(16, 185, 129, 0.2);
             border-color: rgba(16, 185, 129, 0.4);
         }
+
+        /* ── DARK MODE TOGGLE ── */
+        #darkToggle {
+            position: fixed; top: 1rem; left: 1rem; z-index: 1000;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+        #darkToggle:hover { transform: scale(1.1) rotate(20deg); }
+
+        /* ── DARK TEXT OVERRIDES ── */
+        [data-theme="dark"] .text-gray-800 { color: #f1f5f9 !important; }
+        [data-theme="dark"] .text-gray-700 { color: #e2e8f0 !important; }
+        [data-theme="dark"] .text-gray-600 { color: #cbd5e1 !important; }
+        [data-theme="dark"] .text-gray-500 { color: #94a3b8 !important; }
+        [data-theme="dark"] .text-gray-400 { color: #64748b !important; }
+        [data-theme="dark"] footer { background: #0f172a !important; color: #64748b !important; }
+        [data-theme="dark"] .bg-white { background-color: #1e293b !important; }
+        [data-theme="dark"] .bg-white\/80 { background-color: rgba(30,41,59,0.85) !important; }
+        [data-theme="dark"] .bg-white\/60 { background-color: rgba(30,41,59,0.7) !important; }
+        [data-theme="dark"] .bg-white\/40 { background-color: rgba(30,41,59,0.5) !important; }
+        [data-theme="dark"] .bg-white\/20 { background-color: rgba(30,41,59,0.3) !important; }
+        [data-theme="dark"] .bg-gray-50 { background-color: #0f172a !important; }
+        [data-theme="dark"] .bg-gray-50\/80 { background-color: rgba(15,23,42,0.85) !important; }
+        [data-theme="dark"] .border-gray-200\/50 { border-color: rgba(51,65,85,0.5) !important; }
+        [data-theme="dark"] .border-gray-100 { border-color: #334155 !important; }
+        [data-theme="dark"] .divide-gray-200\/50 > * + * { border-color: rgba(51,65,85,0.5) !important; }
+        [data-theme="dark"] .divide-gray-100 > * + * { border-color: #334155 !important; }
+        [data-theme="dark"] tr.hover\:bg-green-50\/50:hover { background-color: rgba(16,185,129,0.08) !important; }
+        [data-theme="dark"] tr.hover\:bg-pink-50\/50:hover { background-color: rgba(236,72,153,0.08) !important; }
+        [data-theme="dark"] .group-hover\:bg-green-50\/50 { background-color: rgba(30,41,59,0.9) !important; }
 
         /* --- RESPONSIVE MOBILE --- */
         @media (max-width: 768px) {
@@ -117,11 +171,11 @@
         }
 
         .member-card {
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--member-card-border);
             border-radius: 0.5rem;
             padding: 1rem;
             margin-bottom: 1rem;
-            background: white;
+            background: var(--member-card-bg);
         }
 
         .member-card-row {
@@ -137,12 +191,12 @@
 
         .member-card-label {
             font-weight: 600;
-            color: #6b7280;
+            color: var(--text-secondary);
             font-size: 0.875rem;
         }
 
         .member-card-value {
-            color: #111827;
+            color: var(--text-primary);
             font-size: 0.875rem;
         }
 
@@ -190,7 +244,18 @@
     </style>
 </head>
 
-<body class="min-h-screen text-gray-800 flex flex-col">
+<body class="min-h-screen flex flex-col">
+
+    <!-- Dark Mode Toggle -->
+    <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
+
+    <!-- Scroll To Top -->
+    <button id="scrollTop"
+        onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        title="Retour en haut"
+        style="position:fixed;bottom:6rem;left:1rem;z-index:999;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.4);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
+        ↑
+    </button>
 
     <!-- ===== HEADER ===== -->
     <header class="glass-header text-white shadow-2xl relative overflow-hidden no-print">
@@ -337,6 +402,7 @@
             <div class="p-5 border-b border-gray-100/50 bg-white/20 backdrop-blur-md no-print">
                 <div
                     class="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center max-w-4xl mx-auto">
+                    <!-- Recherche améliorée -->
                     <div class="relative w-full md:w-2/3 search-container">
                         <span class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -345,18 +411,37 @@
                             </svg>
                         </span>
                         <input type="text" id="searchInput" placeholder="البحث بالاسم..."
-                            class="w-full pr-12 pl-4 py-3 border-2 border-white/60 bg-white/70 backdrop-blur-sm rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right">
+                            class="w-full pr-12 pl-10 py-3 border-2 border-white/60 bg-white/70 backdrop-blur-sm rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right">
+                        <!-- Bouton Clear (X) -->
+                        <button id="searchClearBtn"
+                            onclick="document.getElementById('searchInput').value='';document.getElementById('searchInput').dispatchEvent(new Event('input'));this.style.display='none';"
+                            style="display:none;position:absolute;left:10px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:#e5e7eb;border:none;cursor:pointer;align-items:center;justify-content:center;font-size:14px;color:#6b7280;transition:all 0.2s;"
+                            title="Effacer la recherche">×</button>
                     </div>
-
-                    <button onclick="preparePrint()"
-                        class="w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                            </path>
-                        </svg>
-                        طباعة / PDF
-                    </button>
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <!-- Compteur résultats -->
+                        <span id="searchCount" class="text-sm font-semibold text-green-600 font-inter bg-green-50 px-3 py-1 rounded-full hidden md:inline-block"></span>
+                        <!-- Bouton actualiser -->
+                        <button onclick="refreshData()" title="Actualiser"
+                            class="px-4 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center gap-2 whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            <span class="hidden md:inline">تحديث</span>
+                        </button>
+                        <!-- Bouton imprimer -->
+                        <button onclick="preparePrint()"
+                            class="w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                                </path>
+                            </svg>
+                            طباعة / PDF
+                        </button>
+                    </div>
+                </div>
+                <!-- Indicateur dernière MAJ -->
+                <div class="flex justify-center mt-3">
+                    <span id="lastRefreshed" class="text-xs text-gray-400 font-inter"></span>
                 </div>
             </div>
 
@@ -489,10 +574,26 @@
                 document.getElementById('statsGrid').classList.remove('hidden');
                 showTab('hommes');
                 document.getElementById('loadingState').style.display = 'none';
+                updateLastRefreshed();
             } catch (error) {
                 console.error('Erreur:', error);
                 document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Erreur de chargement</p>';
             }
+        }
+
+        async function refreshData() {
+            const btn = event.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div><span class="hidden md:inline">جاري التحديث...</span>';
+            btn.disabled = true;
+
+            await loadData();
+
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            
+            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+            Toast.fire({ icon: 'success', title: 'تم تحديث البيانات ✅' });
         }
 
         function updateStats() {
@@ -642,10 +743,33 @@
             displayHommes(filtered);
         }
 
-        function displayHommes(data = hommesData) {
+        // Fonction utilitaire pour surbrillance
+        function highlight(text, term) {
+            if (!term || !text) return text || '';
+            const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return text.toString().replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#bbf7d0;color:#065f46;border-radius:3px;padding:0 2px;">$1</mark>');
+        }
+
+        function copyPhone(phone) {
+            navigator.clipboard.writeText(phone).then(() => {
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+                Toast.fire({ icon: 'success', title: 'تم نسخ الرقم ✅' });
+            }).catch(() => {
+                prompt('انسخ الرقم:', phone);
+            });
+        }
+
+        function displayHommes(data = hommesData, searchTerm = '') {
             currentDisplayData = data;
             const tbody = document.getElementById('hommesBody');
             const mobileView = document.getElementById('hommesMobileView');
+
+            // Afficher le compteur
+            const searchCount = document.getElementById('searchCount');
+            if (searchCount) {
+                searchCount.textContent = searchTerm ? `${data.length} résultat(s)` : '';
+                searchCount.style.display = searchTerm ? 'inline-block' : 'none';
+            }
 
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucun résultat</td></tr>';
@@ -653,12 +777,22 @@
                 return;
             }
 
-            // Vue Desktop (Table)
+            // Vue Desktop (Table) avec copie téléphone + highlight
             tbody.innerHTML = data.map((membre, index) => `
                 <tr class="hover:bg-green-50/50 transition duration-150">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">${membre.nom}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-inter tracking-wide" dir="ltr">${membre.telephone}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">${highlight(membre.nom, searchTerm)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-inter tracking-wide" dir="ltr">
+                        <div class="flex items-center gap-2">
+                            <span>${membre.telephone}</span>
+                            <button onclick="copyPhone('${membre.telephone}')" title="Copier le numéro"
+                                style="width:24px;height:24px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
+                                onmouseover="this.style.background='rgba(16,185,129,0.25)'"
+                                onmouseout="this.style.background='rgba(16,185,129,0.1)'">
+                                <svg width="12" height="12" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>
+                        </div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${membre.situation === 'نعم' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'}">
                             ${membre.situation === 'نعم' ? 'Travaille' : 'Sans emploi'}
@@ -669,7 +803,7 @@
                 </tr>
             `).join('');
 
-            // Vue Mobile (Cartes)
+            // Vue Mobile (Cartes) avec copie téléphone
             mobileView.innerHTML = data.map((membre, index) => `
                 <div class="member-card">
                     <div class="flex justify-between items-start mb-2">
@@ -680,11 +814,17 @@
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">الاسم (Nom)</span>
-                        <span class="member-card-value font-bold">${membre.nom}</span>
+                        <span class="member-card-value font-bold">${highlight(membre.nom, searchTerm)}</span>
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">الهاتف (Tél)</span>
-                        <span class="member-card-value">${membre.telephone}</span>
+                        <span class="member-card-value flex items-center gap-2 justify-end">
+                            ${membre.telephone}
+                            <button onclick="copyPhone('${membre.telephone}')" title="Copier"
+                                style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                                <svg width="14" height="14" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>
+                        </span>
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">المبلغ (Montant)</span>
@@ -698,7 +838,7 @@
             `).join('');
         }
 
-        function displayFemmes(data = femmesData) {
+        function displayFemmes(data = femmesData, searchTerm = '') {
             currentDisplayData = data;
             const tbody = document.getElementById('femmesBody');
             const mobileView = document.getElementById('femmesMobileView');
@@ -713,7 +853,7 @@
             tbody.innerHTML = data.map((femme, index) => `
                 <tr class="hover:bg-pink-50/50 transition duration-150">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2"><span class="text-pink-400">👩</span> ${femme.nom}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2"><span class="text-pink-400">👩</span> ${highlight(femme.nom, searchTerm)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${formatDate(femme.date_inscription)}</td>
                 </tr>
             `).join('');
@@ -727,7 +867,7 @@
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">الاسم (Nom)</span>
-                        <span class="member-card-value font-bold">${femme.nom}</span>
+                        <span class="member-card-value font-bold">${highlight(femme.nom, searchTerm)}</span>
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">التاريخ (Date)</span>
@@ -743,16 +883,50 @@
             return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
         }
 
+        // ── Recherche améliorée avec highlight ──
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
+            const clearBtn = document.getElementById('searchClearBtn');
+            const searchCount = document.getElementById('searchCount');
+
+            if (clearBtn) clearBtn.style.display = term ? 'flex' : 'none';
+
             if (currentTab === 'hommes') {
                 const filtered = hommesData.filter(m => m.nom.toLowerCase().includes(term));
-                displayHommes(filtered);
+                displayHommes(filtered, term);
+                if (searchCount && term) searchCount.textContent = `${filtered.length} résultat(s)`;
+                else if (searchCount) searchCount.textContent = '';
             } else {
                 const filtered = femmesData.filter(f => f.nom.toLowerCase().includes(term));
-                displayFemmes(filtered);
+                displayFemmes(filtered, term);
+                if (searchCount && term) searchCount.textContent = `${filtered.length} résultat(s)`;
+                else if (searchCount) searchCount.textContent = '';
             }
         });
+
+        // ── DARK MODE ──
+        const _savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', _savedTheme);
+        document.getElementById('darkToggle').textContent = _savedTheme === 'dark' ? '☀️' : '🌙';
+
+        function toggleDark() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('darkToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+
+        // ── SCROLL TO TOP ──
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            scrollTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+        });
+
+        // ── INDICATEUR DERNIÈRE MISE À JOUR ──
+        function updateLastRefreshed() {
+            const el = document.getElementById('lastRefreshed');
+            if (el) el.textContent = 'Mis à jour : ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+        }
     </script>
 </body>
 

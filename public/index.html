@@ -247,6 +247,14 @@
     <!-- Dark Mode Toggle -->
     <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
 
+    <!-- Scroll To Top -->
+    <button id="scrollTop"
+        onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        title="Retour en haut"
+        style="position:fixed;bottom:6rem;left:1rem;z-index:999;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.4);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
+        ↑
+    </button>
+
     <!-- Header -->
     <header class="glass-header text-white shadow-2xl relative overflow-hidden">
         <!-- Particles -->
@@ -712,6 +720,12 @@
         });
         window.addEventListener('load', () => {
             setTimeout(() => Toast.fire({ icon: 'info', title: 'مرحباً بك في موقع رابطة شباب جدة' }), 1000);
+        });
+
+        // ── SCROLL TO TOP ──
+        const scrollTopBtn = document.getElementById('scrollTop');
+        window.addEventListener('scroll', () => {
+            if (scrollTopBtn) scrollTopBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
         });
     </script>
 </body>

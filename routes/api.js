@@ -277,6 +277,41 @@ router.get('/nouveautes', (req, res) => {
     });
 });
 
+router.delete('/nouveautes/:id', isAuthenticated, (req, res) => {
+    const { id } = req.params;
+    
+    // Récupérer l'URL pour la supprimer de Cloudinary
+    db.query("SELECT url FROM nouveautes WHERE id = $1", [id], async (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        
+        const results = result ? result.rows : [];
+        if (results.length === 0) return res.status(404).json({ success: false, message: 'Image introuvable' });
+        
+        const imageUrl = results[0].url;
+        
+        try {
+            if (imageUrl) {
+                // Extraire le public_id de l'URL Cloudinary
+                const parts = imageUrl.split('/');
+                const folder = parts[parts.length - 2];
+                const file = parts[parts.length - 1].split('.')[0];
+                const publicId = `${folder}/${file}`;
+                
+                await cloudinary.uploader.destroy(publicId);
+            }
+            
+            // Supprimer de la base de données
+            db.query("DELETE FROM nouveautes WHERE id = $1", [id], (err) => {
+                if (err) return res.status(500).json({ success: false, message: 'Erreur lors de la suppression en base' });
+                res.json({ success: true, message: 'Image supprimée avec succès' });
+            });
+        } catch (cloudErr) {
+            console.error('Erreur de suppression Cloudinary:', cloudErr);
+            res.status(500).json({ success: false, message: 'Erreur lors de la suppression du fichier' });
+        }
+    });
+});
+
 // ═══════════════════════════════════════════════════════════════
 //  5. FEMMES ET MEMBRES
 // ═══════════════════════════════════════════════════════════════

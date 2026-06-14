@@ -94,6 +94,24 @@
             </div>
         </div>
 
+        <!-- Section Galerie -->
+        <div class="mt-10 bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-gray-50 border-b border-gray-200 p-6 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Images existantes</h2>
+                    <p class="text-sm text-gray-500 mt-1">Gérer et supprimer les nouveautés publiées</p>
+                </div>
+                <button onclick="loadGallery()" class="text-purple-600 hover:text-purple-800" title="Rafraîchir">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                    <p class="text-gray-500 col-span-full text-center py-8">Chargement des images...</p>
+                </div>
+            </div>
+        </div>
+
         <div class="mt-6 text-center">
             <a href="/" class="text-purple-600 hover:text-purple-800 font-semibold">← Retour à l'accueil</a>
             <span class="mx-4 text-gray-400">|</span>
@@ -149,6 +167,7 @@
                 if (result.success) {
                     document.getElementById('adminForm').classList.add('hidden');
                     document.getElementById('successMessage').classList.remove('hidden');
+                    loadGallery(); // Mettre à jour la galerie
                 } else {
                     document.getElementById('errorMessage').classList.remove('hidden');
                 }
@@ -163,6 +182,58 @@
                 }
             }
         });
+
+        async function loadGallery() {
+            const grid = document.getElementById('galleryGrid');
+            try {
+                const res = await fetch('/api/nouveautes');
+                const data = await res.json();
+                
+                if (data.success && data.images && data.images.length > 0) {
+                    grid.innerHTML = data.images.map(img => `
+                        <div class="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                            <img src="${img.url}" alt="${img.titre || 'Image'}" class="w-full h-40 object-cover">
+                            <div class="p-3 bg-white">
+                                <p class="text-sm font-semibold text-gray-800 truncate">${img.titre || 'Sans titre'}</p>
+                                <p class="text-xs text-gray-500 mt-1">${new Date(img.date).toLocaleDateString()}</p>
+                            </div>
+                            <div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button onclick="deleteImage(${img.id})" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transform hover:scale-105 transition-all shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-8">Aucune image enregistrée.</p>';
+                }
+            } catch (error) {
+                console.error("Erreur chargement galerie:", error);
+                grid.innerHTML = '<p class="text-red-500 col-span-full text-center py-4">Erreur lors du chargement des images.</p>';
+            }
+        }
+
+        async function deleteImage(id) {
+            if (!confirm("Voulez-vous vraiment supprimer cette image définitivement ?\\n(Elle sera supprimée de la base de données et du serveur d'images)")) return;
+            
+            try {
+                const res = await fetch(\`/api/nouveautes/\${id}\`, { method: 'DELETE' });
+                const data = await res.json();
+                
+                if (data.success) {
+                    loadGallery(); // Recharger la galerie après suppression
+                } else {
+                    alert("Erreur: " + (data.message || "Impossible de supprimer l'image"));
+                }
+            } catch (error) {
+                console.error("Erreur suppression:", error);
+                alert("Erreur lors de la suppression");
+            }
+        }
+
+        // Charger la galerie au démarrage
+        document.addEventListener('DOMContentLoaded', loadGallery);
     </script>
 </body>
 
