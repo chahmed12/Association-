@@ -215,10 +215,10 @@
         }
 
         async function deleteImage(id) {
-            if (!confirm("Voulez-vous vraiment supprimer cette image définitivement ?\\n(Elle sera supprimée de la base de données et du serveur d'images)")) return;
+            if (!confirm("Voulez-vous vraiment supprimer cette image définitivement ?\n(Elle sera supprimée de la base de données et du serveur d'images)")) return;
             
             try {
-                const res = await fetch(\`/api/nouveautes/\${id}\`, { method: 'DELETE' });
+                const res = await fetch(`/api/nouveautes/${id}`, { method: 'DELETE' });
                 const data = await res.json();
                 
                 if (data.success) {
