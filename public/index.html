@@ -230,6 +230,62 @@
             transform-origin: left;
         }
         @keyframes loadingAnim { 0% { background-position: 200%; } 100% { background-position: -200%; } }
+
+        /* ── FLOATING ANIMATION (Logo) ── */
+        @keyframes floatLogo {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float {
+            animation: floatLogo 4s ease-in-out infinite;
+        }
+        
+        /* ── SHINE TEXT ANIMATION ── */
+        @keyframes shine {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+        .animate-shine {
+            background: linear-gradient(120deg, #ffffff 20%, #4ade80 40%, #4ade80 60%, #ffffff 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 5s linear infinite;
+        }
+
+        /* ── HERO STAGGERED ENTRANCE ── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-elem {
+            opacity: 0;
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+
+        /* ── ANIMATED WAVES ── */
+        .waves {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            margin-bottom: -7px; /* Fix gap */
+        }
+        .parallax-waves > use {
+            animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite;
+        }
+        .parallax-waves > use:nth-child(1) { animation-delay: -2s; animation-duration: 7s; }
+        .parallax-waves > use:nth-child(2) { animation-delay: -3s; animation-duration: 10s; }
+        .parallax-waves > use:nth-child(3) { animation-delay: -4s; animation-duration: 13s; }
+        .parallax-waves > use:nth-child(4) { animation-delay: -5s; animation-duration: 20s; }
+        @keyframes move-forever {
+            0% { transform: translate3d(-90px,0,0); }
+            100% { transform: translate3d(85px,0,0); }
+        }
     </style>
 </head>
 
@@ -257,23 +313,21 @@
 
         <div class="container mx-auto px-4 py-16 relative z-10 text-center">
             <div id="logoContainer"
-                class="mb-8 w-32 h-32 mx-auto bg-white/10 rounded-full p-2 backdrop-blur-sm border border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] flex items-center justify-center transform hover:scale-105 transition duration-500">
+                class="mb-8 w-32 h-32 mx-auto bg-white/10 rounded-full p-2 backdrop-blur-sm border border-white/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] flex items-center justify-center animate-float hero-elem delay-1">
                 <img id="logoImage" src="/images/AssociationJJJ.jpg" alt="Logo de l'association"
                     class="hidden w-full h-full object-cover rounded-full shadow-inner">
                 <span id="logoText" class="text-4xl font-extrabold text-white tracking-widest drop-shadow-md">رج</span>
             </div>
 
-            <h1 class="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight drop-shadow-lg">
-                <span class="text-white">رابطة</span>
-                <span class="text-green-300">شباب</span>
-                <span class="text-white">جدة</span>
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight drop-shadow-lg hero-elem delay-2">
+                <span class="animate-shine">رابطة شباب جدة</span>
             </h1>
-            <p class="text-xl md:text-2xl font-light text-green-50 max-w-2xl mx-auto drop-shadow-md mb-2 font-inter">
+            <p class="text-xl md:text-2xl font-light text-green-50 max-w-2xl mx-auto drop-shadow-md mb-2 font-inter hero-elem delay-3">
                 Association de la Jeunesse de Jeddetta
             </p>
-            <p class="text-sm text-green-200 mt-2 tracking-widest font-inter">MAURITANIE - موريتانيا</p>
+            <p class="text-sm text-green-200 mt-2 tracking-widest font-inter hero-elem delay-3">MAURITANIE - موريتانيا</p>
 
-            <div class="mt-8 flex justify-center gap-4 flex-wrap">
+            <div class="mt-8 flex justify-center gap-4 flex-wrap hero-elem delay-4">
                 <a href="#villes"
                     class="bg-white text-green-700 px-8 py-3 rounded-full font-bold hover:bg-green-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition duration-300 shadow-lg font-inter btn-pulse">Rejoignez-nous</a>
                 <a href="/nouveautes.html"
@@ -282,8 +336,16 @@
         </div>
 
         <div class="absolute bottom-0 w-full overflow-hidden leading-none">
-            <svg class="relative block w-full h-[50px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,121.32,201.5,115.68c70-5.63,143.91-17.16,206.88-41.46Z" fill="#f0fdf4" id="waveFill"></path>
+            <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+                <defs>
+                    <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                </defs>
+                <g class="parallax-waves">
+                    <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(240, 253, 244,0.3)" />
+                    <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(240, 253, 244,0.5)" />
+                    <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(240, 253, 244,0.7)" />
+                    <use xlink:href="#gentle-wave" x="48" y="7" fill="#f0fdf4" id="waveFill" />
+                </g>
             </svg>
         </div>
     </header>
@@ -618,8 +680,19 @@
         // ── LOGO ──
         const logoImg = document.getElementById('logoImage');
         const logoText = document.getElementById('logoText');
+        
+        function showLogo() {
+            logoText.classList.add('hidden');
+            logoImg.classList.remove('hidden');
+        }
+        
         logoImg.onerror = () => { logoImg.classList.add('hidden'); logoText.classList.remove('hidden'); };
-        logoImg.onload = () => { logoText.classList.add('hidden'); logoImg.classList.remove('hidden'); };
+        logoImg.onload = showLogo;
+        
+        // Correction du bug de cache : Si l'image est DÉJÀ chargée quand le script s'exécute
+        if (logoImg.complete && logoImg.naturalWidth > 0) {
+            showLogo();
+        }
 
         // ── QUOTE ──
         const citationsArabes = [
