@@ -9,6 +9,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
 
     <style>
         :root {
@@ -61,6 +63,11 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
             box-shadow: 0 8px 32px 0 rgba(31,38,135,0.07);
+            transform-style: preserve-3d; /* Nécessaire pour le Parallax interne */
+        }
+        .glass-card > div.relative {
+            transform: translateZ(30px); /* Fait ressortir le texte/logo en 3D */
+            transition: transform 0.3s;
         }
         [data-theme="dark"] .glass-card {
             box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
@@ -211,19 +218,6 @@
 
         @media (max-width: 768px) {
             .nav-cards-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
-        }
-
-        /* ── PARTICLE ── */
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.15;
-            animation: float linear infinite;
-        }
-        @keyframes float {
-            0%   { transform: translateY(0px) rotate(0deg); opacity: 0.15; }
-            50%  { opacity: 0.3; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
         }
 
         /* ── LOADING BAR ── */
@@ -435,8 +429,24 @@
                 </div>
             </a>
 
+            <!-- Carte de Membre Numérique -->
+            <a href="#" onclick="event.preventDefault(); Swal.fire({icon: 'info', title: 'قيد التطوير', text: 'خدمة البطاقة الرقمية قيد التطوير حالياً (En cours de développement)', confirmButtonColor: '#10b981'})" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-3">
+                <div class="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="bg-gradient-to-r from-teal-500 to-emerald-400 h-3 w-full"></div>
+                <div class="p-8 text-center relative z-10">
+                    <div class="w-20 h-20 mx-auto bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition duration-300">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                        </svg>
+                    </div>
+                    <span class="absolute top-6 left-6 shadow-sm bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">قيد التطوير</span>
+                    <h2 class="text-2xl font-bold mb-2">بطاقة العضوية</h2>
+                    <p class="text-gray-500 text-sm font-inter">Carte Numérique</p>
+                </div>
+            </a>
+
             <!-- Admin -->
-            <a href="/login.html" class="md:col-span-2 lg:col-span-2 glass-card rounded-3xl p-6 flex flex-col items-center justify-center card-hover border-t-4 border-gray-800 shadow-xl relative overflow-hidden group reveal reveal-delay-3">
+            <a href="/login.html" class="md:col-span-2 lg:col-span-1 glass-card rounded-3xl p-6 flex flex-col items-center justify-center card-hover border-t-4 border-gray-800 shadow-xl relative overflow-hidden group reveal reveal-delay-4">
                 <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900/10 to-transparent"></div>
                 <span class="text-4xl mb-3 relative z-10 group-hover:scale-125 group-hover:rotate-90 transition duration-700">⚙️</span>
@@ -536,25 +546,66 @@
             if (wave) wave.setAttribute('fill', theme === 'dark' ? '#0f172a' : '#f0fdf4');
         }
 
-        // ── PARTICLES ──
-        function spawnParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 12; i++) {
-                const p = document.createElement('div');
-                const size = Math.random() * 30 + 10;
-                p.className = 'particle';
-                p.style.cssText = `
-                    width:${size}px; height:${size}px;
-                    background: rgba(255,255,255,0.2);
-                    left: ${Math.random() * 100}%;
-                    top: ${Math.random() * 100}%;
-                    animation-duration: ${Math.random() * 6 + 4}s;
-                    animation-delay: ${Math.random() * 4}s;
-                `;
-                container.appendChild(p);
-            }
-        }
-        spawnParticles();
+        // ── PARTICLES (tsParticles) ──
+        const isMobile = window.innerWidth < 768;
+        
+        tsParticles.load("particles", {
+            background: { color: { value: "transparent" } },
+            particles: {
+                number: {
+                    value: isMobile ? 30 : 80, // Moins de particules sur mobile
+                    density: { enable: true, area: 800 }
+                },
+                color: { value: "#10b981" },
+                links: {
+                    enable: true,
+                    color: "#34d399",
+                    distance: 150,
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: isMobile ? 0.8 : 1.5,
+                    direction: "none",
+                    outModes: "out"
+                },
+                size: { value: { min: 1, max: 3 } },
+                opacity: { value: 0.5 }
+            },
+            interactivity: {
+                events: {
+                    onHover: {
+                        enable: !isMobile, // Désactivé sur mobile pour le confort tactile
+                        mode: "repulse"
+                    },
+                    onClick: {
+                        enable: true,
+                        mode: "push"
+                    }
+                },
+                modes: {
+                    repulse: { distance: 100, duration: 0.4 },
+                    push: { quantity: 4 }
+                }
+            },
+            detectRetina: true
+        });
+
+        // ── VANILLA TILT (Cartes 3D) ──
+        // Activé sur Desktop (Survol Souris) ET sur Mobile (Gyroscope : inclinaison du téléphone)
+        VanillaTilt.init(document.querySelectorAll("#villes .glass-card"), {
+            max: 18,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.4,
+            scale: 1.05, // Effet de zoom
+            gyroscope: true, // Magie pour le mobile : utilise le capteur d'inclinaison du téléphone !
+            gyroscopeMinAngleX: -45,
+            gyroscopeMaxAngleX: 45,
+            gyroscopeMinAngleY: -45,
+            gyroscopeMaxAngleY: 45
+        });
 
         // ── LOADING BAR ──
         window.addEventListener('load', () => {
