@@ -655,14 +655,14 @@
         });
 
         // ── VANILLA TILT (Cartes 3D) ──
-        // Activé sur Desktop (Survol Souris) ET sur Mobile (Gyroscope : inclinaison du téléphone)
+        // Cartes de navigation
         VanillaTilt.init(document.querySelectorAll("#villes .glass-card"), {
             max: 18,
             speed: 400,
             glare: true,
             "max-glare": 0.4,
-            scale: 1.05, // Effet de zoom
-            gyroscope: true, // Magie pour le mobile : utilise le capteur d'inclinaison du téléphone !
+            scale: 1.05,
+            gyroscope: true,
             gyroscopeMinAngleX: -45,
             gyroscopeMaxAngleX: 45,
             gyroscopeMinAngleY: -45,

@@ -540,6 +540,7 @@
         let femmesData = [];
         let currentTab = 'hommes';
         let currentDisplayData = [];
+        let isAuthenticated = false;
 
         window.addEventListener('DOMContentLoaded', async () => {
             // Check if user is logged in to show admin button
@@ -548,6 +549,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     if (data.authenticated) {
+                        isAuthenticated = true;
                         document.getElementById('adminBackButton').classList.remove('hidden');
                         document.getElementById('homeBackButton').classList.add('hidden');
                     }
@@ -685,7 +687,7 @@
                         <tr>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;">${index + 1}</td>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black; font-weight: 600;">${item.nom}</td>
-                            <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;">${item.telephone}</td>
+                            <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;" dir="ltr">${isAuthenticated ? item.telephone : 'مخفي'}</td>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right;">
                                 <span style="background-color: ${situationBg}; color: ${situationColor}; padding: 4px 8px; border-radius: 12px; font-size: 8pt; font-weight: 600;">
                                     ${situationText}
@@ -784,13 +786,13 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">${highlight(membre.nom, searchTerm)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-inter tracking-wide" dir="ltr">
                         <div class="flex items-center gap-2">
-                            <span>${membre.telephone}</span>
-                            <button onclick="copyPhone('${membre.telephone}')" title="Copier le numéro"
+                            <span>${isAuthenticated ? membre.telephone : '<span class="text-gray-400 italic">مخفي</span>'}</span>
+                            ${isAuthenticated ? `<button onclick="copyPhone('${membre.telephone}')" title="Copier le numéro"
                                 style="width:24px;height:24px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
                                 onmouseover="this.style.background='rgba(16,185,129,0.25)'"
                                 onmouseout="this.style.background='rgba(16,185,129,0.1)'">
                                 <svg width="12" height="12" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            </button>
+                            </button>` : ''}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -818,12 +820,12 @@
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">الهاتف (Tél)</span>
-                        <span class="member-card-value flex items-center gap-2 justify-end">
-                            ${membre.telephone}
-                            <button onclick="copyPhone('${membre.telephone}')" title="Copier"
+                        <span class="member-card-value flex items-center gap-2 justify-end" dir="ltr">
+                            ${isAuthenticated ? membre.telephone : '<span class="text-gray-400 italic">مخفي</span>'}
+                            ${isAuthenticated ? `<button onclick="copyPhone('${membre.telephone}')" title="Copier"
                                 style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;">
                                 <svg width="14" height="14" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            </button>
+                            </button>` : ''}
                         </span>
                     </div>
                     <div class="member-card-row">
