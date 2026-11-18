@@ -42,6 +42,7 @@ Sous Windows : `copy .env.example .env` puis renseignez le fichier.
 | `CORS_ORIGIN` | Origines autorisées séparées par des virgules (vide = même origine) |
 | `CLOUDINARY_URL` | `cloudinary://api_key:api_secret@cloud_name` |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Compte créé par `npm run db:seed` |
+| `PAYMENT_AUTOMATION_KEY` | Clé HMAC pour `/api/paiement-auto` (voir `AUTOMATISATION.md`) |
 
 ## Scripts
 
