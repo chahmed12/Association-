@@ -21,21 +21,40 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// 1. SÉCURITÉ & MIDDLEWARES GLOBAUX
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) {
+    throw new Error('SESSION_SECRET est obligatoire');
+}
+
 app.use(helmet({
-    contentSecurityPolicy: false, // Désactivé pour simplifier le chargement des scripts/images locaux
+    contentSecurityPolicy: {
+        useDefaults: false,
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
+            styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+            fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+            imgSrc: ["'self'", 'data:', 'https:'],
+            connectSrc: ["'self'", 'https://api.rss2json.com'],
+            objectSrc: ["'none'"],
+            baseUri: ["'self'"],
+            frameAncestors: ["'none'"]
+        }
+    }
 }));
-app.use(compression()); // Compresser les réponses (HTML, CSS, JS, JSON)
+app.use(compression());
 
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
     message: "Trop de requêtes, veuillez réessayer plus tard."
 });
-// Le limiteur sera appliqué APRES les fichiers statiques pour ne pas bloquer les images
 
 app.set('trust proxy', 1);
-app.use(cors());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : false,
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -47,13 +66,13 @@ const sessionStore = new pgSession({
 });
 app.use(session({
     key: 'association_session',
-    secret: process.env.SESSION_SECRET || 'secret_pro_2026_assoc',
+    secret: SESSION_SECRET,
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
         secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000 // 24h
     }
 }));
@@ -81,8 +100,17 @@ app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));
 });
 
-// 5. DÉMARRAGE
-app.listen(PORT, () => {
-    console.log(`🚀 Serveur PRO lancé sur http://localhost:${PORT}`);
-    console.log(`🔒 Mode: ${isProduction ? 'PRODUCTION' : 'DÉVELOPPEMENT'}`);
+app.use((req, res) => res.status(404).json({ success: false, message: 'Ressource introuvable' }));
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Erreur serveur' });
 });
+
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Serveur PRO lancé sur http://localhost:${PORT}`);
+        console.log(`🔒 Mode: ${isProduction ? 'PRODUCTION' : 'DÉVELOPPEMENT'}`);
+    });
+}
+
+module.exports = app;

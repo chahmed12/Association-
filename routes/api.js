@@ -193,15 +193,51 @@ router.post('/login', validate('login'), (req, res) => {
     });
 });
 
+router.get('/check-auth', (req, res) => {
+    res.json({ authenticated: !!(req.session && req.session.loggedin) });
+});
+
+router.get('/public/stats', (req, res) => {
+    db.query("SELECT COUNT(*)::int AS total FROM membres", (err, hommes) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        db.query("SELECT COUNT(*)::int AS total FROM femmes", (err, femmes) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            db.query("SELECT COUNT(*)::int AS total FROM nouveautes", (err, photos) => {
+                if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                res.json({
+                    membres: hommes.rows[0].total,
+                    femmes: femmes.rows[0].total,
+                    photos: photos.rows[0].total
+                });
+            });
+        });
+    });
+});
+
+router.get('/public/cotisations', (req, res) => {
+    db.query("SELECT id, nom FROM membres ORDER BY nom ASC", (err, resMembres) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        db.query("SELECT membre_id, mois FROM payments", (err, resPaiements) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const membres = resMembres ? resMembres.rows : [];
+            const paiements = resPaiements ? resPaiements.rows : [];
+            res.json(membres.map(m => ({
+                nom: m.nom,
+                paiements: paiements.filter(p => p.membre_id === m.id).map(p => p.mois)
+            })));
+        });
+    });
+});
+
 // ═══════════════════════════════════════════════════════════════
 //  2. COTISATIONS
 // ═══════════════════════════════════════════════════════════════
-router.get('/cotisations', (req, res) => {
+router.get('/cotisations', isAuthenticated, (req, res) => {
     db.query("SELECT * FROM membres ORDER BY nom ASC", (err, resMembres) => {
-        if (err) return res.status(500).json({ error: err });
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         const membres = resMembres ? resMembres.rows : [];
         db.query("SELECT * FROM payments", (err, resPaiements) => {
-            if (err) return res.status(500).json({ error: err });
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
             const paiements = resPaiements ? resPaiements.rows : [];
             const data = membres.map(m => ({
                 ...m,
@@ -215,7 +251,7 @@ router.get('/cotisations', (req, res) => {
 router.post('/cotisations/toggle', isAuthenticated, (req, res) => {
     const { membre_id, mois } = req.body;
     db.query("SELECT * FROM payments WHERE membre_id = $1 AND mois = $2", [membre_id, mois], (err, result) => {
-        if (err) return res.status(500).json({ error: err });
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         const results = result ? result.rows : [];
         if (results.length > 0) {
             db.query("DELETE FROM payments WHERE membre_id = $1 AND mois = $2", [membre_id, mois], () => {
@@ -232,9 +268,9 @@ router.post('/cotisations/toggle', isAuthenticated, (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 //  3. DÉPENSES
 // ═══════════════════════════════════════════════════════════════
-router.get('/depenses', (req, res) => {
+router.get('/depenses', isAuthenticated, (req, res) => {
     db.query("SELECT * FROM depenses ORDER BY created_at DESC", (err, result) => {
-        if (err) return res.status(500).json({ error: err });
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         res.json(result ? result.rows : []);
     });
 });
@@ -245,14 +281,14 @@ router.post('/depenses', isAuthenticated, validate('depense'), (req, res) => {
     db.query("INSERT INTO depenses (label, montant, categorie, date, note) VALUES ($1, $2, $3, $4, $5) RETURNING id",
         [label, montant, categorie || 'autre', date || null, note || ''],
         (err, result) => {
-            if (err) return res.status(500).json({ error: err });
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
             res.json({ success: true, id: result.rows[0].id });
         });
 });
 
 router.delete('/depenses/:id', isAuthenticated, (req, res) => {
     db.query("DELETE FROM depenses WHERE id = $1", [req.params.id], (err) => {
-        if (err) return res.status(500).json({ error: err });
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         res.json({ success: true });
     });
 });
@@ -315,16 +351,16 @@ router.delete('/nouveautes/:id', isAuthenticated, (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 //  5. FEMMES ET MEMBRES
 // ═══════════════════════════════════════════════════════════════
-router.get('/femmes', (req, res) => {
+router.get('/femmes', isAuthenticated, (req, res) => {
     db.query("SELECT * FROM femmes ORDER BY date_inscription DESC", (err, result) => {
-        if (err) return res.status(500).json({ success: false, error: err });
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         res.json({ success: true, femmes: result ? result.rows : [] });
     });
 });
 
-router.get('/membres', (req, res) => {
+router.get('/membres', isAuthenticated, (req, res) => {
     db.query("SELECT * FROM membres ORDER BY date_inscription DESC", (err, result) => {
-        if (err) return res.status(500).json({ success: false, error: err });
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         res.json({ success: true, membres: result ? result.rows : [] });
     });
 });

@@ -348,9 +348,8 @@
                 <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mt-1 font-inter">Femmes</p>
             </div>
 
-            <!-- Carte Cotisations masquée (partie publique) -->
             <div
-                class="glass-card rounded-2xl p-5 stats-card card-hover flex flex-col items-center justify-center text-center" style="display:none;">
+                class="glass-card rounded-2xl p-5 stats-card card-hover flex flex-col items-center justify-center text-center">
                 <div
                     class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-blue-200 text-indigo-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -488,9 +487,8 @@
                                 <th
                                     class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
                                     Situation</th>
-                                <!-- Colonne Montant masquée (partie publique) -->
                                 <th
-                                    class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter" style="display:none;">
+                                    class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
                                     Montant</th>
                                 <th
                                     class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
@@ -672,7 +670,7 @@
                                 <th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Nom</th>
                                 ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Téléphone</th>' : ''}
                                 ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Situation</th>' : ''}
-                                 <!-- Colonne Montant masquée dans impression (partie publique) -->
+                                ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Montant</th>' : ''}
                                 <th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Date</th>
                             </tr>
                         </thead>
@@ -695,7 +693,7 @@
                                     ${situationText}
                                 </span>
                             </td>
-                             <!-- Montant masqué dans impression (partie publique) -->
+                            <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black; font-weight: 600;">${item.montant} UM</td>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;">${formatDate(item.date_inscription)}</td>
                         </tr>
                     `;
@@ -802,7 +800,7 @@
                             ${membre.situation === 'نعم' ? 'Travaille' : 'Sans emploi'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 font-inter bg-green-50/30" style="display:none;">${membre.montant} UM</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 font-inter bg-green-50/30">${membre.montant} UM</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${formatDate(membre.date_inscription)}</td>
                 </tr>
             `).join('');
@@ -830,7 +828,10 @@
                             </button>` : ''}
                         </span>
                     </div>
-                    <!-- Montant masqué (partie publique) -->
+                    <div class="member-card-row">
+                        <span class="member-card-label">المبلغ (Montant)</span>
+                        <span class="member-card-value font-bold text-blue-600">${membre.montant} UM</span>
+                    </div>
                     <div class="member-card-row">
                         <span class="member-card-label">التاريخ (Date)</span>
                         <span class="member-card-value">${formatDate(membre.date_inscription)}</span>

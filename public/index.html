@@ -352,7 +352,7 @@
 
     <!-- ══ STATS SECTION ══ -->
     <div class="container mx-auto px-4 py-10 relative -mt-4 z-20">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto reveal">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto reveal">
             <div class="stat-card reveal-delay-1">
                 <div class="text-3xl mb-2">👥</div>
                 <div class="stat-number text-green-600" id="statMembres">—</div>
@@ -364,13 +364,6 @@
                 <div class="stat-number text-pink-500" id="statFemmes">—</div>
                 <div class="text-xs font-semibold text-gray-500 font-inter mt-1">نساء</div>
                 <div class="text-xs text-gray-400 font-inter">Femmes</div>
-            </div>
-            <!-- Carte cotisations masquée (partie publique) -->
-            <div class="stat-card reveal-delay-3" style="display:none;">
-                <div class="text-3xl mb-2">💰</div>
-                <div class="stat-number text-yellow-500" id="statCotis">—</div>
-                <div class="text-xs font-semibold text-gray-500 font-inter mt-1">اشتراكات</div>
-                <div class="text-xs text-gray-400 font-inter">Cotisations</div>
             </div>
             <div class="stat-card reveal-delay-4">
                 <div class="text-3xl mb-2">📸</div>
@@ -724,32 +717,12 @@
 
         async function loadStats() {
             try {
-                const [membresRes, femmesRes, cotisRes, photosRes] = await Promise.all([
-                    fetch('/api/membres'),
-                    fetch('/api/femmes'),
-                    fetch('/api/cotisations'),
-                    fetch('/api/nouveautes')
-                ]);
-                const membresData = await membresRes.json();
-                const femmesData = await femmesRes.json();
-                const cotisData = await cotisRes.json();
-                const photosData = await photosRes.json();
+                const response = await fetch('/api/public/stats');
+                const stats = await response.json();
 
-                const membres = membresData.membres || [];
-                const femmes = femmesData.femmes || [];
-                const photos = photosData.images || [];
-
-                // Calcul des cotisations
-                let totalCotis = 0;
-                cotisData.forEach(m => {
-                    const moisPaies = m.paiements ? m.paiements.length : 0;
-                    totalCotis += moisPaies * (m.montant || 0);
-                });
-
-                animateCounter(document.getElementById('statMembres'), membres.length);
-                animateCounter(document.getElementById('statFemmes'), femmes.length);
-                animateCounter(document.getElementById('statCotis'), Math.round(totalCotis / 1000), 'K');
-                animateCounter(document.getElementById('statPhotos'), photos.length);
+                animateCounter(document.getElementById('statMembres'), stats.membres || 0);
+                animateCounter(document.getElementById('statFemmes'), stats.femmes || 0);
+                animateCounter(document.getElementById('statPhotos'), stats.photos || 0);
             } catch (e) {
                 console.warn('Stats non disponibles', e);
             }
