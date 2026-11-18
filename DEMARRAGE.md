@@ -1,58 +1,41 @@
-# 🚀 Démarrage Rapide
+# Demarrage rapide
 
-## Étapes pour lancer l'application
+## 1. PostgreSQL
 
-### 1️⃣ Configurer la base de données
-
-Ouvrez phpMyAdmin et exécutez le fichier `database.sql` :
+Avec Docker :
 
 ```bash
-# OU via ligne de commande :
-mysql -u root -pzenvour association_db < database.sql
+docker run --name association-pg \
+  -e POSTGRES_PASSWORD=remplacez_moi \
+  -e POSTGRES_DB=association_db \
+  -p 5432:5432 -d postgres:16
 ```
 
-### 2️⃣ Démarrer le serveur
+Ou utilisez une PostgreSQL existante.
+
+## 2. Configuration
 
 ```bash
-node server.js
+cp .env.example .env
 ```
 
-### 3️⃣ Accéder à l'application
+Renseignez au moins `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`, `SESSION_SECRET`, `CLOUDINARY_URL` et `ADMIN_PASSWORD`.
 
-Ouvrez votre navigateur : **http://localhost:3000**
+## 3. Installation et base de donnees
 
----
+```bash
+npm ci
+npm run db:migrate
+npm run db:seed
+npm start
+```
 
-## 📱 Pages disponibles
+## 4. Acces
 
-- **Accueil** : http://localhost:3000
-- **Inscription Hommes** : http://localhost:3000/inscription-hommes.html
-- **Inscription Femmes** : http://localhost:3000/inscription-femmes.html  
-- **Nouveautés** : http://localhost:3000/nouveautes.html
-- **Admin** : http://localhost:3000/admin.html
+- Accueil : http://localhost:3000
+- Inscription hommes : http://localhost:3000/inscription-hommes.html
+- Inscription femmes : http://localhost:3000/inscription-femmes.html
+- Nouveautes : http://localhost:3000/nouveautes.html
+- Administration : http://localhost:3000/admin.html
 
----
-
-## ✅ Fonctionnalités
-
-### Inscription Hommes
-- Nom, Situation, Téléphone
-- **Montant automatique** : 2000 UM (travaille) / 1000 UM (sans emploi)
-
-### Inscription Femmes
-- Nom, Téléphone
-- **Sans montant ni situation**
-
-### Nouveautés
-- Galerie d'images
-- Clic pour agrandir
-
-### Administration
-- Ajouter des images avec titre
-- Upload et aperçu
-
----
-
-## 📝 Note
-
-Le logo `ajjj.jpeg` s'affiche automatiquement sur la page d'accueil.
+`npm run db:migrate` est idempotent : vous pouvez le relancer sans perdre de donnees.

@@ -1,101 +1,83 @@
-# 🌟 Association de la Jeunesse de Jeddetta (AJJ)
+# Association de la Jeunesse de Jeddetta (AJJ)
 
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![Framework: Express](https://img.shields.io/badge/framework-Express-blue)](https://expressjs.com/)
-[![Database: MySQL](https://img.shields.io/badge/database-MySQL-orange)](https://www.mysql.com/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow)](LICENSE)
+Application web de gestion des membres, cotisations, dépenses et actualités.
 
-Une application web complète et sécurisée pour la gestion des membres, des cotisations et des activités de l'**Association de la Jeunesse de Jeddetta** (Mauritanie).
+## Stack
 
----
+- Node.js 20+, Express 4, EJS
+- PostgreSQL (données et sessions)
+- Cloudinary (upload et suppression d'images)
+- Helmet, express-rate-limit, Bcrypt, Joi
 
-## 🚀 Fonctionnalités
+## Prérequis
 
-- 🔐 **Administration Sécurisée** : Authentification avec hachage Bcrypt et protection contre les attaques brute-force.
-- 👥 **Gestion des Membres** : Inscription dynamique pour les hommes et les femmes.
-- 💰 **Suivi Financier** : Gestion des cotisations mensuelles (Toggle API) et suivi des dépenses.
-- 📰 **Actualités & Médias** : Système d'upload d'images sécurisé pour les nouveautés de l'association.
-- 📱 **Interface Moderne** : Design "Glassmorphism" responsive avec TailwindCSS et EJS.
+- Node.js 20+ (voir `.nvmrc`)
+- PostgreSQL 14+
+- Un compte Cloudinary pour les images
 
----
-
-## 🛡️ Sécurité (Hardened Core)
-
-Le projet a été audité et renforcé avec les standards industriels :
-- **Helmet.js** : Protection des headers HTTP contre les vulnérabilités courantes (XSS, Clickjacking).
-- **Bcrypt** : Hachage des mots de passe avec sel (SaltRounds: 10).
-- **Joi Validation** : Validation stricte des schémas de données (Entrées API).
-- **Express Rate Limit** : Limitation des requêtes pour prévenir les dénis de service (DoS) et le brute-force.
-- **MySQL Sessions** : Stockage sécurisé des sessions côté serveur.
-
----
-
-## 🏗️ Architecture Modulaire
-
-L'application suit une structure **MVC-light** pour une maintenance simplifiée :
-
-```text
-/
-├── config/             # Configuration Base de données (Pool)
-├── middleware/         # Auth, Validators, Security
-├── routes/             # Endpoints API (Auth, Membres, Dépenses...)
-├── views/              # Templates EJS (Partials, Pages)
-├── public/             # Assets statiques (CSS, Images, Uploads)
-├── prive/              # Pages HTML protégées (Admin)
-└── server.js           # Point d'entrée (Slim & Clean)
-```
-
----
-
-## 🛠️ Installation & Configuration
-
-### 1. Prérequis
-- Node.js (v18+)
-- MySQL Server
-
-### 2. Installation
-```bash
-git clone [votre-repo]
-cd association
-npm install
-```
-
-### 3. Variables d'Environnement (`.env`)
-Créez un fichier `.env` à la racine :
-```env
-MYSQLHOST=localhost
-MYSQLUSER=root
-MYSQLPASSWORD=votre_password
-MYSQLDATABASE=association_db
-MYSQLPORT=3306
-PORT=3000
-SESSION_SECRET=votre_secret_tres_long_et_aleatoire
-```
-
-### 4. Initialisation
-Démarrez le serveur et accédez à `/init` (une fois connecté ou temporairement déprotégé) pour créer automatiquement les tables SQL.
-
----
-
-## 🚀 Déploiement (Production)
-
-Pour une mise en production robuste, utilisez **PM2** et **Nginx** :
+## Installation
 
 ```bash
-# Lancer avec PM2
-npm install -g pm2
-pm2 start server.js --name "ajj-app"
-
-# Configuration Nginx recommandée (Reverse Proxy)
-# location / {
-#     proxy_pass http://localhost:3000;
-#     proxy_set_header Host $host;
-# }
+git clone https://github.com/chahmed12/Association-.git
+cd Association-
+npm ci
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
+npm start
 ```
 
----
+Sous Windows : `copy .env.example .env` puis renseignez le fichier.
 
-## 📝 Auteur
-**Cheikh Ahmed Zenvour** 
+`npm run db:seed` crée le compte administrateur avec `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
 
+## Variables d'environnement
 
+| Variable | Description |
+|---|---|
+| `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` | Connexion PostgreSQL |
+| `PORT` | Port HTTP (défaut `3000`) |
+| `NODE_ENV` | `production` active les cookies sécurisés |
+| `SESSION_SECRET` | Obligatoire, chaîne aléatoire longue |
+| `CORS_ORIGIN` | Origines autorisées séparées par des virgules (vide = même origine) |
+| `CLOUDINARY_URL` | `cloudinary://api_key:api_secret@cloud_name` |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Compte créé par `npm run db:seed` |
+
+## Scripts
+
+| Commande | Rôle |
+|---|---|
+| `npm start` | Démarrer le serveur |
+| `npm run dev` | Démarrer avec rechargement automatique |
+| `npm run db:migrate` | Créer/mettre à jour le schéma PostgreSQL |
+| `npm run db:seed` | Créer ou mettre à jour le compte admin |
+| `npm run lint` | Vérifier le code avec ESLint |
+| `npm test` | Lancer les tests automatisés |
+
+## Sécurité
+
+- Les sessions sont stockées dans PostgreSQL via `connect-pg-simple`.
+- `SESSION_SECRET` est obligatoire au démarrage ; aucun secret codé en dur.
+- Helmet applique une CSP, CORS est désactivé par défaut et les cookies utilisent `SameSite=Lax`.
+- Les lectures de membres, femmes, cotisations et dépenses exigent une session admin.
+- Les visiteurs utilisent uniquement `/api/public/stats` et `/api/public/cotisations`, qui ne renvoient ni montants ni numéros de téléphone.
+- `/liste-membres.html` est réservé aux administrateurs.
+- Les mots de passe sont hachés avec Bcrypt, les entrées validées avec Joi et les routes API sont limitées en débit.
+
+## Déploiement
+
+Déployer sur Render (Web Service + PostgreSQL managée) :
+
+1. Build : `npm ci`
+2. Release : `npm run db:migrate`
+3. Start : `npm start`
+4. Définir toutes les variables d'environnement ci-dessus, avec `NODE_ENV=production` et `CLOUDINARY_URL`.
+
+Derrière Nginx, faire un reverse proxy vers `http://localhost:3000`.
+
+## Tests
+
+```bash
+npm run lint
+npm test
+```

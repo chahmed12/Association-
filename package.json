@@ -4,7 +4,12 @@
   "description": "Application d'inscription membres Mauritanie-Tunisie",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "migrate": "node scripts/migrate.js",
+    "seed": "node scripts/seed.js",
+    "lint": "eslint .",
+    "test": "node --test"
   },
   "dependencies": {
     "arabic-persian-reshaper": "^1.0.1",
