@@ -81,4 +81,5 @@ Derrière Nginx, faire un reverse proxy vers `http://localhost:3000`.
 ```bash
 npm run lint
 npm test
+npm audit
 ```

@@ -124,26 +124,6 @@ function sectionHeader(doc, title, y, icon) {
     return y + 38;
 }
 
-/**
- * Mini graphique à barres verticales (barres dessinées avec des rectangles)
- */
-function barChart(doc, x, y, width, height, data, maxVal, barColor) {
-    const barCount = data.length;
-    const gap = 4;
-    const barW = (width - gap * (barCount - 1)) / barCount;
-
-    data.forEach((val, i) => {
-        const barH = maxVal > 0 ? (val / maxVal) * height : 0;
-        const bx = x + i * (barW + gap);
-        const by = y + height - barH;
-        roundedRect(doc, bx, by, barW, barH, 3, barColor, null);
-    });
-
-    // Axe X
-    doc.moveTo(x, y + height).lineTo(x + width, y + height)
-        .strokeColor(COLORS.border).lineWidth(1).stroke();
-}
-
 // ─────────────────────────────────────────────────────────────────
 //  CONFIGURATION MULTER (CLOUDINARY)
 // ─────────────────────────────────────────────────────────────────

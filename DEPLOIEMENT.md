@@ -57,5 +57,6 @@ location / {
 ```bash
 npm run lint
 npm test
+npm audit
 curl https://votre-domaine.example/api/public/stats
 ```

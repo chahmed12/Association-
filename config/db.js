@@ -10,9 +10,4 @@ const db = new Pool({
     max: 25 // Augmenté pour gérer 200-300 utilisateurs simultanés (Render free = 50 max)
 });
 
-db.query('SELECT 1', (err) => {
-    if (err) console.error('❌ Erreur de connexion DB:', err.message);
-    else console.log('✅ Connecté à PostgreSQL (Pool Centralisé)');
-});
-
 module.exports = db;
