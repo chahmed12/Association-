@@ -57,5 +57,7 @@ CREATE TABLE IF NOT EXISTS paiement_logs (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE membres ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(20);
+
 CREATE INDEX IF NOT EXISTS idx_membres_whatsapp ON membres(whatsapp);
 CREATE INDEX IF NOT EXISTS idx_paiement_logs_status ON paiement_logs(status);
