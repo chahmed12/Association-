@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rappels WhatsApp - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/utils.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-header {
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-gray-800">
+
+    <header class="glass-header text-white pt-8 pb-12 shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-right">
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-lg">
+                        تذكيرات الاشتراكات <span class="text-green-300 font-inter">(Rappels WhatsApp)</span>
+                    </h1>
+                    <p class="text-green-50 text-sm md:text-base font-inter tracking-wide drop-shadow-md mt-2">
+                        الإشعارات / Gestion des notifications</p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <a href="/admin.html"
+                        class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition duration-300 font-inter shadow-lg">
+                        ← Retour Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 w-full overflow-hidden leading-none">
+            <svg class="relative block w-full h-[30px] md:h-[50px]" data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path
+                    d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V95.8C59.71,118.08,130.83,121.32,201.5,115.68c70-5.63,143.91-17.16,206.88-41.46Z"
+                    fill="#f0fdf4"></path>
+            </svg>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-3 md:px-4 py-6 md:py-8 flex-grow relative z-20 space-y-6">
+
+        <section class="glass-card rounded-2xl p-5 md:p-6 border border-white/60">
+            <h2 class="text-xl font-extrabold text-gray-800 mb-5 text-right">
+                📨 إنشاء تذكيرات الاشتراكات
+                <span class="block text-sm font-inter text-gray-500 mt-1 font-medium tracking-wide">Générer les rappels
+                    de cotisations</span>
+            </h2>
+            <form id="rappelForm" class="flex flex-col md:flex-row flex-wrap gap-4 items-stretch">
+                <label class="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <span class="text-sm font-bold text-gray-700 text-right">الشهر / Mois</span>
+                    <select id="mois"
+                        class="w-full px-4 py-3 border-2 border-white/60 bg-white/80 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none font-inter text-gray-700 cursor-pointer"
+                        onchange="syncPeriode('mois')">
+                        <option value="12">Décembre / ديسمبر</option>
+                        <option value="1">Janvier / يناير</option>
+                        <option value="2">Février / فبراير</option>
+                        <option value="3">Mars / مارس</option>
+                        <option value="4">Avril / أبريل</option>
+                        <option value="5">Mai / مايو</option>
+                        <option value="6">Juin / يونيو</option>
+                        <option value="7">Juillet / يوليو</option>
+                        <option value="8">Août / أغسطس</option>
+                    </select>
+                </label>
+                <label class="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <span class="text-sm font-bold text-gray-700 text-right">السنة / Année</span>
+                    <select id="annee"
+                        class="w-full px-4 py-3 border-2 border-white/60 bg-white/80 rounded-xl focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none font-inter text-gray-700 cursor-pointer"
+                        onchange="syncPeriode('annee')">
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </label>
+                <div class="flex items-end flex-1 min-w-[220px]">
+                    <button type="submit" id="genererBtn"
+                        class="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-bold py-3 px-6 rounded-xl transition duration-300 shadow-lg font-inter">
+                        Générer les rappels / إنشاء التذكيرات
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="glass-card rounded-2xl p-5 md:p-6 border border-white/60">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                <h2 class="text-xl font-extrabold text-gray-800 text-right">
+                    📋 قائمة الإشعارات
+                    <span class="block text-sm font-inter text-gray-500 mt-1 font-medium tracking-wide">Liste des
+                        notifications</span>
+                </h2>
+                <div class="flex flex-wrap gap-3">
+                    <select id="filterStatut" onchange="loadNotifications()"
+                        class="px-4 py-2.5 border-2 border-white/60 bg-white/80 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-green-500 cursor-pointer font-inter">
+                        <option value="">كل الحالات / Tous les statuts</option>
+                        <option value="a_envoyer">⏳ À envoyer</option>
+                        <option value="envoye">✔ Envoyé</option>
+                        <option value="echoue">✖ Échoué</option>
+                        <option value="annule">🚫 Annulé</option>
+                    </select>
+                    <select id="filterCanal" onchange="loadNotifications()"
+                        class="px-4 py-2.5 border-2 border-white/60 bg-white/80 rounded-xl text-sm font-medium text-gray-700 outline-none focus:border-green-500 cursor-pointer font-inter">
+                        <option value="">كل القنوات / Tous les canaux</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="email">Email</option>
+                        <option value="internal">Interne / داخلي</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-white/60 border-b border-gray-200/50 text-xs uppercase tracking-wider text-gray-600 font-inter">
+                            <th class="p-4 font-bold">العضو / Membre</th>
+                            <th class="p-4 font-bold">الفترة / Période</th>
+                            <th class="p-4 font-bold">القناة / Canal</th>
+                            <th class="p-4 font-bold">الحالة / Statut</th>
+                            <th class="p-4 font-bold">الرسالة / Message</th>
+                            <th class="p-4 font-bold">الإجراءات / Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notificationsBody" class="bg-white/40 divide-y divide-gray-100/60">
+                        <tr>
+                            <td colspan="6" class="p-10 text-center text-gray-500 font-inter">Chargement des
+                                notifications...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p id="emptyState"
+                class="hidden text-center text-gray-400 py-6 font-inter">Aucune notification pour ces filtres.</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4 md:py-6 mt-auto">
+        <div class="container mx-auto px-4 text-center text-xs md:text-sm text-gray-400">
+            © 2026 رابطة شباب جدة - Administration
+        </div>
+    </footer>
+
+    <script>
+        const STATUT_LABELS = {
+            a_envoyer: '⏳ À envoyer',
+            envoye: '✔ Envoyé',
+            echoue: '✖ Échoué',
+            annule: '🚫 Annulé'
+        };
+
+        const STATUT_STYLES = {
+            a_envoyer: 'bg-amber-100 text-amber-800',
+            envoye: 'bg-green-100 text-green-800',
+            echoue: 'bg-red-100 text-red-700',
+            annule: 'bg-gray-200 text-gray-600'
+        };
+
+        function syncPeriode(changed) {
+            const mois = document.getElementById('mois');
+            const annee = document.getElementById('annee');
+            if (changed === 'mois') {
+                annee.value = mois.value === '12' ? '2026' : '2027';
+            } else if (annee.value === '2026') {
+                mois.value = '12';
+            } else if (mois.value === '12') {
+                mois.value = '1';
+            }
+        }
+
+        function showToast(icon, message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 left-4 z-[2000] max-w-sm px-5 py-3 rounded-xl shadow-xl text-sm font-bold text-white ' +
+                (icon === 'error' ? 'bg-red-600' : 'bg-green-600');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        async function apiRequest(url, options) {
+            const response = await fetch(url, options);
+            let data;
+            try {
+                data = await response.json();
+            } catch (e) {
+                throw new Error('Réponse serveur invalide');
+            }
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || 'Erreur serveur');
+            }
+            return data;
+        }
+
+        function getPayload(notification) {
+            const raw = notification && notification.payload;
+            if (!raw) return {};
+            if (typeof raw === 'object') return raw;
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function renderActions(notification) {
+            const id = escapeJs(notification.id);
+            let html = '';
+            if (notification.statut === 'a_envoyer' || notification.statut === 'echoue') {
+                html += '<button onclick="updateStatut(\'' + id + '\', \'envoye\')" class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-bold font-inter transition">Marquer envoyé</button>';
+                html += '<button onclick="updateStatut(\'' + id + '\', \'annule\')" class="px-3 py-1.5 rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-xs font-bold font-inter transition">Annuler</button>';
+            }
+            if (notification.statut === 'echoue' || notification.statut === 'annule') {
+                html += '<button onclick="updateStatut(\'' + id + '\', \'retry\')" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold font-inter transition">Réessayer</button>';
+            }
+            const lien = getPayload(notification).lien;
+            if (lien) {
+                html += '<button onclick="ouvrirWhatsApp(\'' + escapeJs(lien) + '\')" class="px-3 py-1.5 rounded-lg bg-[#25D366] hover:bg-[#1ebc57] text-white text-xs font-bold font-inter transition">Ouvrir WhatsApp</button>';
+            }
+            return html || '<span class="text-gray-400 text-xs font-inter">—</span>';
+        }
+
+        function renderNotifications(notifications) {
+            const body = document.getElementById('notificationsBody');
+            const empty = document.getElementById('emptyState');
+            if (!notifications.length) {
+                body.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            body.innerHTML = notifications.map((n) => {
+                const payload = getPayload(n);
+                const statut = String(n.statut || '');
+                const badgeClass = STATUT_STYLES[statut] || 'bg-gray-100 text-gray-600';
+                const statutLabel = STATUT_LABELS[statut] || escapeHtml(statut);
+                const periode = escapeHtml(n.periode || ((payload.mois !== undefined && payload.annee !== undefined) ? payload.annee + '-' + String(payload.mois).padStart(2, '0') : '—'));
+                const message = escapeHtml(payload.message || n.erreur || '—');
+                return '<tr class="hover:bg-green-50/50 transition">' +
+                    '<td class="p-4 font-bold text-gray-800">' + escapeHtml(n.membre_nom || '—') + '</td>' +
+                    '<td class="p-4 font-inter text-sm text-gray-600" dir="ltr">' + periode + '</td>' +
+                    '<td class="p-4 font-inter text-sm text-gray-600">' + escapeHtml(n.canal || '—') + '</td>' +
+                    '<td class="p-4"><span class="' + badgeClass + ' px-3 py-1 rounded-full text-xs font-bold font-inter">' + statutLabel + '</span></td>' +
+                    '<td class="p-4 text-sm text-gray-600 max-w-xs truncate">' + message + '</td>' +
+                    '<td class="p-4"><div class="flex flex-wrap gap-2">' + renderActions(n) + '</div></td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        async function loadNotifications() {
+            const params = new URLSearchParams();
+            const statut = document.getElementById('filterStatut').value;
+            const canal = document.getElementById('filterCanal').value;
+            if (statut) params.set('statut', statut);
+            if (canal) params.set('canal', canal);
+            const body = document.getElementById('notificationsBody');
+            try {
+                const data = await apiRequest('/api/notifications' + (params.toString() ? '?' + params.toString() : ''));
+                renderNotifications(data.notifications || []);
+            } catch (e) {
+                body.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">' + escapeHtml(e.message) + '</td></tr>';
+                document.getElementById('emptyState').classList.add('hidden');
+            }
+        }
+
+        async function genererRappels(event) {
+            event.preventDefault();
+            const button = document.getElementById('genererBtn');
+            button.disabled = true;
+            try {
+                const data = await apiRequest('/api/notifications/rappels-cotisations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mois: Number(document.getElementById('mois').value),
+                        annee: Number(document.getElementById('annee').value)
+                    })
+                });
+                showToast('success', '✅ ' + (data.demandes || 0) + ' demande(s) créée(s) / تم إنشاء ' + (data.demandes || 0) + ' تذكير(ات)' + ((data.ignores || 0) ? ' — ' + data.ignores + ' ignorée(s)' : ''));
+                await loadNotifications();
+            } catch (e) {
+                showToast('error', '❌ ' + e.message);
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        async function updateStatut(id, action) {
+            try {
+                await apiRequest('/api/notifications/' + encodeURIComponent(id), {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action })
+                });
+                showToast('success', '✅ Notification mise à jour / تم تحديث الإشعار');
+                await loadNotifications();
+            } catch (e) {
+                showToast('error', '❌ ' + e.message);
+            }
+        }
+
+        function ouvrirWhatsApp(lien) {
+            window.open(lien, '_blank', 'noopener,noreferrer');
+        }
+
+        document.getElementById('rappelForm').addEventListener('submit', genererRappels);
+        syncPeriode('mois');
+        loadNotifications();
+    </script>
+</body>
+
+</html>

@@ -128,11 +128,23 @@ test('les routes sensibles exigent une session', async () => {
     for (const url of [
         '/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres',
         '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
-        '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027'
+        '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
+        '/api/notifications', '/api/membres/1/preferences'
     ]) {
         const response = await request(app).get(url).expect(401);
         assert.equal(response.body.success, false);
     }
+
+    for (const url of ['/api/notifications', '/api/notifications/rappels-cotisations']) {
+        const response = await request(app).post(url).send({}).expect(401);
+        assert.equal(response.body.success, false);
+    }
+
+    const patchRes = await request(app).patch('/api/notifications/1').send({ action: 'envoye' }).expect(401);
+    assert.equal(patchRes.body.success, false);
+
+    const putRes = await request(app).put('/api/membres/1/preferences').send({ whatsapp_optin: true }).expect(401);
+    assert.equal(putRes.body.success, false);
 });
 
 test('les écritures membres exigent une session', async () => {
@@ -148,6 +160,10 @@ test('les écritures membres exigent une session', async () => {
 
 test('la page liste-membres redirige vers login sans session', async () => {
     await request(app).get('/liste-membres.html').expect(302).expect('Location', '/login.html');
+});
+
+test('la page gestion-notifications redirige vers login sans session', async () => {
+    await request(app).get('/gestion-notifications.html').expect(302).expect('Location', '/login.html');
 });
 
 test('check-auth indique etat non connecte puis connecte', async () => {

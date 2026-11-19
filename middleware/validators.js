@@ -71,7 +71,30 @@ const schemas = {
         annee: Joi.number().integer().min(2000).max(2100),
         from: Joi.date().iso(),
         to: Joi.date().iso()
-    })
+    }),
+    notificationQuery: Joi.object({
+        statut: Joi.string().valid('a_envoyer', 'envoye', 'echoue', 'annule'),
+        canal: Joi.string().valid('whatsapp', 'email', 'internal')
+    }),
+    notificationCreate: Joi.object({
+        membre_id: Joi.number().integer().positive().required(),
+        canal: Joi.string().valid('whatsapp').required(),
+        template: Joi.string().required(),
+        scheduled_at: Joi.date().iso(),
+        payload: Joi.object().unknown(true).default({})
+    }),
+    rappelCreate: Joi.object({
+        mois: Joi.number().integer().min(1).max(12).required(),
+        annee: Joi.number().integer().min(2000).max(2100).required()
+    }),
+    notificationAction: Joi.object({
+        action: Joi.string().valid('envoye', 'annule', 'retry').required()
+    }),
+    preferencesUpdate: Joi.object({
+        whatsapp_optin: Joi.boolean(),
+        email_optin: Joi.boolean(),
+        locale: Joi.string().max(5)
+    }).min(1)
 };
 
 // Middleware générique de validation

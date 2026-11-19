@@ -1038,4 +1038,197 @@ router.get('/recus/:id', (req, res) => {
     });
 });
 
+function buildRappelMessage(mois, annee) {
+    return `السلام عليكم، rappel pour la cotisation de ${mois}/${annee}. Merci.`;
+}
+
+function buildWaLink(phone, message) {
+    const digits = normalizePhone(phone) || '';
+    return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
+router.get('/notifications', isAuthenticated, validate('notificationQuery', 'query'), (req, res) => {
+    const { statut, canal } = req.query;
+    const conditions = [];
+    const params = [];
+    if (statut) {
+        params.push(statut);
+        conditions.push(`n.statut = $${params.length}`);
+    }
+    if (canal) {
+        params.push(canal);
+        conditions.push(`n.canal = $${params.length}`);
+    }
+    let sql = `SELECT n.*, m.nom AS membre_nom, m.whatsapp AS membre_whatsapp
+        FROM notifications n LEFT JOIN membres m ON m.id = n.membre_id`;
+    if (conditions.length > 0) sql += ` WHERE ${conditions.join(' AND ')}`;
+    sql += ' ORDER BY n.created_at DESC';
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.json({ success: true, notifications: result ? result.rows : [] });
+    });
+});
+
+router.post('/notifications', isAuthenticated, validate('notificationCreate'), (req, res) => {
+    const { membre_id, canal, template, scheduled_at } = req.body;
+    const payloadInput = req.body.payload || {};
+    db.query('SELECT id, nom, telephone, whatsapp FROM membres WHERE id = $1', [membre_id], (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const membre = result && result.rows ? result.rows[0] : null;
+        if (!membre) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+
+        const mois = payloadInput.mois;
+        const annee = payloadInput.annee;
+        const periode = (mois !== undefined && annee !== undefined)
+            ? `${annee}-${String(mois).padStart(2, '0')}`
+            : null;
+        const message = (template === 'rappel_cotisation' && mois !== undefined && annee !== undefined)
+            ? buildRappelMessage(mois, annee)
+            : (payloadInput.message || '');
+        const lien = buildWaLink(membre.whatsapp || membre.telephone, message);
+        const payload = { ...payloadInput, message, lien };
+
+        db.query(
+            `INSERT INTO notifications (membre_id, canal, template, payload, statut, periode, scheduled_at)
+             VALUES ($1, $2, $3, $4, 'a_envoyer', $5, COALESCE($6::timestamptz, NOW()))
+             RETURNING id`,
+            [membre_id, canal, template, JSON.stringify(payload), periode, scheduled_at || null],
+            (insertErr, insertResult) => {
+                if (insertErr) {
+                    if (insertErr.code === '23505') {
+                        return res.status(409).json({ success: false, message: 'Déjà planifié' });
+                    }
+                    return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                }
+                res.status(201).json({ success: true, id: insertResult.rows[0].id });
+            }
+        );
+    });
+});
+
+router.post('/notifications/rappels-cotisations', isAuthenticated, validate('rappelCreate'), (req, res) => {
+    const { mois, annee } = req.body;
+    const periode = `${annee}-${String(mois).padStart(2, '0')}`;
+    db.query(
+        `SELECT m.id, m.nom, m.telephone, m.whatsapp
+         FROM membres m
+         WHERE m.actif = true AND m.whatsapp IS NOT NULL
+           AND NOT EXISTS (
+             SELECT 1 FROM payments p WHERE p.membre_id = m.id AND p.mois = $1 AND p.annee = $2
+           )`,
+        [mois, annee],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const membres = result ? result.rows : [];
+            let demandes = 0;
+            let ignores = 0;
+            let index = 0;
+
+            const next = () => {
+                if (index >= membres.length) {
+                    return res.json({ success: true, demandes, ignores });
+                }
+                const membre = membres[index++];
+                const message = buildRappelMessage(mois, annee);
+                const lien = buildWaLink(membre.whatsapp || membre.telephone, message);
+                const payload = { mois, annee, message, lien };
+                db.query(
+                    `INSERT INTO notifications (membre_id, canal, template, payload, statut, periode)
+                     VALUES ($1, 'whatsapp', 'rappel_cotisation', $2, 'a_envoyer', $3)
+                     ON CONFLICT (membre_id, template, periode) WHERE membre_id IS NOT NULL AND periode IS NOT NULL DO NOTHING`,
+                    [membre.id, JSON.stringify(payload), periode],
+                    (insertErr, insertResult) => {
+                        if (insertErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                        if (insertResult.rowCount > 0) demandes += 1;
+                        else ignores += 1;
+                        next();
+                    }
+                );
+            };
+
+            next();
+        }
+    );
+});
+
+router.patch('/notifications/:id', isAuthenticated, validate('notificationAction'), (req, res) => {
+    const { action } = req.body;
+    let sql;
+    let params;
+    if (action === 'envoye') {
+        sql = `UPDATE notifications SET statut = 'envoye', sent_at = NOW(), erreur = NULL WHERE id = $1`;
+        params = [req.params.id];
+    } else if (action === 'annule') {
+        sql = `UPDATE notifications SET statut = 'annule' WHERE id = $1`;
+        params = [req.params.id];
+    } else {
+        sql = `UPDATE notifications SET statut = 'a_envoyer', erreur = NULL, tentatives = tentatives + 1 WHERE id = $1`;
+        params = [req.params.id];
+    }
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        if (!result || result.rowCount === 0) return res.status(404).json({ success: false, message: 'Notification introuvable' });
+        res.json({ success: true });
+    });
+});
+
+router.get('/membres/:id/preferences', (req, res) => {
+    db.query(
+        `INSERT INTO notification_preferences (membre_id)
+         VALUES ($1)
+         ON CONFLICT (membre_id) DO NOTHING`,
+        [req.params.id],
+        (err) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            db.query('SELECT * FROM notification_preferences WHERE membre_id = $1', [req.params.id], (selectErr, result) => {
+                if (selectErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                const rows = result ? result.rows : [];
+                if (rows.length === 0) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+                res.json({ success: true, preferences: rows[0] });
+            });
+        }
+    );
+});
+
+router.put('/membres/:id/preferences', validate('preferencesUpdate'), (req, res) => {
+    const fields = [];
+    const values = [];
+    if (req.body.whatsapp_optin !== undefined) {
+        values.push(req.body.whatsapp_optin);
+        fields.push(`whatsapp_optin = $${values.length}`);
+    }
+    if (req.body.email_optin !== undefined) {
+        values.push(req.body.email_optin);
+        fields.push(`email_optin = $${values.length}`);
+    }
+    if (req.body.locale !== undefined) {
+        values.push(req.body.locale);
+        fields.push(`locale = $${values.length}`);
+    }
+    fields.push('updated_at = NOW()');
+    values.push(req.params.id);
+    db.query(
+        `UPDATE notification_preferences SET ${fields.join(', ')} WHERE membre_id = $${values.length} RETURNING *`,
+        values,
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            if (result && result.rowCount > 0) {
+                return res.json({ success: true, preferences: result.rows[0] });
+            }
+            const whatsappOptin = req.body.whatsapp_optin === undefined ? false : req.body.whatsapp_optin;
+            const emailOptin = req.body.email_optin === undefined ? false : req.body.email_optin;
+            const locale = req.body.locale === undefined ? 'ar' : req.body.locale;
+            db.query(
+                `INSERT INTO notification_preferences (membre_id, whatsapp_optin, email_optin, locale)
+                 VALUES ($1, $2, $3, $4) RETURNING *`,
+                [req.params.id, whatsappOptin, emailOptin, locale],
+                (insertErr, insertResult) => {
+                    if (insertErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                    res.json({ success: true, preferences: insertResult.rows[0] });
+                }
+            );
+        }
+    );
+});
+
 module.exports = router;
