@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS membres (
     date_inscription TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX IF NOT EXISTS idx_membres_telephone ON membres(telephone);
+
 CREATE TABLE IF NOT EXISTS femmes (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,

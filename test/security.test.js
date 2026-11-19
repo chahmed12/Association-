@@ -11,6 +11,7 @@ process.env.NODE_ENV = 'test';
 
 const db = require('../config/db');
 const sessions = new Map();
+const payments = new Set();
 const adminHash = bcrypt.hashSync('mot-de-passe-test', 4);
 
 function resultFor(sql, params) {
@@ -51,6 +52,12 @@ function resultFor(sql, params) {
     }
     if (query.includes('SELECT membre_id, mois, annee FROM payments')) {
         return { rows: [{ membre_id: 1, mois: 1, annee: 2027 }, { membre_id: 1, mois: 2, annee: 2027 }] };
+    }
+    if (query.includes('WITH removed AS') && query.includes('DELETE FROM payments')) {
+        const key = `${params[0]}:${params[1]}:${params[2]}`;
+        const status = payments.delete(key) ? 'removed' : 'added';
+        if (status === 'added') payments.add(key);
+        return { rows: [{ status }] };
     }
     if (query.includes('SELECT * FROM payments WHERE')) {
         return { rows: [] };
@@ -119,7 +126,32 @@ test('check-auth indique etat non connecte puis connecte', async () => {
     const toggle = await agent.post('/api/cotisations/toggle')
         .send({ membre_id: 1, mois: 12, annee: 2026 })
         .expect(200);
-    assert.equal(toggle.body.status, 'added');
+    assert.deepEqual(toggle.body, { success: true, status: 'added' });
+
+    const toggleOff = await agent.post('/api/cotisations/toggle')
+        .send({ membre_id: 1, mois: 12, annee: 2026 })
+        .expect(200);
+    assert.deepEqual(toggleOff.body, { success: true, status: 'removed' });
+});
+
+test('toggle cotisation refuse les parametres invalides', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    for (const payload of [
+        { membre_id: 0, mois: 12, annee: 2026 },
+        { membre_id: 'abc', mois: 12, annee: 2026 },
+        { membre_id: 1, mois: 13, annee: 2026 },
+        { membre_id: 1, mois: 0, annee: 2026 },
+        { membre_id: 1, mois: 12, annee: 1999 },
+        { membre_id: 1, mois: 12, annee: 2101 },
+        { membre_id: 1, mois: 12, annee: 'abc' }
+    ]) {
+        const response = await agent.post('/api/cotisations/toggle').send(payload).expect(400);
+        assert.equal(response.body.success, false);
+    }
 });
 
 test('une route API inconnue renvoie un JSON 404', async () => {

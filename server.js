@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const compression = require('compression');
 
 const db = require('./config/db');
@@ -50,6 +50,14 @@ const globalLimiter = rateLimit({
     message: "Trop de requêtes, veuillez réessayer plus tard."
 });
 
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.username || ''}`
+});
+
 app.set('trust proxy', 1);
 app.use(cors({
     origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : false,
@@ -57,6 +65,7 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/api/login', loginLimiter);
 
 // 2. SESSIONS
 const sessionStore = new pgSession({

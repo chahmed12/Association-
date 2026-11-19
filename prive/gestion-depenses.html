@@ -7,6 +7,7 @@
     <title>Gestion des Dépenses - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/utils.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -594,17 +595,17 @@
                 <div class="expense-card flex items-center gap-4 p-4 rounded-xl border border-gray-200/50 bg-white shadow-sm hover:shadow-md transition-all group relative overflow-hidden" style="border-right:5px solid ${cat.color}">
                     <!-- Add a subtle bg color hover effect matching the category -->
                     <div class="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300" style="background:${cat.color}"></div>
-                    <button onclick="deleteDepense(${d.id})" class="delete-btn text-gray-300 hover:text-red-500 flex-shrink-0 p-2 rounded-lg hover:bg-red-50 transition-colors z-10 relative">
+                    <button onclick="deleteDepense('${escapeJs(d.id)}')" class="delete-btn text-gray-300 hover:text-red-500 flex-shrink-0 p-2 rounded-lg hover:bg-red-50 transition-colors z-10 relative">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                     </button>
                     <div class="flex-grow text-right min-w-0 z-10 relative">
                         <div class="flex items-center gap-3 justify-end flex-wrap mb-1">
-                            <span class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider" style="background:${cat.bg};color:${cat.text}">${cat.label}</span>
-                            <p class="font-extrabold text-gray-800 truncate text-base">${d.label}</p>
+                            <span class="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider" style="background:${cat.bg};color:${cat.text}">${escapeHtml(cat.label)}</span>
+                            <p class="font-extrabold text-gray-800 truncate text-base">${escapeHtml(d.label)}</p>
                         </div>
-                        ${d.note ? `<p class="text-xs text-gray-500 mt-1 truncate font-medium">${d.note}</p>` : ''}
+                        ${d.note ? `<p class="text-xs text-gray-500 mt-1 truncate font-medium">${escapeHtml(d.note)}</p>` : ''}
                         <p class="text-xs text-gray-400 mt-1.5 font-inter font-medium tracking-wide">${dateStr}</p>
                     </div>
                     <div class="text-right flex-shrink-0 border-l border-gray-100 pl-4 ml-2 z-10 relative">
@@ -629,7 +630,7 @@
                 const percent = Math.round((total / totalDep) * 100);
                 return `
                 <div class="rounded-xl p-4 text-right" style="background:${c.bg};border:1px solid ${c.color}20">
-                    <p class="text-sm font-bold mb-1" style="color:${c.text}">${c.label}</p>
+                    <p class="text-sm font-bold mb-1" style="color:${c.text}">${escapeHtml(c.label)}</p>
                     <p class="text-2xl font-extrabold text-gray-800">${total.toLocaleString()}</p>
                     <p class="text-xs text-gray-500">MRO — ${percent}%</p>
                     <div class="mt-2 bg-white/60 rounded-full h-2 overflow-hidden">

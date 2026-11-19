@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 pour les notifications "Toast" -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/utils.js"></script>
 
     <style>
         /* ── CSS VARIABLES (Light / Dark) ── */
@@ -458,9 +459,11 @@
             tbody.innerHTML = '';
             
             function highlight(text, term) {
-                if (!term || !text) return text || '';
-                const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                return text.toString().replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#bbf7d0;color:#065f46;border-radius:3px;padding:0 2px;">$1</mark>');
+                const safeText = escapeHtml(text);
+                if (!term || !text) return safeText;
+                const safeTerm = escapeHtml(term);
+                const escaped = safeTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                return safeText.replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background:#bbf7d0;color:#065f46;border-radius:3px;padding:0 2px;">$1</mark>');
             }
 
             membres.forEach(m => {
@@ -504,7 +507,7 @@
                 let html = `
                     <div class="bg-gradient-to-r from-green-600 to-green-500 text-white p-4">
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-xl font-bold">${m.nom}</h3>
+                            <h3 class="text-xl font-bold">${escapeHtml(m.nom)}</h3>
                         </div>
                         <div class="mt-3 bg-white/30 rounded-full h-2 overflow-hidden">
                             <div class="bg-white h-full" style="width:${progress}%"></div>

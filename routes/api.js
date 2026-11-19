@@ -161,9 +161,15 @@ router.post('/login', validate('login'), (req, res) => {
             const admin = results[0];
             const match = await bcrypt.compare(password, admin.password);
             if (match) {
-                req.session.loggedin = true;
-                req.session.username = username;
-                req.session.save(() => res.json({ success: true, redirect: '/admin.html' }));
+                req.session.regenerate((regenErr) => {
+                    if (regenErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                    req.session.loggedin = true;
+                    req.session.username = username;
+                    req.session.save((saveErr) => {
+                        if (saveErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                        res.json({ success: true, redirect: '/admin.html' });
+                    });
+                });
             } else {
                 res.status(401).json({ success: false, message: 'Identifiants incorrects' });
             }
@@ -228,22 +234,26 @@ router.get('/cotisations', isAuthenticated, (req, res) => {
     });
 });
 
-router.post('/cotisations/toggle', isAuthenticated, (req, res) => {
+router.post('/cotisations/toggle', isAuthenticated, validate('cotisation'), (req, res) => {
     const { membre_id, mois } = req.body;
-    const annee = Number(req.body.annee) || new Date().getFullYear();
-    db.query("SELECT * FROM payments WHERE membre_id = $1 AND mois = $2 AND annee = $3", [membre_id, mois, annee], (err, result) => {
-        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-        const results = result ? result.rows : [];
-        if (results.length > 0) {
-            db.query("DELETE FROM payments WHERE membre_id = $1 AND mois = $2 AND annee = $3", [membre_id, mois, annee], () => {
-                res.json({ success: true, status: 'removed' });
-            });
-        } else {
-            db.query("INSERT INTO payments (membre_id, mois, annee) VALUES ($1, $2, $3)", [membre_id, mois, annee], () => {
-                res.json({ success: true, status: 'added' });
-            });
+    const annee = req.body.annee === undefined ? new Date().getFullYear() : Number(req.body.annee);
+    db.query(
+        `WITH removed AS (
+            DELETE FROM payments WHERE membre_id = $1 AND mois = $2 AND annee = $3 RETURNING id
+        ), inserted AS (
+            INSERT INTO payments (membre_id, mois, annee)
+            SELECT $1, $2, $3
+            WHERE NOT EXISTS (SELECT 1 FROM removed)
+            ON CONFLICT DO NOTHING
+            RETURNING id
+        )
+        SELECT CASE WHEN EXISTS (SELECT 1 FROM inserted) THEN 'added' ELSE 'removed' END AS status`,
+        [membre_id, mois, annee],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.json({ success: true, status: result.rows[0].status });
         }
-    });
+    );
 });
 
 // ═══════════════════════════════════════════════════════════════

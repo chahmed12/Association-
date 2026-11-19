@@ -30,6 +30,12 @@ const schemas = {
         categorie: Joi.string().default('autre'),
         date: Joi.date().iso().allow(null, ''),
         note: Joi.string().allow('', null)
+    }),
+
+    cotisation: Joi.object({
+        membre_id: Joi.number().integer().positive().required(),
+        mois: Joi.number().integer().min(1).max(12).required(),
+        annee: Joi.number().integer().min(2000).max(2100)
     })
 };
 

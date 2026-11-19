@@ -7,6 +7,7 @@
     <title>الجديد - Nouveautés | رابطة شباب جدة</title>
     <meta name="description" content="آخر أخبار وصور رابطة شباب جدة - موريتانيا">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/utils.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -448,14 +449,14 @@
                      onclick="openLightbox(${i + 1})">
                     <div class="overflow-hidden rounded-t-2xl relative">
                         <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition duration-300 z-10"></div>
-                        <img src="${img.url}"
-                             alt="${img.titre || 'Image'}"
+                        <img src="${escapeHtml(img.url)}"
+                             alt="${escapeHtml(img.titre || 'Image')}"
                              loading="lazy"
                              class="w-full h-48 md:h-56 object-cover transform scale-100 group-hover:scale-110 transition duration-700"
                              onerror="this.closest('.gallery-card').style.display='none'">
                     </div>
                     <div class="p-4 bg-white/80 backdrop-blur-sm border-t border-gray-100 flex-grow">
-                        <p class="font-bold text-gray-800 text-sm md:text-base line-clamp-2 text-right leading-snug font-cairo">${img.titre || 'Sans titre'}</p>
+                        <p class="font-bold text-gray-800 text-sm md:text-base line-clamp-2 text-right leading-snug font-cairo">${escapeHtml(img.titre || 'Sans titre')}</p>
                         <p class="text-gray-400 text-xs mt-2 font-inter font-medium">${img.date ? formatDate(img.date) : ''}</p>
                     </div>
                 </div>

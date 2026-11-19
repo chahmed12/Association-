@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="/js/utils.js"></script>
 
     <style>
         :root {
@@ -766,7 +767,7 @@
                     div.onclick = () => {
                         cityInput.value = match;
                         cityDropdown.classList.add('hidden');
-                        cityResult.innerHTML = `✅ تم اختيار مدينة: <strong>${match}</strong>`;
+                        cityResult.innerHTML = `✅ تم اختيار مدينة: <strong>${escapeHtml(match)}</strong>`;
                         cityResult.classList.remove('hidden');
                     };
                     cityDropdown.appendChild(div);
@@ -783,12 +784,12 @@
                 const data = await response.json();
                 if (data.status === 'ok' && data.items.length > 0) {
                     newsContainer.innerHTML = data.items.slice(0, 3).map(item => `
-                        <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="glass-card rounded-xl overflow-hidden card-hover flex flex-col border border-gray-100 reveal">
+                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="glass-card rounded-xl overflow-hidden card-hover flex flex-col border border-gray-100 reveal">
                             <div class="h-40 bg-gray-200 relative overflow-hidden">
-                                <img src="${item.thumbnail || '/images/AssociationJJJ.jpg'}" alt="News" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='/images/AssociationJJJ.jpg'">
+                                <img src="${escapeHtml(item.thumbnail || '/images/AssociationJJJ.jpg')}" alt="News" class="w-full h-full object-cover hover:scale-105 transition duration-500" onerror="this.src='/images/AssociationJJJ.jpg'">
                             </div>
                             <div class="p-5 flex-grow flex flex-col justify-between">
-                                <h3 class="font-bold mb-2 line-clamp-2 leading-snug text-right text-sm" dir="rtl">${item.title}</h3>
+                                <h3 class="font-bold mb-2 line-clamp-2 leading-snug text-right text-sm" dir="rtl">${escapeHtml(item.title)}</h3>
                                 <div class="mt-4 flex justify-between items-center text-xs text-gray-500 font-inter">
                                     <span>${new Date(item.pubDate).toLocaleDateString('ar-MR')}</span>
                                     <span class="text-blue-600 font-semibold">اقرأ المزيد ←</span>
