@@ -16,6 +16,19 @@ const exportLogs = [];
 const adminHash = bcrypt.hashSync('mot-de-passe-test', 4);
 const carteToken = 'b'.repeat(64);
 const expireLe = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+const champsPublicsEvenement = ['id', 'titre', 'description', 'lieu', 'date_debut', 'date_fin', 'image_url', 'capacite'];
+const evenements = [
+    { id: 1, titre: 'Evenement Publie', description: 'Description', lieu: 'Jeddah', date_debut: '2030-06-01T10:00:00Z', date_fin: null, image_url: null, capacite: 2, statut: 'publie' },
+    { id: 2, titre: 'Evenement Brouillon', description: 'Description', lieu: 'Jeddah', date_debut: '2030-07-01T10:00:00Z', date_fin: null, image_url: null, capacite: null, statut: 'brouillon' },
+    { id: 3, titre: 'Evenement Passe', description: 'Description', lieu: 'Jeddah', date_debut: '2020-01-01T10:00:00Z', date_fin: null, image_url: null, capacite: 1, statut: 'publie' }
+];
+const rsvps = [];
+
+function evenementPublic(event) {
+    const publicEvent = {};
+    for (const champ of champsPublicsEvenement) publicEvent[champ] = event[champ];
+    return publicEvent;
+}
 
 function resultFor(sql, params) {
     const query = String(sql);
@@ -120,6 +133,104 @@ function resultFor(sql, params) {
     if (query.includes('DELETE FROM "sessions" WHERE expire')) {
         return { rows: [] };
     }
+    if (query.includes('DELETE FROM evenements')) {
+        const index = evenements.findIndex(e => String(e.id) === String(params[0]));
+        if (index >= 0) evenements.splice(index, 1);
+        return { rowCount: 1, rows: [] };
+    }
+    if (query.includes('SELECT image_url FROM evenements')) {
+        const event = evenements.find(e => String(e.id) === String(params[0]));
+        return { rows: event ? [{ image_url: event.image_url }] : [] };
+    }
+    if (query.includes('SELECT statut, capacite FROM evenements')) {
+        const event = evenements.find(e => String(e.id) === String(params[0]));
+        return { rows: event ? [{ statut: event.statut, capacite: event.capacite }] : [] };
+    }
+    if (query.includes('FROM evenements e LEFT JOIN rsvps')) {
+        let rows = evenements;
+        if (params.length > 0) rows = rows.filter(e => e.statut === params[0]);
+        return { rows: rows.map(e => ({
+            ...e,
+            rsvps_oui: rsvps.filter(r => r.evenement_id === e.id && r.reponse === 'oui').length
+        })) };
+    }
+    if (query.includes('FROM evenements WHERE id = $1')) {
+        const event = evenements.find(e => String(e.id) === String(params[0]) && e.statut === 'publie');
+        return { rows: event ? [evenementPublic(event)] : [] };
+    }
+    if (query.includes('FROM evenements')) {
+        let rows = evenements.filter(e => e.statut === 'publie');
+        if (query.includes('date_debut >= NOW()')) {
+            rows = rows.filter(e => new Date(e.date_debut).getTime() >= Date.now());
+        }
+        return { rows: rows.sort((a, b) => a.date_debut.localeCompare(b.date_debut)).map(evenementPublic) };
+    }
+    if (query.includes('INSERT INTO evenements')) {
+        const event = {
+            id: 10,
+            titre: params[0],
+            description: params[1],
+            lieu: params[2],
+            date_debut: params[3],
+            date_fin: params[4],
+            image_url: params[5],
+            capacite: params[6],
+            statut: params[7],
+            created_by: params[8]
+        };
+        evenements.push(event);
+        return { rows: [{ id: event.id }] };
+    }
+    if (query.includes('UPDATE evenements')) {
+        return { rowCount: 1, rows: [] };
+    }
+    if (query.includes('SELECT id FROM rsvps WHERE evenement_id')) {
+        const rows = query.includes('membre_id = $2')
+            ? rsvps.filter(r => String(r.evenement_id) === String(params[0]) && String(r.membre_id) === String(params[1]))
+            : rsvps.filter(r => String(r.evenement_id) === String(params[0]) && r.membre_id === null && String(r.telephone) === String(params[1]));
+        return { rows };
+    }
+    if (query.includes('SELECT COUNT(*)::int AS total FROM rsvps')) {
+        const total = rsvps.filter(r => String(r.evenement_id) === String(params[0]) && r.reponse === 'oui' && r.id !== Number(params[1])).length;
+        return { rows: [{ total }] };
+    }
+    if (query.includes('SELECT GREATEST(')) {
+        const capacite = Number(params[1]);
+        const total = rsvps.filter(r => String(r.evenement_id) === String(params[0]) && r.reponse === 'oui').length;
+        return { rows: [{ places_restantes: Math.max(capacite - total, 0) }] };
+    }
+    if (query.includes('INSERT INTO rsvps')) {
+        const rsvp = {
+            id: rsvps.length + 1,
+            evenement_id: Number(params[0]),
+            membre_id: params[1],
+            nom_invite: params[2],
+            telephone: params[3],
+            reponse: params[4],
+            note: params[5],
+            token: params[6]
+        };
+        const conflict = query.includes('ON CONFLICT (evenement_id, membre_id)')
+            ? rsvps.find(r => String(r.evenement_id) === String(rsvp.evenement_id) && String(r.membre_id) === String(rsvp.membre_id))
+            : query.includes('ON CONFLICT (evenement_id, telephone)')
+                ? rsvps.find(r => String(r.evenement_id) === String(rsvp.evenement_id) && r.membre_id === null && String(r.telephone) === String(rsvp.telephone))
+                : null;
+        if (conflict) {
+            Object.assign(conflict, rsvp, { id: conflict.id });
+            return { rows: [{ id: conflict.id, reponse: conflict.reponse, token: conflict.token }] };
+        }
+        rsvps.push(rsvp);
+        return { rows: [{ id: rsvp.id, reponse: rsvp.reponse, token: rsvp.token }] };
+    }
+    if (query.includes('UPDATE rsvps SET reponse')) {
+        const rsvp = rsvps.find(r => r.token === params[0]);
+        if (!rsvp) return { rowCount: 0, rows: [] };
+        rsvp.reponse = 'non';
+        return { rowCount: 1, rows: [{ id: rsvp.id }] };
+    }
+    if (query.includes('FROM rsvps r LEFT JOIN membres')) {
+        return { rows: rsvps.filter(r => String(r.evenement_id) === String(params[0])).map(r => ({ ...r, membre_nom: null })) };
+    }
     return { rows: [] };
 }
 
@@ -155,7 +266,8 @@ test('les routes sensibles exigent une session', async () => {
         '/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres', '/api/inscriptions',
         '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
         '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
-        '/api/notifications', '/api/membres/1/preferences'
+        '/api/notifications', '/api/membres/1/preferences',
+        '/api/admin/evenements', '/api/evenements/1/rsvps'
     ]) {
         const response = await request(app).get(url).expect(401);
         assert.equal(response.body.success, false);
@@ -163,7 +275,8 @@ test('les routes sensibles exigent une session', async () => {
 
     for (const url of [
         '/api/notifications', '/api/notifications/rappels-cotisations',
-        '/api/inscriptions/1/valider', '/api/inscriptions/1/rejeter', '/api/membres/1/carte/token'
+        '/api/inscriptions/1/valider', '/api/inscriptions/1/rejeter', '/api/membres/1/carte/token',
+        '/api/evenements'
     ]) {
         const response = await request(app).post(url).send({ motif: 'Motif valide' }).expect(401);
         assert.equal(response.body.success, false);
@@ -174,6 +287,12 @@ test('les routes sensibles exigent une session', async () => {
 
     const putRes = await request(app).put('/api/membres/1/preferences').send({ whatsapp_optin: true }).expect(401);
     assert.equal(putRes.body.success, false);
+
+    const eventPut = await request(app).put('/api/evenements/1').send({ titre: 'Titre modifie' }).expect(401);
+    assert.equal(eventPut.body.success, false);
+
+    const eventDelete = await request(app).delete('/api/evenements/1').expect(401);
+    assert.equal(eventDelete.body.success, false);
 });
 
 test('les écritures membres exigent une session', async () => {
@@ -197,6 +316,115 @@ test('la page gestion-notifications redirige vers login sans session', async () 
 
 test('la page gestion-inscriptions redirige vers login sans session', async () => {
     await request(app).get('/gestion-inscriptions.html').expect(302).expect('Location', '/login.html');
+});
+
+test('la page gestion-evenements redirige vers login sans session', async () => {
+    await request(app).get('/gestion-evenements.html').expect(302).expect('Location', '/login.html');
+});
+
+test('les evenements publics n exposent que les champs autorises', async () => {
+    const response = await request(app).get('/api/evenements').expect(200);
+    assert.equal(response.body.success, true);
+    assert.equal(response.body.evenements.length, 2);
+    assert.deepEqual(Object.keys(response.body.evenements[0]).sort(), [...champsPublicsEvenement].sort());
+    assert.ok(response.body.evenements.every(event => event.statut === undefined && event.created_by === undefined));
+    assert.ok(response.body.evenements.every(event => event.titre !== 'Evenement Brouillon'));
+});
+
+test('le filtre avenir et un statut public ne levent pas le filtre publie', async () => {
+    const future = await request(app).get('/api/evenements?avenir=1').expect(200);
+    assert.equal(future.body.evenements.length, 1);
+    assert.equal(future.body.evenements[0].id, 1);
+
+    const ignored = await request(app).get('/api/evenements?statut=brouillon').expect(200);
+    assert.equal(ignored.body.evenements.length, 2);
+
+    await request(app).get('/api/evenements?avenir=0').expect(400);
+});
+
+test('le detail public refuse un evenement non publie', async () => {
+    const response = await request(app).get('/api/evenements/1').expect(200);
+    assert.deepEqual(Object.keys(response.body.evenement).sort(), [...champsPublicsEvenement].sort());
+    await request(app).get('/api/evenements/2').expect(404);
+    await request(app).get('/api/evenements/999').expect(404);
+});
+
+test('le RSVP public cree un token et met a jour la meme reponse', async () => {
+    const first = await request(app).post('/api/evenements/1/rsvp')
+        .send({ nom_invite: 'Invite Un', telephone: '12345678', reponse: 'oui', note: 'Premier' })
+        .expect(200);
+    assert.equal(first.body.success, true);
+    assert.equal(first.body.reponse, 'oui');
+    assert.match(first.body.token, /^[0-9a-f]{64}$/);
+    assert.equal(first.body.places_restantes, 1);
+    assert.equal(first.headers['ratelimit-limit'], '20');
+
+    const second = await request(app).post('/api/evenements/1/rsvp')
+        .send({ nom_invite: 'Invite Un', telephone: '12345678', reponse: 'non' })
+        .expect(200);
+    assert.equal(second.body.id, first.body.id);
+    assert.equal(second.body.reponse, 'non');
+    assert.equal(second.body.places_restantes, 2);
+
+    const annulation = await request(app).post(`/api/rsvp/${second.body.token}/annuler`).expect(200);
+    assert.equal(annulation.body.success, true);
+    await request(app).post('/api/rsvp/pas-un-token/annuler').expect(400);
+    await request(app).post(`/api/rsvp/${'d'.repeat(64)}/annuler`).expect(404);
+});
+
+test('la capacite bloque les nouveaux oui mais pas la mise a jour', async () => {
+    const first = await request(app).post('/api/evenements/3/rsvp')
+        .send({ nom_invite: 'Invite A', telephone: '11111111', reponse: 'oui' })
+        .expect(200);
+    assert.equal(first.body.places_restantes, 0);
+
+    const refused = await request(app).post('/api/evenements/3/rsvp')
+        .send({ nom_invite: 'Invite B', telephone: '22222222', reponse: 'oui' })
+        .expect(409);
+    assert.equal(refused.body.success, false);
+
+    const update = await request(app).post('/api/evenements/3/rsvp')
+        .send({ nom_invite: 'Invite A', telephone: '11111111', reponse: 'peut_etre' })
+        .expect(200);
+    assert.equal(update.body.id, first.body.id);
+});
+
+test('le RSVP exige une identite, un telephone valide et un evenement publie', async () => {
+    await request(app).post('/api/evenements/1/rsvp')
+        .send({ telephone: '12345678', reponse: 'oui' }).expect(400);
+    await request(app).post('/api/evenements/2/rsvp')
+        .send({ nom_invite: 'Invite', telephone: '33333333', reponse: 'oui' }).expect(404);
+    await request(app).post('/api/evenements/1/rsvp')
+        .send({ nom_invite: 'Invite', telephone: 'abc', reponse: 'oui' }).expect(400);
+});
+
+test('administration des evenements et liste des rsvps', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const created = await agent.post('/api/evenements').send({
+        titre: 'Nouvel Evenement', description: 'Desc', lieu: 'Jeddah',
+        date_debut: '2031-01-01T10:00:00Z', capacite: 10, statut: 'publie'
+    }).expect(201);
+    assert.equal(created.body.id, 10);
+
+    const list = await agent.get('/api/admin/evenements').expect(200);
+    assert.equal(list.body.evenements.length, 4);
+    assert.equal(list.body.evenements[0].rsvps_oui, 0);
+
+    const filtered = await agent.get('/api/admin/evenements?statut=brouillon').expect(200);
+    assert.equal(filtered.body.evenements.length, 1);
+
+    await agent.put('/api/evenements/1').send({ titre: 'Titre modifie' }).expect(200);
+    await agent.delete('/api/evenements/10').expect(200);
+    const afterDelete = await agent.get('/api/admin/evenements').expect(200);
+    assert.equal(afterDelete.body.evenements.length, 3);
+
+    const rsvpsList = await agent.get('/api/evenements/1/rsvps').expect(200);
+    assert.equal(rsvpsList.body.rsvps.length, 1);
+    assert.equal(rsvpsList.body.rsvps[0].telephone, '12345678');
 });
 
 test('inscription publique exige le consentement', async () => {

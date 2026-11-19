@@ -115,6 +115,43 @@ const schemas = {
 
     carteToken: Joi.object({
         token: Joi.string().pattern(/^[0-9a-fA-F]{64}$/).required()
+    }),
+
+    evenementQuery: Joi.object({
+        avenir: Joi.string().valid('1'),
+        statut: Joi.string().valid('brouillon', 'publie', 'annule')
+    }),
+
+    evenementCreate: Joi.object({
+        titre: Joi.string().min(3).max(255).required(),
+        description: Joi.string().allow('', null),
+        lieu: Joi.string().allow('', null).max(255),
+        date_debut: Joi.date().iso().required(),
+        date_fin: Joi.date().iso().allow(null, ''),
+        capacite: Joi.number().integer().positive().allow(null),
+        statut: Joi.string().valid('brouillon', 'publie', 'annule').default('brouillon')
+    }),
+
+    evenementUpdate: Joi.object({
+        titre: Joi.string().min(3).max(255),
+        description: Joi.string().allow('', null),
+        lieu: Joi.string().allow('', null).max(255),
+        date_debut: Joi.date().iso(),
+        date_fin: Joi.date().iso().allow(null, ''),
+        capacite: Joi.number().integer().positive().allow(null),
+        statut: Joi.string().valid('brouillon', 'publie', 'annule')
+    }),
+
+    rsvpCreate: Joi.object({
+        nom_invite: Joi.string().min(2).max(255),
+        membre_id: Joi.number().integer().positive(),
+        telephone: Joi.string().pattern(/^[0-9]{8,15}$/).allow('', null),
+        reponse: Joi.string().valid('oui', 'non', 'peut_etre').required(),
+        note: Joi.string().allow('', null).max(2000)
+    }).xor('nom_invite', 'membre_id'),
+
+    rsvpToken: Joi.object({
+        token: Joi.string().pattern(/^[0-9a-fA-F]{64}$/).required()
     })
 };
 

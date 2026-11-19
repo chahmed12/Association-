@@ -1485,4 +1485,248 @@ router.put('/membres/:id/preferences', validate('preferencesUpdate'), (req, res)
     );
 });
 
+function findRsvpByIdentity(evenementId, membreId, telephone, callback) {
+    if (membreId !== null) {
+        return db.query(
+            `SELECT id FROM rsvps WHERE evenement_id = $1 AND membre_id = $2`,
+            [evenementId, membreId],
+            callback
+        );
+    }
+    if (telephone !== null) {
+        return db.query(
+            `SELECT id FROM rsvps WHERE evenement_id = $1 AND membre_id IS NULL AND telephone = $2`,
+            [evenementId, telephone],
+            callback
+        );
+    }
+    callback(null, { rows: [] });
+}
+
+function countOuiRsvps(evenementId, excludeId, callback) {
+    db.query(
+        `SELECT COUNT(*)::int AS total FROM rsvps WHERE evenement_id = $1 AND reponse = 'oui' AND id <> $2`,
+        [evenementId, excludeId],
+        (err, result) => {
+            if (err) return callback(err);
+            const rows = result ? result.rows : [];
+            callback(null, rows.length > 0 ? Number(rows[0].total) : 0);
+        }
+    );
+}
+
+router.get('/evenements', validate('evenementQuery', 'query'), (req, res) => {
+    const conditions = ["statut = 'publie'"];
+    if (req.query.avenir === '1') conditions.push('date_debut >= NOW()');
+    db.query(
+        `SELECT id, titre, description, lieu, date_debut, date_fin, image_url, capacite
+         FROM evenements WHERE ${conditions.join(' AND ')} ORDER BY date_debut ASC`,
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.json({ success: true, evenements: result ? result.rows : [] });
+        }
+    );
+});
+
+router.get('/admin/evenements', isAuthenticated, validate('evenementQuery', 'query'), (req, res) => {
+    const params = [];
+    let where = '';
+    if (req.query.statut) {
+        params.push(req.query.statut);
+        where = `WHERE e.statut = $${params.length}`;
+    }
+    db.query(
+        `SELECT e.id, e.titre, e.description, e.lieu, e.date_debut, e.date_fin, e.image_url,
+            e.capacite, e.statut, e.created_at, e.updated_at,
+            COUNT(r.id) FILTER (WHERE r.reponse = 'oui')::int AS rsvps_oui
+         FROM evenements e LEFT JOIN rsvps r ON r.evenement_id = e.id
+         ${where}
+         GROUP BY e.id ORDER BY e.date_debut ASC`,
+        params,
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.json({ success: true, evenements: result ? result.rows : [] });
+        }
+    );
+});
+
+router.get('/evenements/:id/rsvps', isAuthenticated, (req, res) => {
+    db.query(
+        `SELECT r.id, r.membre_id, r.nom_invite, r.telephone, r.reponse, r.note, r.created_at,
+            m.nom AS membre_nom
+         FROM rsvps r LEFT JOIN membres m ON m.id = r.membre_id
+         WHERE r.evenement_id = $1 ORDER BY r.created_at DESC`,
+        [req.params.id],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.json({ success: true, rsvps: result ? result.rows : [] });
+        }
+    );
+});
+
+router.get('/evenements/:id', (req, res) => {
+    db.query(
+        `SELECT id, titre, description, lieu, date_debut, date_fin, image_url, capacite
+         FROM evenements WHERE id = $1 AND statut = 'publie'`,
+        [req.params.id],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const rows = result ? result.rows : [];
+            if (rows.length === 0) return res.status(404).json({ success: false, message: 'Evenement introuvable' });
+            res.json({ success: true, evenement: rows[0] });
+        }
+    );
+});
+
+router.post('/evenements', isAuthenticated, upload.single('image'), validate('evenementCreate'), (req, res) => {
+    const { titre, description, lieu, date_debut, date_fin, capacite, statut } = req.body;
+    const imageUrl = req.file ? req.file.path : null;
+    db.query('SELECT id FROM admins WHERE username = $1', [req.session.username], (err, adminResult) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const adminRows = adminResult ? adminResult.rows : [];
+        const createdBy = adminRows.length > 0 ? adminRows[0].id : null;
+        db.query(
+            `INSERT INTO evenements (titre, description, lieu, date_debut, date_fin, image_url, capacite, statut, created_by)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+            [titre, description || null, lieu || null, date_debut, date_fin || null, imageUrl, capacite || null, statut || 'brouillon', createdBy],
+            (insertErr, insertResult) => {
+                if (insertErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                const rows = insertResult ? insertResult.rows : [];
+                if (rows.length === 0) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                res.status(201).json({ success: true, id: rows[0].id });
+            }
+        );
+    });
+});
+
+router.put('/evenements/:id', isAuthenticated, upload.single('image'), validate('evenementUpdate'), (req, res) => {
+    const fields = [];
+    const values = [];
+    const add = (column, value) => {
+        values.push(value);
+        fields.push(`${column} = $${values.length}`);
+    };
+    for (const column of ['titre', 'description', 'lieu', 'date_debut', 'date_fin', 'capacite', 'statut']) {
+        if (req.body[column] === undefined) continue;
+        const nullable = ['description', 'lieu', 'date_fin', 'capacite'].includes(column) && req.body[column] === '';
+        add(column, nullable ? null : req.body[column]);
+    }
+    if (req.file) add('image_url', req.file.path);
+    fields.push('updated_at = NOW()');
+    values.push(req.params.id);
+    db.query(`UPDATE evenements SET ${fields.join(', ')} WHERE id = $${values.length}`, values, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        if (!result || result.rowCount === 0) return res.status(404).json({ success: false, message: 'Evenement introuvable' });
+        res.json({ success: true });
+    });
+});
+
+router.delete('/evenements/:id', isAuthenticated, (req, res) => {
+    db.query('SELECT image_url FROM evenements WHERE id = $1', [req.params.id], async (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = result ? result.rows : [];
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Evenement introuvable' });
+        const imageUrl = rows[0].image_url;
+        if (imageUrl) {
+            const parts = String(imageUrl).split('/');
+            const publicId = `${parts[parts.length - 2]}/${parts[parts.length - 1].split('.')[0]}`;
+            try {
+                await cloudinary.uploader.destroy(publicId);
+            } catch (cloudErr) {
+                console.error('Erreur de suppression Cloudinary:', cloudErr);
+                return res.status(500).json({ success: false, message: 'Erreur lors de la suppression du fichier' });
+            }
+        }
+        db.query('DELETE FROM evenements WHERE id = $1', [req.params.id], (deleteErr) => {
+            if (deleteErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.json({ success: true });
+        });
+    });
+});
+
+router.post('/evenements/:id/rsvp', validate('rsvpCreate'), (req, res) => {
+    const evenementId = req.params.id;
+    const membreId = req.body.membre_id === undefined || req.body.membre_id === null || req.body.membre_id === '' ? null : req.body.membre_id;
+    const telephone = req.body.telephone === undefined || req.body.telephone === null || req.body.telephone === '' ? null : req.body.telephone;
+    const nomInvite = req.body.nom_invite || null;
+    const reponse = req.body.reponse;
+    const note = req.body.note || null;
+    const token = crypto.randomBytes(32).toString('hex');
+
+    db.query(`SELECT statut, capacite FROM evenements WHERE id = $1`, [evenementId], (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = result ? result.rows : [];
+        if (rows.length === 0 || rows[0].statut !== 'publie') {
+            return res.status(404).json({ success: false, message: 'Evenement introuvable' });
+        }
+        const capacite = rows[0].capacite === null || rows[0].capacite === undefined ? null : Number(rows[0].capacite);
+
+        findRsvpByIdentity(evenementId, membreId, telephone, (findErr, found) => {
+            if (findErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const existingRows = found ? found.rows : [];
+            const existingId = existingRows.length > 0 ? existingRows[0].id : 0;
+
+            const insertRsvp = () => {
+                let sql = `INSERT INTO rsvps (evenement_id, membre_id, nom_invite, telephone, reponse, note, token)
+                           VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+                if (membreId !== null) {
+                    sql += ` ON CONFLICT (evenement_id, membre_id) WHERE membre_id IS NOT NULL
+                             DO UPDATE SET nom_invite = EXCLUDED.nom_invite, telephone = EXCLUDED.telephone,
+                             reponse = EXCLUDED.reponse, note = EXCLUDED.note, token = EXCLUDED.token, updated_at = NOW()`;
+                } else if (telephone !== null) {
+                    sql += ` ON CONFLICT (evenement_id, telephone) WHERE membre_id IS NULL AND telephone IS NOT NULL
+                             DO UPDATE SET nom_invite = EXCLUDED.nom_invite, reponse = EXCLUDED.reponse,
+                             note = EXCLUDED.note, token = EXCLUDED.token, updated_at = NOW()`;
+                }
+                sql += ` RETURNING id, reponse, token`;
+                db.query(sql, [evenementId, membreId, nomInvite, telephone, reponse, note, token], (insertErr, insertResult) => {
+                    if (insertErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                    const rsvpRows = insertResult ? insertResult.rows : [];
+                    if (rsvpRows.length === 0) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                    const rsvp = rsvpRows[0];
+                    const finish = (placesRestantes) => res.json({
+                        success: true,
+                        id: rsvp.id,
+                        reponse: rsvp.reponse,
+                        token: rsvp.token,
+                        places_restantes: placesRestantes
+                    });
+                    if (capacite === null) return finish(null);
+                    db.query(
+                        `SELECT GREATEST($2::int - COUNT(*)::int, 0) AS places_restantes
+                         FROM rsvps WHERE evenement_id = $1 AND reponse = 'oui'`,
+                        [evenementId, capacite],
+                        (countErr, countResult) => {
+                            if (countErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                            const countRows = countResult ? countResult.rows : [];
+                            finish(countRows.length > 0 ? Number(countRows[0].places_restantes) : 0);
+                        }
+                    );
+                });
+            };
+
+            if (reponse !== 'oui' || capacite === null) return insertRsvp();
+            countOuiRsvps(evenementId, existingId, (countErr, total) => {
+                if (countErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                if (total >= capacite) {
+                    return res.status(409).json({ success: false, message: 'Capacité atteinte', places_restantes: 0 });
+                }
+                insertRsvp();
+            });
+        });
+    });
+});
+
+router.post('/rsvp/:token/annuler', validate('rsvpToken', 'params'), (req, res) => {
+    db.query(
+        `UPDATE rsvps SET reponse = 'non', updated_at = NOW() WHERE token = $1 RETURNING id`,
+        [req.params.token],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            if (!result || result.rowCount === 0) return res.status(404).json({ success: false, message: 'RSVP introuvable' });
+            res.json({ success: true });
+        }
+    );
+});
+
 module.exports = router;

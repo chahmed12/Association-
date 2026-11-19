@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأجندة - Agenda | رابطة شباب جدة</title>
+    <meta name="description" content="أجندة فعاليات رابطة شباب جدة - Agenda des événements de l'association">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/utils.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-grad-1: #f0fdf4;
+            --bg-grad-2: #dcfce7;
+            --bg-grad-3: #ecfdf5;
+            --bg-grad-4: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(255, 255, 255, 0.5);
+            --text-primary: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        [data-theme="dark"] {
+            --bg-grad-1: #0f172a;
+            --bg-grad-2: #1e293b;
+            --bg-grad-3: #0f172a;
+            --bg-grad-4: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.9);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, var(--bg-grad-1), var(--bg-grad-2), var(--bg-grad-3), var(--bg-grad-4));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-primary);
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-header {
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.97) 0%, rgba(16, 185, 129, 0.93) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -8px rgba(16, 185, 129, 0.25);
+        }
+
+        #darkToggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .text-gray-800 {
+            color: #f1f5f9 !important;
+        }
+
+        [data-theme="dark"] .text-gray-600 {
+            color: #cbd5e1 !important;
+        }
+
+        [data-theme="dark"] .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+
+        [data-theme="dark"] footer {
+            background: #0f172a !important;
+        }
+
+        .field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1f2937;
+            outline: none;
+        }
+
+        .field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
+
+    <header class="glass-header text-white shadow-2xl">
+        <div class="container mx-auto px-4 py-14 text-center relative">
+            <a href="/index.html" class="absolute right-4 top-4 text-white/80 hover:text-white font-bold text-sm font-inter">← Accueil / الرئيسية</a>
+            <div class="text-5xl mb-3">📅</div>
+            <h1 class="text-4xl md:text-5xl font-extrabold drop-shadow-lg">الأجندة والفعاليات</h1>
+            <p class="text-lg text-green-50 font-inter mt-2">Agenda / Événements à venir</p>
+            <p class="text-sm text-green-200 mt-2 font-inter">رابطة شباب جدة - موريتانيا</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10">
+        <div id="message" class="hidden mb-6 rounded-2xl px-5 py-4 text-center font-bold"></div>
+
+        <div id="confirmation" class="hidden glass-card rounded-3xl p-8 mb-10 text-center">
+            <div class="text-4xl mb-3">✅</div>
+            <h2 class="text-2xl font-bold mb-2">تم تسجيل مشاركتك / Participation enregistrée</h2>
+            <p class="text-gray-600 mb-4">
+                Réponse / الإجابة : <strong id="confirmReponse" class="font-inter"></strong>
+                <span class="mx-2">|</span>
+                Places restantes / المقاعد المتبقية : <strong id="confirmPlaces" class="font-inter"></strong>
+            </p>
+            <p class="text-sm text-gray-600 mb-2">Votre jeton d'annulation / رمز الإلغاء</p>
+            <code id="confirmToken" class="block break-all bg-gray-100 text-green-800 rounded-xl px-4 py-3 mb-4 font-inter text-xs" dir="ltr"></code>
+            <a href="#" id="annulerLien" class="text-red-600 hover:text-red-800 font-bold underline">Annuler mon RSVP / إلغاء مشاركتي</a>
+            <button type="button" onclick="fermerConfirmation()"
+                class="mr-4 text-gray-500 hover:text-gray-700 font-bold">✕</button>
+        </div>
+
+        <div id="evenements" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <p class="col-span-full text-center text-gray-500 py-10">جاري تحميل الفعاليات... / Chargement des événements...</p>
+        </div>
+    </main>
+
+    <div id="rsvpModal" class="fixed inset-0 hidden z-50 items-center justify-center bg-black/60 p-4">
+        <div class="glass-card rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">تأكيد المشاركة</h2>
+                    <p class="text-gray-500 font-inter">Formulaire RSVP</p>
+                </div>
+                <button type="button" onclick="fermerRsvp()" class="text-gray-500 hover:text-gray-800 text-xl font-bold">✕</button>
+            </div>
+            <p id="modalEventTitle" class="bg-green-50 text-green-800 rounded-xl px-4 py-3 mb-6 font-bold"></p>
+            <form id="rsvpForm" class="space-y-5">
+                <div>
+                    <label for="nomInvite" class="block font-semibold mb-2">الاسم / Nom complet *</label>
+                    <input type="text" id="nomInvite" name="nom_invite" required minlength="2" maxlength="255" class="field" placeholder="Votre nom / اسمك">
+                </div>
+                <div>
+                    <label for="telephone" class="block font-semibold mb-2">الهاتف / Téléphone</label>
+                    <input type="tel" id="telephone" name="telephone" inputmode="numeric" pattern="[0-9]{8,15}" class="field" dir="ltr" placeholder="XXXXXXXX">
+                </div>
+                <div>
+                    <label for="reponse" class="block font-semibold mb-2">الإجابة / Réponse *</label>
+                    <select id="reponse" name="reponse" class="field" required>
+                        <option value="oui">سأحضر / Oui, je participe</option>
+                        <option value="non">لن أحضر / Non</option>
+                        <option value="peut_etre">قد أحضر / Peut-être</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="note" class="block font-semibold mb-2">ملاحظة / Note (facultatif)</label>
+                    <textarea id="note" name="note" rows="3" maxlength="2000" class="field" placeholder="Votre message..."></textarea>
+                </div>
+                <button type="submit" id="rsvpSubmit"
+                    class="w-full bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg transition duration-300">
+                    إرسال / Envoyer ma réponse
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-6 mt-10">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 رابطة شباب جدة - Agenda / Événements</p>
+        </div>
+    </footer>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.getElementById('darkToggle').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        function toggleDark() {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('darkToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+
+        let evenements = [];
+        let currentEventId = null;
+        let currentToken = null;
+
+        function afficherMessage(texte, estErreur) {
+            const el = document.getElementById('message');
+            el.textContent = texte;
+            el.className = estErreur
+                ? 'mb-6 rounded-2xl px-5 py-4 text-center font-bold bg-red-50 text-red-700 border border-red-200'
+                : 'mb-6 rounded-2xl px-5 py-4 text-center font-bold bg-green-50 text-green-700 border border-green-200';
+        }
+
+        function formatterDate(valeur) {
+            if (!valeur) return '—';
+            const date = new Date(valeur);
+            if (Number.isNaN(date.getTime())) return escapeHtml(valeur);
+            return date.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
+        }
+
+        async function chargerEvenements() {
+            const conteneur = document.getElementById('evenements');
+            try {
+                const reponse = await fetch('/api/evenements?avenir=1');
+                const donnees = await reponse.json();
+                if (!reponse.ok || !donnees.success) throw new Error(donnees.message || 'Erreur');
+
+                evenements = donnees.evenements || [];
+                if (evenements.length === 0) {
+                    conteneur.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">لا توجد فعاليات قادمة حالياً. / Aucun événement à venir.</p>';
+                    return;
+                }
+
+                conteneur.innerHTML = evenements.map((evenement) => `
+                    <article class="glass-card rounded-3xl overflow-hidden card-hover flex flex-col">
+                        <div class="h-48 bg-gray-200 overflow-hidden">
+                            <img src="${escapeHtml(evenement.image_url || '/images/AssociationJJJ.jpg')}" alt="${escapeHtml(evenement.titre)}" class="w-full h-full object-cover" onerror="this.src='/images/AssociationJJJ.jpg'">
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <p class="text-sm text-green-700 font-inter font-semibold mb-2" dir="ltr">📅 ${formatterDate(evenement.date_debut)}</p>
+                            <h2 class="text-xl font-bold mb-2">${escapeHtml(evenement.titre)}</h2>
+                            <p class="text-gray-600 text-sm mb-2">📍 ${escapeHtml(evenement.lieu || '—')}</p>
+                            <p class="text-gray-600 text-sm mb-5 flex-grow">${escapeHtml(evenement.description || '')}</p>
+                            <button type="button" data-rsvp-id="${escapeHtml(evenement.id)}"
+                                class="w-full bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white font-bold py-3 rounded-xl shadow-md transition duration-300">
+                                Je participe / سأشارك
+                            </button>
+                        </div>
+                    </article>
+                `).join('');
+
+                conteneur.querySelectorAll('[data-rsvp-id]').forEach((bouton) => {
+                    bouton.addEventListener('click', () => ouvrirRsvp(bouton.dataset.rsvpId));
+                });
+            } catch (erreur) {
+                conteneur.innerHTML = '<p class="col-span-full text-center text-red-500 py-10">تعذر تحميل الفعاليات. / Impossible de charger les événements.</p>';
+            }
+        }
+
+        function ouvrirRsvp(id) {
+            currentEventId = id;
+            const evenement = evenements.find((item) => String(item.id) === String(id));
+            document.getElementById('modalEventTitle').textContent = evenement ? evenement.titre : '';
+            document.getElementById('rsvpForm').reset();
+            document.getElementById('rsvpModal').classList.remove('hidden');
+            document.getElementById('rsvpModal').classList.add('flex');
+        }
+
+        function fermerRsvp() {
+            document.getElementById('rsvpModal').classList.add('hidden');
+            document.getElementById('rsvpModal').classList.remove('flex');
+            currentEventId = null;
+        }
+
+        function fermerConfirmation() {
+            document.getElementById('confirmation').classList.add('hidden');
+            currentToken = null;
+        }
+
+        document.getElementById('rsvpForm').addEventListener('submit', async function (evenement) {
+            evenement.preventDefault();
+            if (!currentEventId) return;
+
+            const bouton = document.getElementById('rsvpSubmit');
+            bouton.disabled = true;
+            bouton.textContent = 'Envoi en cours... / جاري الإرسال...';
+
+            const corps = {
+                nom_invite: document.getElementById('nomInvite').value.trim(),
+                telephone: document.getElementById('telephone').value.trim(),
+                reponse: document.getElementById('reponse').value,
+                note: document.getElementById('note').value.trim()
+            };
+
+            try {
+                const reponse = await fetch(`/api/evenements/${encodeURIComponent(currentEventId)}/rsvp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(corps)
+                });
+                const donnees = await reponse.json();
+                if (!reponse.ok || !donnees.success) {
+                    afficherMessage(donnees.message || 'Erreur lors de l\'envoi / خطأ في الإرسال', true);
+                    return;
+                }
+
+                currentToken = donnees.token;
+                document.getElementById('confirmReponse').textContent = donnees.reponse;
+                document.getElementById('confirmPlaces').textContent = donnees.places_restantes === null ? '—' : donnees.places_restantes;
+                document.getElementById('confirmToken').textContent = donnees.token;
+                document.getElementById('confirmation').classList.remove('hidden');
+                afficherMessage('تم تسجيل مشاركتك بنجاح / Participation enregistrée avec succès', false);
+                fermerRsvp();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (erreur) {
+                afficherMessage('Erreur réseau / خطأ في الاتصال', true);
+            } finally {
+                bouton.disabled = false;
+                bouton.textContent = 'إرسال / Envoyer ma réponse';
+            }
+        });
+
+        document.getElementById('annulerLien').addEventListener('click', async function (evenement) {
+            evenement.preventDefault();
+            if (!currentToken) return;
+            if (!confirm('Annuler votre participation ? / هل تريد إلغاء مشاركتك؟')) return;
+
+            try {
+                const reponse = await fetch(`/api/rsvp/${encodeURIComponent(currentToken)}/annuler`, { method: 'POST' });
+                const donnees = await reponse.json();
+                if (!reponse.ok || !donnees.success) {
+                    afficherMessage(donnees.message || 'Erreur lors de l\'annulation / خطأ في الإلغاء', true);
+                    return;
+                }
+                afficherMessage('تم إلغاء مشاركتك / Participation annulée', false);
+                fermerConfirmation();
+            } catch (erreur) {
+                afficherMessage('Erreur réseau / خطأ في الاتصال', true);
+            }
+        });
+
+        chargerEvenements();
+    </script>
+</body>
+
+</html>

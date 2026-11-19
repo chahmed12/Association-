@@ -58,6 +58,14 @@ const loginLimiter = rateLimit({
     keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.username || ''}`
 });
 
+const rsvpLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: "Trop de requêtes RSVP, veuillez réessayer plus tard."
+});
+
 app.set('trust proxy', 1);
 app.use(cors({
     origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : false,
@@ -102,10 +110,13 @@ app.get('/gestion-depenses.html', isAuthenticated, (req, res) => res.sendFile(pa
 app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-nouveautes.html')));
 app.get('/gestion-notifications.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-notifications.html')));
 app.get('/gestion-inscriptions.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-inscriptions.html')));
+app.get('/gestion-evenements.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-evenements.html')));
 
 // 4. ROUTES API
 // On applique le limiteur uniquement sur les requêtes API (et non sur les fichiers statiques)
-app.use('/api', globalLimiter, apiRoutes);
+app.use('/api', globalLimiter);
+app.use('/api/evenements/:id/rsvp', rsvpLimiter);
+app.use('/api', apiRoutes);
 
 app.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/'));
