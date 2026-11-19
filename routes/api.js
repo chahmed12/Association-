@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const db = require('../config/db');
 const { isAuthenticated } = require('../middleware/auth');
 const { validate } = require('../middleware/validators');
@@ -200,6 +201,105 @@ function renderRecuPdf(res, payment) {
     doc.fillColor(COLORS.white).fontSize(8)
         .text(`© ${new Date().getFullYear()} - Association Shabab Jeddah`, 40, 815, { width: PAGE_W, align: 'center' });
 
+    doc.end();
+}
+
+function queryAsync(sql, params) {
+    return new Promise((resolve, reject) => {
+        db.query(sql, params, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+}
+
+async function getCarteMembre(token) {
+    const result = await queryAsync(
+        'SELECT nom, numero_adherent, carte_expire_le, actif FROM membres WHERE carte_token = $1',
+        [token]
+    );
+    return result && result.rows ? result.rows[0] || null : null;
+}
+
+function carteInfo(membre) {
+    const expires = membre.carte_expire_le ? new Date(membre.carte_expire_le) : null;
+    const validDate = expires && !Number.isNaN(expires.getTime()) ? expires : null;
+    const expire_le = validDate ? validDate.toISOString().slice(0, 10) : null;
+    let statut = 'valide';
+    if (membre.actif === false) statut = 'inactif';
+    else if (!validDate || validDate.getTime() <= Date.now()) statut = 'expire';
+    return {
+        nom: membre.nom,
+        numero_adherent: membre.numero_adherent,
+        statut,
+        expire_le,
+        annee: validDate ? validDate.getUTCFullYear() : new Date().getFullYear()
+    };
+}
+
+function renderCartePdf(res, token, membre, info) {
+    const filename = `carte_${encodeURIComponent(info.numero_adherent || 'membre')}.pdf`;
+    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    const doc = new PDFDocument({
+        size: 'A4',
+        margin: 40,
+        info: { Title: 'Carte de membre', Author: 'Association' }
+    });
+    doc.pipe(res);
+
+    const fontPath = path.join(__dirname, '../fonts/Amiri-Bold.ttf');
+    const fontRegPath = path.join(__dirname, '../fonts/Amiri-Regular.ttf');
+    doc.registerFont('Arabic-Bold', fontPath);
+    doc.registerFont('Arabic-Regular', fs.existsSync(fontRegPath) ? fontRegPath : fontPath);
+
+    const PAGE_W = 595 - 80;
+    doc.rect(0, 0, 595, 110).fill(COLORS.primary);
+    doc.rect(0, 80, 595, 30).fill(COLORS.secondary);
+    doc.fillColor(COLORS.white).font('Arabic-Bold').fontSize(22)
+        .text(ar('رابطة شباب جدة'), 40, 18, { width: PAGE_W, align: 'center' });
+    doc.fillColor('#aed6f1').fontSize(10)
+        .text(ar('موريتانيا - جددة'), 40, 46, { width: PAGE_W, align: 'center' });
+    roundedRect(doc, 200, 62, 195, 24, 12, COLORS.accent, null);
+    doc.fillColor(COLORS.white).fontSize(11).font('Arabic-Bold')
+        .text(ar('بطاقة العضو'), 200, 67, { width: 195, align: 'center' });
+
+    let cy = 140;
+    doc.fillColor(COLORS.dark).fontSize(18).font('Arabic-Bold')
+        .text(ar('بطاقة عضوية'), 40, cy, { width: PAGE_W, align: 'center' });
+    cy += 40;
+
+    const fin = info.expire_le ? new Date(`${info.expire_le}T00:00:00Z`) : null;
+    const debut = fin ? new Date(fin.getTime()) : null;
+    if (debut) debut.setUTCFullYear(debut.getUTCFullYear() - 1);
+    const periode = fin && debut
+        ? `${debut.toLocaleDateString('fr-TN')} - ${fin.toLocaleDateString('fr-TN')}`
+        : '-';
+
+    const lignes = [
+        [ar('اسم العضو'), ar(info.nom || '')],
+        [ar('رقم العضوية'), info.numero_adherent || ''],
+        [ar('فترة الصلاحية'), periode],
+        [ar('رمز البطاقة'), token.slice(0, 8)]
+    ];
+    lignes.forEach(([label, value], index) => {
+        roundedRect(doc, 40, cy, PAGE_W, 48, 6, index % 2 === 0 ? COLORS.light : COLORS.white, COLORS.border);
+        doc.fillColor(COLORS.gray).fontSize(10).font('Arabic-Bold')
+            .text(label, 55, cy + 9, { width: 200, align: 'right' });
+        doc.fillColor(COLORS.dark).fontSize(13).font('Arabic-Bold')
+            .text(String(value), 265, cy + 16, { width: 260, align: 'left' });
+        cy += 58;
+    });
+
+    cy += 16;
+    divider(doc, 40, cy);
+    doc.fillColor(COLORS.gray).fontSize(9).font('Arabic-Regular')
+        .text(ar('تم إنشاء هذه البطاقة تلقائياً بواسطة نظام إدارة رابطة شباب جدة'), 40, cy + 16, { width: PAGE_W, align: 'center' });
+
+    doc.rect(0, 800, 595, 42).fill(COLORS.primary);
+    doc.fillColor(COLORS.white).fontSize(8)
+        .text(`© ${new Date().getFullYear()} - Association Shabab Jeddah`, 40, 815, { width: PAGE_W, align: 'center' });
     doc.end();
 }
 
@@ -477,6 +577,25 @@ router.get('/membres/:id', (req, res) => {
     });
 });
 
+router.post('/membres/:id/carte/token', async (req, res) => {
+    try {
+        const found = await queryAsync('SELECT * FROM membres WHERE id = $1', [req.params.id]);
+        const membre = found && found.rows ? found.rows[0] : null;
+        if (!membre) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        const token = crypto.randomBytes(32).toString('hex');
+        const updated = await queryAsync(
+            `UPDATE membres SET carte_token = $1, carte_expire_le = NOW() + INTERVAL '1 year' WHERE id = $2`,
+            [token, req.params.id]
+        );
+        if (updated && updated.rowCount === 0) {
+            return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        }
+        res.json({ success: true, token });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
 router.post('/membres', validate('membreCreate'), (req, res) => {
     const { nom, telephone, situation, email } = req.body;
     const montant = req.body.montant === undefined ? (situation === 'نعم' ? 2000 : 1000) : req.body.montant;
@@ -547,6 +666,141 @@ router.post('/inscrire', validate('inscription'), (req, res) => {
                 res.json({ success: true, message: 'Inscription réussie!' });
             });
     });
+});
+
+router.post('/inscriptions', validate('inscriptionPublic'), (req, res) => {
+    const { nom, telephone, situation } = req.body;
+    const token = crypto.randomBytes(32).toString('hex');
+    const montant = situation === 'نعم' ? 2000 : 1000;
+    const whatsapp = normalizePhone(req.body.whatsapp) || null;
+    db.query(
+        "SELECT id FROM inscriptions WHERE telephone = $1 AND statut = 'en_attente'",
+        [telephone],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const rows = result ? result.rows : [];
+            if (rows.length > 0) {
+                return res.status(409).json({ success: false, message: 'Inscription déjà en attente' });
+            }
+            db.query(
+                `INSERT INTO inscriptions (nom, telephone, situation, montant, whatsapp, email, consentement, statut, token)
+                 VALUES ($1, $2, $3, $4, $5, $6, true, 'en_attente', $7) RETURNING id`,
+                [nom, telephone, situation, montant, whatsapp, req.body.email || null, token],
+                (insertErr) => {
+                    if (insertErr) {
+                        if (insertErr.code === '23505') {
+                            return res.status(409).json({ success: false, message: 'Inscription déjà en attente' });
+                        }
+                        return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                    }
+                    res.status(202).json({
+                        success: true,
+                        token,
+                        message: 'Inscription enregistrée, en attente de validation'
+                    });
+                }
+            );
+        }
+    );
+});
+
+router.get('/inscriptions', isAuthenticated, validate('inscriptionQuery', 'query'), (req, res) => {
+    const params = [];
+    let sql = 'SELECT * FROM inscriptions';
+    if (req.query.statut) {
+        params.push(req.query.statut);
+        sql += ` WHERE statut = $${params.length}`;
+    }
+    sql += ' ORDER BY created_at DESC';
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.json({ success: true, inscriptions: result ? result.rows : [] });
+    });
+});
+
+router.post('/inscriptions/:id/valider', isAuthenticated, async (req, res) => {
+    try {
+        const found = await queryAsync('SELECT * FROM inscriptions WHERE id = $1', [req.params.id]);
+        const inscription = found && found.rows ? found.rows[0] : null;
+        if (!inscription) return res.status(404).json({ success: false, message: 'Inscription introuvable' });
+        if (inscription.statut === 'valide' || inscription.statut === 'rejete') {
+            return res.status(409).json({ success: false, message: 'Inscription déjà traitée' });
+        }
+
+        const admins = await queryAsync('SELECT id FROM admins WHERE username = $1', [req.session.username]);
+        const adminRows = admins && admins.rows ? admins.rows : [];
+        const adminId = adminRows.length > 0 ? adminRows[0].id : null;
+
+        const created = await queryAsync(
+            `INSERT INTO membres (nom, telephone, situation, montant, whatsapp, email, source)
+             VALUES ($1, $2, $3, $4, $5, $6, 'admin') RETURNING id`,
+            [inscription.nom, inscription.telephone, inscription.situation, inscription.montant, inscription.whatsapp, inscription.email]
+        );
+        const createdRows = created && created.rows ? created.rows : [];
+        if (createdRows.length === 0) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+
+        const membreId = createdRows[0].id;
+        const numeroAdherent = `MEM-${String(membreId).padStart(4, '0')}`;
+        const carteToken = crypto.randomBytes(32).toString('hex');
+
+        await queryAsync(
+            `UPDATE membres SET numero_adherent = $1, carte_token = $2, carte_expire_le = NOW() + INTERVAL '1 year' WHERE id = $3`,
+            [numeroAdherent, carteToken, membreId]
+        );
+        await queryAsync(
+            `UPDATE inscriptions SET statut = 'valide', membre_id = $1, traite_at = NOW(), traite_par = $2 WHERE id = $3`,
+            [membreId, adminId, req.params.id]
+        );
+        res.json({ success: true, membre_id: membreId, numero_adherent: numeroAdherent, carte_token: carteToken });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.post('/inscriptions/:id/rejeter', isAuthenticated, validate('inscriptionDecision'), async (req, res) => {
+    try {
+        const found = await queryAsync('SELECT * FROM inscriptions WHERE id = $1', [req.params.id]);
+        const inscription = found && found.rows ? found.rows[0] : null;
+        if (!inscription) return res.status(404).json({ success: false, message: 'Inscription introuvable' });
+        if (inscription.statut === 'valide' || inscription.statut === 'rejete') {
+            return res.status(409).json({ success: false, message: 'Inscription déjà traitée' });
+        }
+
+        const admins = await queryAsync('SELECT id FROM admins WHERE username = $1', [req.session.username]);
+        const adminRows = admins && admins.rows ? admins.rows : [];
+        const adminId = adminRows.length > 0 ? adminRows[0].id : null;
+
+        const updated = await queryAsync(
+            `UPDATE inscriptions SET statut = 'rejete', motif_rejet = $1, traite_at = NOW(), traite_par = $2 WHERE id = $3`,
+            [req.body.motif, adminId, req.params.id]
+        );
+        if (!updated || updated.rowCount === 0) {
+            return res.status(404).json({ success: false, message: 'Inscription introuvable' });
+        }
+        res.json({ success: true });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.get('/carte/:token.pdf', validate('carteToken', 'params'), async (req, res) => {
+    try {
+        const membre = await getCarteMembre(req.params.token);
+        if (!membre) return res.status(404).json({ success: false, message: 'Carte introuvable' });
+        renderCartePdf(res, req.params.token, membre, carteInfo(membre));
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.get('/carte/:token', validate('carteToken', 'params'), async (req, res) => {
+    try {
+        const membre = await getCarteMembre(req.params.token);
+        if (!membre) return res.status(404).json({ success: false, message: 'Carte introuvable' });
+        res.json(carteInfo(membre));
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
 });
 
 // ═══════════════════════════════════════════════════════════════

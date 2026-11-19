@@ -94,7 +94,28 @@ const schemas = {
         whatsapp_optin: Joi.boolean(),
         email_optin: Joi.boolean(),
         locale: Joi.string().max(5)
-    }).min(1)
+    }).min(1),
+
+    inscriptionPublic: Joi.object({
+        nom: Joi.string().min(3).max(100).required(),
+        telephone: Joi.string().pattern(/^[0-9]{8,15}$/).required(),
+        situation: Joi.string().valid('نعم', 'لا').required(),
+        whatsapp: Joi.string().allow('', null),
+        email: Joi.string().email({ tlds: false }).allow('', null),
+        consentement: Joi.boolean().valid(true).required()
+    }),
+
+    inscriptionQuery: Joi.object({
+        statut: Joi.string().valid('en_attente', 'valide', 'rejete')
+    }),
+
+    inscriptionDecision: Joi.object({
+        motif: Joi.string().min(3).max(1000).required()
+    }),
+
+    carteToken: Joi.object({
+        token: Joi.string().pattern(/^[0-9a-fA-F]{64}$/).required()
+    })
 };
 
 // Middleware générique de validation

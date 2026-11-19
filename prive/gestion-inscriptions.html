@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des inscriptions - Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="/js/utils.js"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-header {
+            background: linear-gradient(135deg, rgba(6, 95, 70, 0.95) 0%, rgba(16, 185, 129, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-gray-800">
+
+    <header class="glass-header text-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10">
+        </div>
+        <div class="container mx-auto px-4 py-10 relative z-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold drop-shadow-lg">Gestion des inscriptions</h1>
+            <p class="text-green-100 mt-2 font-inter tracking-wide">طلبات التسجيل — en attente de validation</p>
+            <div class="mt-6 flex flex-wrap justify-center gap-3">
+                <a href="/admin.html"
+                    class="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-green-700 px-5 py-2.5 rounded-full font-bold transition duration-300 shadow-md font-inter">
+                    ← Administration
+                </a>
+                <button id="refreshBtn" type="button"
+                    class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-full font-bold transition duration-300 shadow-md font-inter disabled:opacity-50">
+                    Rafraîchir / تحديث
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10 flex-grow relative z-10">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3 mb-6">
+            <h2 class="text-2xl font-extrabold">File d'attente / قائمة الانتظار</h2>
+            <div class="flex items-center gap-3 text-sm font-inter">
+                <span class="bg-green-100 text-green-700 font-bold px-3 py-1.5 rounded-full">
+                    <span id="pendingCount">0</span> en attente
+                </span>
+                <span id="lastUpdate" class="text-gray-500"></span>
+            </div>
+        </div>
+
+        <div id="inscriptionsList" class="max-w-5xl mx-auto space-y-5"></div>
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 py-6 relative z-10">
+        <div class="container mx-auto px-4 text-center text-sm font-inter">
+            © 2026 رابطة شباب جدة - Espace Administration
+        </div>
+    </footer>
+
+    <script>
+        function apiMessage(data, fallback) {
+            if (data && data.message) return String(data.message);
+            if (data && Array.isArray(data.errors) && data.errors.length > 0) return data.errors.join(', ');
+            return fallback;
+        }
+
+        function showToast(icon, message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 z-[2000] max-w-sm px-5 py-3 rounded-xl shadow-xl text-sm font-bold text-white ' +
+                (icon === 'error' ? 'bg-red-600' : 'bg-green-600');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        function formatDate(value) {
+            if (!value) return '—';
+            return String(value).replace('T', ' ').slice(0, 19);
+        }
+
+        function renderInscriptions(inscriptions) {
+            const container = document.getElementById('inscriptionsList');
+            document.getElementById('pendingCount').textContent = inscriptions.length;
+
+            if (inscriptions.length === 0) {
+                container.innerHTML = '<div class="glass-card rounded-2xl p-10 text-center text-gray-600 font-bold">Aucune inscription en attente / لا توجد طلبات معلقة</div>';
+                return;
+            }
+
+            container.innerHTML = inscriptions.map((inscription) => {
+                const id = escapeJs(inscription.id);
+                return `
+                    <article data-inscription="${id}" class="glass-card rounded-2xl p-6 border-r-4 border-green-500 shadow-lg">
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-gray-200/70 pb-4 mb-4">
+                            <div>
+                                <h3 class="text-xl font-extrabold text-gray-800">${escapeHtml(inscription.nom)}</h3>
+                                <p class="text-xs text-gray-500 font-inter mt-1" dir="ltr">${escapeHtml(inscription.token)}</p>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1.5 rounded-full">${escapeHtml(inscription.statut)}</span>
+                        </div>
+                        <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm mb-5">
+                            <div>
+                                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide font-inter">Téléphone</dt>
+                                <dd class="font-bold text-gray-800 font-inter" dir="ltr">${escapeHtml(inscription.telephone)}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide font-inter">WhatsApp</dt>
+                                <dd class="font-bold text-gray-800 font-inter" dir="ltr">${escapeHtml(inscription.whatsapp || '—')}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide font-inter">Email</dt>
+                                <dd class="font-bold text-gray-800 font-inter break-all" dir="ltr">${escapeHtml(inscription.email || '—')}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide font-inter">Situation</dt>
+                                <dd class="font-bold text-gray-800" dir="rtl">${escapeHtml(inscription.situation)}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide font-inter">Date</dt>
+                                <dd class="font-bold text-gray-800 font-inter" dir="ltr">${escapeHtml(formatDate(inscription.created_at))}</dd>
+                            </div>
+                        </dl>
+                        <div class="flex flex-wrap items-center gap-3 border-t border-gray-200/70 pt-4">
+                            <button type="button" data-action="valider" data-id="${id}"
+                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-5 rounded-xl transition duration-300 shadow-md disabled:opacity-50">
+                                Valider / قبول
+                            </button>
+                            <input type="text" maxlength="1000" data-motif
+                                placeholder="Motif du rejet / سبب الرفض"
+                                class="flex-1 min-w-[200px] px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                            <button type="button" data-action="rejeter" data-id="${id}"
+                                class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-xl transition duration-300 shadow-md disabled:opacity-50">
+                                Rejeter / رفض
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        async function loadInscriptions() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            try {
+                const response = await fetch('/api/inscriptions?statut=en_attente', { cache: 'no-store' });
+                if (response.redirected || response.status === 401) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) {
+                    throw new Error(apiMessage(data, 'Erreur de chargement / خطأ في التحميل'));
+                }
+                renderInscriptions(Array.isArray(data.inscriptions) ? data.inscriptions : []);
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            } catch (error) {
+                showToast('error', error.message || 'Erreur réseau / خطأ في الشبكة');
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        async function handleAction(button) {
+            const action = button.dataset.action;
+            const id = button.dataset.id;
+            const card = button.closest('[data-inscription]');
+            const motifInput = card ? card.querySelector('[data-motif]') : null;
+            const motif = motifInput ? motifInput.value.trim() : '';
+
+            if (action === 'rejeter' && motif.length < 3) {
+                showToast('error', 'Motif requis (3 caractères minimum) / سبب الرفض مطلوب');
+                if (motifInput) motifInput.focus();
+                return;
+            }
+
+            button.disabled = true;
+            try {
+                const response = await fetch('/api/inscriptions/' + encodeURIComponent(id) + '/' + action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(action === 'rejeter' ? { motif: motif } : {})
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) {
+                    throw new Error(apiMessage(data, 'Erreur lors du traitement / خطأ أثناء المعالجة'));
+                }
+                showToast('success', action === 'valider'
+                    ? 'Inscription validée / تم قبول الطلب' + (data.numero_adherent ? ' — ' + escapeHtml(data.numero_adherent) : '')
+                    : 'Inscription rejetée / تم رفض الطلب');
+                await loadInscriptions();
+            } catch (error) {
+                showToast('error', error.message || 'Erreur réseau / خطأ في الشبكة');
+                button.disabled = false;
+            }
+        }
+
+        document.getElementById('inscriptionsList').addEventListener('click', (event) => {
+            const button = event.target.closest('button[data-action]');
+            if (button) handleAction(button);
+        });
+        document.getElementById('refreshBtn').addEventListener('click', loadInscriptions);
+        loadInscriptions();
+    </script>
+</body>
+
+</html>

@@ -14,6 +14,8 @@ const sessions = new Map();
 const payments = new Set();
 const exportLogs = [];
 const adminHash = bcrypt.hashSync('mot-de-passe-test', 4);
+const carteToken = 'b'.repeat(64);
+const expireLe = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
 function resultFor(sql, params) {
     const query = String(sql);
@@ -36,8 +38,32 @@ function resultFor(sql, params) {
     if (query.includes('UPDATE "sessions"')) {
         return { rows: [{ sid: params[1] }] };
     }
+    if (query.includes('SELECT id FROM admins WHERE username = $1')) {
+        return { rows: [{ id: 1 }] };
+    }
     if (query.includes('SELECT * FROM admins WHERE username = $1')) {
         return { rows: [{ username: 'admin', password: adminHash }] };
+    }
+    if (query.includes('SELECT nom, numero_adherent, carte_expire_le, actif FROM membres')) {
+        if (params[0] === carteToken) {
+            return { rows: [{ nom: 'Alpha', numero_adherent: 'MEM-0001', carte_expire_le: expireLe, actif: true }] };
+        }
+        return { rows: [] };
+    }
+    if (query.includes('SELECT * FROM inscriptions WHERE id = $1')) {
+        return { rows: [{ id: 1, nom: 'Candidat Test', telephone: '12345678', situation: 'لا', montant: 1000, whatsapp: null, email: null, statut: 'en_attente' }] };
+    }
+    if (query.includes('SELECT * FROM inscriptions')) {
+        return { rows: [{ id: 1, nom: 'Candidat Test', telephone: '12345678', situation: 'لا', statut: 'en_attente' }] };
+    }
+    if (query.includes('SELECT id FROM inscriptions WHERE telephone')) {
+        return { rows: [] };
+    }
+    if (query.includes('INSERT INTO inscriptions')) {
+        return { rows: [{ id: 91 }] };
+    }
+    if (query.includes('UPDATE inscriptions')) {
+        return { rowCount: 1, rows: [] };
     }
     if (query.includes('SELECT COUNT(*)::int AS total FROM membres')) {
         return { rows: [{ total: 12 }] };
@@ -126,7 +152,7 @@ test('les cotisations publiques ne renvoient ni montant ni telephone', async () 
 
 test('les routes sensibles exigent une session', async () => {
     for (const url of [
-        '/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres',
+        '/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres', '/api/inscriptions',
         '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
         '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
         '/api/notifications', '/api/membres/1/preferences'
@@ -135,8 +161,11 @@ test('les routes sensibles exigent une session', async () => {
         assert.equal(response.body.success, false);
     }
 
-    for (const url of ['/api/notifications', '/api/notifications/rappels-cotisations']) {
-        const response = await request(app).post(url).send({}).expect(401);
+    for (const url of [
+        '/api/notifications', '/api/notifications/rappels-cotisations',
+        '/api/inscriptions/1/valider', '/api/inscriptions/1/rejeter', '/api/membres/1/carte/token'
+    ]) {
+        const response = await request(app).post(url).send({ motif: 'Motif valide' }).expect(401);
         assert.equal(response.body.success, false);
     }
 
@@ -164,6 +193,75 @@ test('la page liste-membres redirige vers login sans session', async () => {
 
 test('la page gestion-notifications redirige vers login sans session', async () => {
     await request(app).get('/gestion-notifications.html').expect(302).expect('Location', '/login.html');
+});
+
+test('la page gestion-inscriptions redirige vers login sans session', async () => {
+    await request(app).get('/gestion-inscriptions.html').expect(302).expect('Location', '/login.html');
+});
+
+test('inscription publique exige le consentement', async () => {
+    const response = await request(app).post('/api/inscriptions')
+        .send({ nom: 'Candidat Test', telephone: '12345678', situation: 'لا' })
+        .expect(400);
+    assert.equal(response.body.success, false);
+    assert.ok(response.body.errors.some(message => /consentement/i.test(message)));
+});
+
+test('inscription publique renvoie un token en attente', async () => {
+    const response = await request(app).post('/api/inscriptions')
+        .send({
+            nom: 'Candidat Test',
+            telephone: '12345678',
+            situation: 'نعم',
+            whatsapp: '+222 12 34 56 78',
+            email: 'candidat@example.com',
+            consentement: true
+        })
+        .expect(202);
+    assert.equal(response.body.success, true);
+    assert.match(response.body.token, /^[0-9a-f]{64}$/);
+});
+
+test('la carte publique n expose que les champs autorises', async () => {
+    const response = await request(app).get(`/api/carte/${carteToken}`).expect(200);
+    assert.deepEqual(Object.keys(response.body).sort(), ['annee', 'expire_le', 'nom', 'numero_adherent', 'statut']);
+    assert.equal(response.body.statut, 'valide');
+    assert.equal(response.body.expire_le, expireLe);
+});
+
+test('un token de carte invalide ou inconnu est refuse', async () => {
+    await request(app).get('/api/carte/pas-un-token').expect(400);
+    await request(app).get(`/api/carte/${'c'.repeat(64)}`).expect(404);
+});
+
+test('le PDF de carte est public', async () => {
+    const response = await request(app).get(`/api/carte/${carteToken}.pdf`).expect(200);
+    assert.match(response.headers['content-type'], /application\/pdf/);
+    assert.ok(response.body && response.body.length > 0);
+});
+
+test('moderation des inscriptions et renouvellement du token de carte', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const liste = await agent.get('/api/inscriptions?statut=en_attente').expect(200);
+    assert.equal(liste.body.success, true);
+    assert.equal(liste.body.inscriptions.length, 1);
+
+    await agent.post('/api/inscriptions/1/rejeter').send({ motif: 'ab' }).expect(400);
+
+    const valide = await agent.post('/api/inscriptions/1/valider').send({}).expect(200);
+    assert.equal(valide.body.success, true);
+    assert.equal(valide.body.numero_adherent, 'MEM-0002');
+    assert.match(valide.body.carte_token, /^[0-9a-f]{64}$/);
+
+    const rejet = await agent.post('/api/inscriptions/1/rejeter').send({ motif: 'Dossier incomplet' }).expect(200);
+    assert.equal(rejet.body.success, true);
+
+    const carte = await agent.post('/api/membres/1/carte/token').send({}).expect(200);
+    assert.match(carte.body.token, /^[0-9a-f]{64}$/);
 });
 
 test('check-auth indique etat non connecte puis connecte', async () => {
