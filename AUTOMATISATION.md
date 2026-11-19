@@ -6,6 +6,19 @@
 - Traitement manuel actuel : verification du screenshot puis enregistrement sur le site.
 - Objectif : interception, OCR, association au membre et stockage automatiques, avec validation humaine des cas ambigus.
 
+## Etat actuel
+
+**`POST /api/paiement-auto` n'est PAS implementee.** Aucune route de ce nom n'est enregistree dans `routes/api.js` : ni verification HMAC, ni appel OCR, ni regle d'idempotence ne sont actifs. Le contrat et l'architecture ci-dessous decrivent le travail a venir, et non une API disponible aujourd'hui.
+
+Deja present cote serveur, sans declencher quoi que ce soit automatiquement :
+
+- `membres.whatsapp` et normalisation des numeros (`utils/phone.js`, CRUD admin) ;
+- table `paiement_logs` et ses index dans `migrations/001_init.sql` ;
+- contrainte d'unicite `(membre_id, annee, mois)` sur `payments` ;
+- file de notifications generant des liens wa.me, sans envoi automatique (voir `README.md`).
+
+Reste a faire : route securisee (HMAC), pont OCR vers `fintech-shield`, matching membre / montant / mois, idempotence et ecran de validation des logs. La variable `PAYMENT_AUTOMATION_KEY` est reservee a cette future route ; aucune valeur reelle n'est documentee ici.
+
 ## Projets impliques
 
 | Projet | Technologie | Role |
@@ -13,7 +26,9 @@
 | `Association-` | Node.js / Express / PostgreSQL | Site de gestion des membres, cotisations et depenses |
 | `fintech-shield` | Python / OpenCV / Tesseract | OCR et detection de fraude sur les recus Bankily |
 
-## Architecture
+## Architecture visee (non implementee)
+
+Objectif une fois la route disponible :
 
 ```
 Groupe WhatsApp
@@ -36,7 +51,9 @@ Dashboard admin : file "a verifier"
 
 Le bot et le pipeline OCR restent hors du serveur web : `whatsapp-web.js` embarque Puppeteer et ne doit pas etre une dependance de l'application.
 
-## Contrat API
+## Contrat API (prevu, non implemente)
+
+Les elements ci-dessous sont a implementer ; ils ne correspondent a aucune route existante.
 
 `POST /api/paiement-auto`
 
@@ -62,9 +79,11 @@ Reponses :
 - `401` cle ou signature invalide
 - `409` transaction deja enregistree (idempotence)
 
-Le routeur doit utiliser `validate()` de `middleware/validators.js`, un limiteur de debit dedie, et ne jamais renvoyer de details techniques.
+Le futur routeur devra utiliser `validate()` de `middleware/validators.js`, un limiteur de debit dedie, et ne jamais renvoyer de details techniques.
 
 ## Regles de matching
+
+Regles prevues pour la future route :
 
 1. Normaliser le numero WhatsApp (suppression des espaces, du `+` et du prefixe `00`).
 2. Rechercher le membre via `membres.whatsapp`.
@@ -76,7 +95,7 @@ Le routeur doit utiliser `validate()` de `middleware/validators.js`, un limiteur
 
 ## Schema PostgreSQL
 
-Le script `migrations/001_init.sql` contient deja :
+Le script `migrations/001_init.sql` (migration unique et idempotente) contient deja :
 
 ```sql
 ALTER TABLE membres ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(20);
@@ -96,7 +115,7 @@ CREATE TABLE IF NOT EXISTS paiement_logs (
 );
 ```
 
-`payments` possede deja une contrainte d'unicite sur `(membre_id, annee, mois)`.
+`payments` possede deja une contrainte d'unicite sur `(membre_id, annee, mois)`. Ces objets existent des aujourd'hui mais ne rendent pas la route disponible.
 
 ## Options d'interception
 
@@ -107,7 +126,9 @@ CREATE TABLE IF NOT EXISTS paiement_logs (
 | Email IMAP | haute | faible | 0 | changer le canal d'envoi |
 | Telegram Bot | haute | faible | 0 | migrer le groupe |
 
-## Cas non geres
+## Cas non geres (regles prevues)
+
+Comportements a mettre en place avec la route :
 
 | Situation | Action |
 |---|---|
@@ -120,8 +141,8 @@ CREATE TABLE IF NOT EXISTS paiement_logs (
 
 ## Feuille de route
 
-1. Collecter et normaliser les numeros WhatsApp des membres.
-2. Ajouter la route securisee `/api/paiement-auto` et ses tests.
+1. Completer la collecte des numeros WhatsApp (normalisation deja en place via `utils/phone.js` et le CRUD membres).
+2. Ajouter la route securisee `/api/paiement-auto` (HMAC, OCR, idempotence) et ses tests.
 3. Ecrire le pont Python `auto_payment.py` vers fintech-shield.
 4. Developper le bot dans un depot separe.
 5. Ajouter l'ecran admin de validation des logs.
