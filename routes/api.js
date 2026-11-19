@@ -12,6 +12,7 @@ const ArabicReshaperModule = require('arabic-persian-reshaper');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { normalizePhone } = require('../utils/phone');
+const { csvBuffer } = require('../utils/csv');
 
 // Utilisation de la méthode statique directe
 const ArabicShaper = ArabicReshaperModule.ArabicShaper;
@@ -125,6 +126,83 @@ function sectionHeader(doc, title, y, icon) {
     return y + 38;
 }
 
+function sendCsv(req, res, filename, headers, rows, filters) {
+    db.query(
+        'INSERT INTO export_logs (admin_username, format, filters, rows_count) VALUES ($1, $2, $3, $4)',
+        [req.session.username || null, 'csv', JSON.stringify(filters || {}), rows.length],
+        (logErr) => {
+            if (logErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            res.send(csvBuffer(headers, rows));
+        }
+    );
+}
+
+function renderRecuPdf(res, payment) {
+    const numeroRecu = payment.numero_recu || `REC-${payment.id}`;
+    const filename = `recu_${numeroRecu}.pdf`;
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(filename)}"`);
+    res.setHeader('Content-Type', 'application/pdf');
+
+    const doc = new PDFDocument({
+        size: 'A4',
+        margin: 40,
+        info: { Title: `Recu ${numeroRecu}`, Author: 'Association' }
+    });
+    doc.pipe(res);
+
+    const fontPath = path.join(__dirname, '../fonts/Amiri-Bold.ttf');
+    const fontRegPath = path.join(__dirname, '../fonts/Amiri-Regular.ttf');
+    doc.registerFont('Arabic-Bold', fontPath);
+    doc.registerFont('Arabic-Regular', fs.existsSync(fontRegPath) ? fontRegPath : fontPath);
+
+    const PAGE_W = 595 - 80;
+    doc.rect(0, 0, 595, 110).fill(COLORS.primary);
+    doc.rect(0, 80, 595, 30).fill(COLORS.secondary);
+    doc.fillColor(COLORS.white).font('Arabic-Bold').fontSize(22)
+        .text(ar('رابطة شباب جدة'), 40, 18, { width: PAGE_W, align: 'center' });
+    doc.fillColor('#aed6f1').fontSize(10)
+        .text(ar('موريتانيا - جددة'), 40, 46, { width: PAGE_W, align: 'center' });
+    roundedRect(doc, 210, 62, 175, 24, 12, COLORS.accent, null);
+    doc.fillColor(COLORS.white).fontSize(11).font('Arabic-Bold')
+        .text(ar('إيصال دفع الاشتراك'), 210, 67, { width: 175, align: 'center' });
+
+    let cy = 130;
+    doc.fillColor(COLORS.dark).fontSize(16).font('Arabic-Bold')
+        .text(ar('إيصال اشتراك'), 40, cy, { width: PAGE_W, align: 'center' });
+    cy += 34;
+
+    const dateValue = new Date(payment.created_at || Date.now()).toLocaleDateString('fr-TN');
+    const lignes = [
+        [ar('رقم الإيصال'), numeroRecu],
+        [ar('اسم العضو'), ar(payment.nom)],
+        [ar('الفترة'), `${payment.mois}/${payment.annee}`],
+        [ar('المبلغ'), `${Number(payment.montant || 0).toLocaleString()} MRO`],
+        [ar('التاريخ'), dateValue]
+    ];
+
+    lignes.forEach(([label, value], index) => {
+        roundedRect(doc, 40, cy, PAGE_W, 44, 6, index % 2 === 0 ? COLORS.light : COLORS.white, COLORS.border);
+        doc.fillColor(COLORS.gray).fontSize(10).font('Arabic-Bold')
+            .text(label, 55, cy + 8, { width: 200, align: 'right' });
+        doc.fillColor(COLORS.dark).fontSize(12).font('Arabic-Bold')
+            .text(String(value), 265, cy + 15, { width: 260, align: 'left' });
+        cy += 52;
+    });
+
+    cy += 20;
+    divider(doc, 40, cy);
+    doc.fillColor(COLORS.gray).fontSize(9).font('Arabic-Regular')
+        .text(ar('تم إنشاء هذا الإيصال تلقائياً بواسطة نظام إدارة رابطة شباب جدة'), 40, cy + 16, { width: PAGE_W, align: 'center' });
+
+    doc.rect(0, 800, 595, 42).fill(COLORS.primary);
+    doc.fillColor(COLORS.white).fontSize(8)
+        .text(`© ${new Date().getFullYear()} - Association Shabab Jeddah`, 40, 815, { width: PAGE_W, align: 'center' });
+
+    doc.end();
+}
+
 // ─────────────────────────────────────────────────────────────────
 //  CONFIGURATION MULTER (CLOUDINARY)
 // ─────────────────────────────────────────────────────────────────
@@ -228,7 +306,7 @@ router.get('/cotisations', isAuthenticated, (req, res) => {
             const paiements = resPaiements ? resPaiements.rows : [];
             const data = membres.map(m => ({
                 ...m,
-                paiements: paiements.filter(p => p.membre_id === m.id).map(p => ({ mois: p.mois, annee: p.annee }))
+                paiements: paiements.filter(p => p.membre_id === m.id).map(p => ({ id: p.id, mois: p.mois, annee: p.annee }))
             }));
             res.json(data);
         });
@@ -800,6 +878,163 @@ router.get('/pdf/rapport-financier', isAuthenticated, (req, res) => {
                 doc.end();
             });
         });
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  7. EXPORTS CSV
+// ═══════════════════════════════════════════════════════════════
+
+router.use('/export', isAuthenticated);
+
+router.get('/export/membres.csv', validate('exportQuery', 'query'), (req, res) => {
+    const { q, actif, from, to } = req.query;
+    const conditions = [];
+    const params = [];
+
+    if (q) {
+        params.push(`%${q}%`);
+        const like = `$${params.length}`;
+        conditions.push(`(nom ILIKE ${like} OR telephone ILIKE ${like} OR numero_adherent ILIKE ${like})`);
+    }
+    if (actif === 'true' || actif === 'false') {
+        conditions.push(`actif = ${actif === 'true'}`);
+    }
+    if (from) {
+        params.push(from);
+        conditions.push(`date_inscription >= $${params.length}`);
+    }
+    if (to) {
+        params.push(to);
+        conditions.push(`date_inscription < $${params.length}::date + INTERVAL '1 day'`);
+    }
+
+    let sql = 'SELECT numero_adherent, nom, telephone, situation, montant, whatsapp, email, actif FROM membres';
+    if (conditions.length > 0) sql += ` WHERE ${conditions.join(' AND ')}`;
+    sql += ' ORDER BY nom ASC';
+
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = (result ? result.rows : []).map(m => [
+            m.numero_adherent || '',
+            m.nom || '',
+            m.telephone || '',
+            m.situation || '',
+            m.montant,
+            m.whatsapp || '',
+            m.email || '',
+            m.actif ? 'true' : 'false'
+        ]);
+        sendCsv(req, res, 'membres.csv',
+            ['numéro adhérent', 'nom', 'téléphone', 'situation', 'montant', 'whatsapp', 'email', 'actif'],
+            rows, req.query);
+    });
+});
+
+router.get('/export/cotisations.csv', validate('exportQuery', 'query'), (req, res) => {
+    const { q, mois, annee } = req.query;
+    const conditions = [];
+    const params = [];
+
+    if (q) {
+        params.push(`%${q}%`);
+        conditions.push(`(m.nom ILIKE $${params.length} OR m.telephone ILIKE $${params.length})`);
+    }
+    if (mois !== undefined) {
+        params.push(mois);
+        conditions.push(`p.mois = $${params.length}`);
+    }
+    if (annee !== undefined) {
+        params.push(annee);
+        conditions.push(`p.annee = $${params.length}`);
+    }
+
+    let sql = `SELECT m.nom, m.telephone, p.mois, p.annee,
+        COALESCE(p.montant_snapshot, m.montant) AS montant,
+        COALESCE(p.numero_recu, 'REC-' || p.id) AS numero_recu
+        FROM payments p JOIN membres m ON m.id = p.membre_id`;
+    if (conditions.length > 0) sql += ` WHERE ${conditions.join(' AND ')}`;
+    sql += ' ORDER BY p.annee DESC, p.mois DESC, m.nom ASC';
+
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = (result ? result.rows : []).map(p => [
+            p.nom || '',
+            p.telephone || '',
+            p.mois,
+            p.annee,
+            p.montant,
+            p.numero_recu || ''
+        ]);
+        sendCsv(req, res, 'cotisations.csv',
+            ['nom', 'téléphone', 'mois', 'annee', 'montant', 'numéro de reçu'],
+            rows, req.query);
+    });
+});
+
+router.get('/export/depenses.csv', validate('exportQuery', 'query'), (req, res) => {
+    const { from, to } = req.query;
+    const conditions = [];
+    const params = [];
+
+    if (from) {
+        params.push(from);
+        conditions.push(`COALESCE(date, created_at::date) >= $${params.length}`);
+    }
+    if (to) {
+        params.push(to);
+        conditions.push(`COALESCE(date, created_at::date) < $${params.length}::date + INTERVAL '1 day'`);
+    }
+
+    let sql = 'SELECT label, montant, categorie, date, note FROM depenses';
+    if (conditions.length > 0) sql += ` WHERE ${conditions.join(' AND ')}`;
+    sql += ' ORDER BY date DESC NULLS LAST, created_at DESC';
+
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = (result ? result.rows : []).map(d => [
+            d.label || '',
+            d.montant,
+            d.categorie || '',
+            d.date ? new Date(d.date).toISOString().slice(0, 10) : '',
+            d.note || ''
+        ]);
+        sendCsv(req, res, 'depenses.csv',
+            ['label', 'montant', 'catégorie', 'date', 'note'],
+            rows, req.query);
+    });
+});
+
+// ═══════════════════════════════════════════════════════════════
+//  8. REÇUS PDF
+// ═══════════════════════════════════════════════════════════════
+
+router.use('/recus', isAuthenticated);
+
+const recuSelect = `SELECT p.id, p.mois, p.annee, p.numero_recu, p.created_at,
+    COALESCE(p.montant_snapshot, m.montant) AS montant, m.nom
+    FROM payments p JOIN membres m ON m.id = p.membre_id`;
+
+router.get('/recus/membre/:id', validate('exportQuery', 'query'), (req, res) => {
+    const { mois, annee } = req.query;
+    if (mois === undefined || annee === undefined) {
+        return res.status(400).json({ success: false, message: 'Mois et année requis' });
+    }
+    db.query(`${recuSelect} WHERE p.membre_id = $1 AND p.mois = $2 AND p.annee = $3`,
+        [req.params.id, mois, annee], (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const rows = result ? result.rows : [];
+            if (rows.length === 0) return res.status(404).json({ success: false, message: 'Paiement introuvable' });
+            renderRecuPdf(res, rows[0]);
+        });
+});
+
+router.get('/recus/:id', (req, res) => {
+    db.query(`${recuSelect} WHERE p.id = $1`, [req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = result ? result.rows : [];
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Paiement introuvable' });
+        renderRecuPdf(res, rows[0]);
     });
 });
 

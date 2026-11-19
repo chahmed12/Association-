@@ -62,6 +62,15 @@ const schemas = {
         actif: Joi.string().valid('all', 'true', 'false'),
         limit: Joi.number().integer().min(1).max(200),
         page: Joi.number().integer().min(1)
+    }),
+
+    exportQuery: Joi.object({
+        q: Joi.string().allow('').max(100),
+        actif: Joi.string().valid('all', 'true', 'false'),
+        mois: Joi.number().integer().min(1).max(12),
+        annee: Joi.number().integer().min(2000).max(2100),
+        from: Joi.date().iso(),
+        to: Joi.date().iso()
     })
 };
 
@@ -81,4 +90,4 @@ const validate = (schemaName, source = 'body') => {
     };
 };
 
-module.exports = { validate };
+module.exports = { validate, exportQuery: schemas.exportQuery };

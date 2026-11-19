@@ -12,6 +12,7 @@ process.env.NODE_ENV = 'test';
 const db = require('../config/db');
 const sessions = new Map();
 const payments = new Set();
+const exportLogs = [];
 const adminHash = bcrypt.hashSync('mot-de-passe-test', 4);
 
 function resultFor(sql, params) {
@@ -46,6 +47,19 @@ function resultFor(sql, params) {
     }
     if (query.includes('SELECT COUNT(*)::int AS total FROM nouveautes')) {
         return { rows: [{ total: 3 }] };
+    }
+    if (query.includes('INSERT INTO export_logs')) {
+        exportLogs.push({ username: params[0], format: params[1], filters: params[2], rowsCount: params[3] });
+        return { rows: [] };
+    }
+    if (query.includes('SELECT numero_adherent, nom, telephone, situation, montant, whatsapp, email, actif')) {
+        return { rows: [
+            { numero_adherent: 'MEM-0001', nom: 'Alpha', telephone: '12345678', situation: 'لا', montant: 2000, whatsapp: '12345678', email: 'alpha@example.com', actif: true },
+            { numero_adherent: 'MEM-0002', nom: '=FORMULE()', telephone: '87654321', situation: 'نعم', montant: 2000, whatsapp: null, email: null, actif: false }
+        ] };
+    }
+    if (query.includes('COALESCE(p.montant_snapshot, m.montant) AS montant')) {
+        return { rows: [{ id: 7, nom: 'Alpha', telephone: '12345678', mois: 1, annee: 2027, montant: '2000.00', numero_recu: 'REC-7', created_at: '2027-01-15T10:00:00Z' }] };
     }
     if (query.includes('SELECT id, nom FROM membres')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
@@ -111,7 +125,11 @@ test('les cotisations publiques ne renvoient ni montant ni telephone', async () 
 });
 
 test('les routes sensibles exigent une session', async () => {
-    for (const url of ['/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres']) {
+    for (const url of [
+        '/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres',
+        '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
+        '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027'
+    ]) {
         const response = await request(app).get(url).expect(401);
         assert.equal(response.body.success, false);
     }
@@ -152,6 +170,27 @@ test('check-auth indique etat non connecte puis connecte', async () => {
         .send({ membre_id: 1, mois: 12, annee: 2026 })
         .expect(200);
     assert.deepEqual(toggleOff.body, { success: true, status: 'removed' });
+});
+
+test('le telechargement CSV avec session renvoie un BOM et un content-type CSV', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const response = await agent.get('/api/export/membres.csv').expect(200);
+    assert.match(response.headers['content-type'], /text\/csv/);
+    assert.equal(response.headers['content-disposition'], 'attachment; filename="membres.csv"');
+    assert.ok(response.text.startsWith('\uFEFF'));
+    assert.match(response.text, /numéro adhérent/);
+    assert.ok(response.text.includes('\'=FORMULE()'));
+    assert.ok(response.text.includes('MEM-0001'));
+
+    const log = exportLogs[exportLogs.length - 1];
+    assert.equal(log.username, 'admin');
+    assert.equal(log.format, 'csv');
+    assert.deepEqual(JSON.parse(log.filters), {});
+    assert.equal(log.rowsCount, 2);
 });
 
 test('toggle cotisation refuse les parametres invalides', async () => {

@@ -207,8 +207,12 @@
                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
                             </path>
                         </svg>
-                        <span class="font-inter">طباعة / PDF</span>
+                        <span class="font-inter">���������� / PDF</span>
                     </button>
+                    <a href="/api/export/cotisations.csv"
+                        class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        <span class="font-inter">Exporter les cotisations</span>
+                    </a>
                     <a href="/admin.html"
                         class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2.5 px-6 rounded-xl transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                         <span class="font-inter">← Retour Dashboard</span>
@@ -447,6 +451,23 @@
                     </div>
                 </div>
                 <div id="profileMonthsGrid" class="grid grid-cols-4 gap-3"></div>
+                <div class="mt-5 border-t border-gray-200 pt-4">
+                    <p class="text-sm font-bold text-gray-700 mb-2 text-right">Télécharger un reçu / PDF</p>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="recuPeriod" class="flex-1 px-4 py-2.5 border-2 border-gray-200 bg-white rounded-xl text-sm font-medium text-gray-700 text-right focus:ring-2 focus:ring-green-500/30 focus:border-green-500 outline-none">
+                            <option value="12-2026">Décembre 2026</option>
+                            <option value="1-2027">Janvier 2027</option>
+                            <option value="2-2027">Février 2027</option>
+                            <option value="3-2027">Mars 2027</option>
+                            <option value="4-2027">Avril 2027</option>
+                            <option value="5-2027">Mai 2027</option>
+                            <option value="6-2027">Juin 2027</option>
+                            <option value="7-2027">Juillet 2027</option>
+                            <option value="8-2027">Août 2027</option>
+                        </select>
+                        <button type="button" onclick="downloadRecu()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition shadow-md whitespace-nowrap">Télécharger le reçu</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -473,6 +494,7 @@
 
         let allMembres = [];
         let currentDisplayData = [];
+        let currentProfileMembreId = null;
 
         function updateStats(membres) {
             let total = 0;
@@ -568,6 +590,7 @@
         function openProfileModal(membreId) {
             const m = allMembres.find(x => x.id === membreId);
             if (!m) return;
+            currentProfileMembreId = m.id;
             const paid = m.paiements.length;
             const total = paid * m.montant;
             const unpaid = months.length - paid;
@@ -599,6 +622,15 @@
 
         function closeProfileModal() {
             document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        function downloadRecu() {
+            const sel = document.getElementById('recuPeriod');
+            if (!sel || !currentProfileMembreId) return;
+            const parts = sel.value.split('-');
+            const mois = parts[0];
+            const annee = parts[1];
+            window.open('/api/recus/membre/' + encodeURIComponent(currentProfileMembreId) + '?mois=' + encodeURIComponent(mois) + '&annee=' + encodeURIComponent(annee), '_blank');
         }
 
         // ===== HISTORIQUE MENSUEL =====
