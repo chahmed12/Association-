@@ -19,8 +19,23 @@ CREATE TABLE IF NOT EXISTS payments (
     id SERIAL PRIMARY KEY,
     membre_id INTEGER NOT NULL REFERENCES membres(id) ON DELETE CASCADE,
     mois INTEGER NOT NULL,
-    CONSTRAINT payments_membre_mois_unique UNIQUE (membre_id, mois)
+    annee INTEGER NOT NULL DEFAULT EXTRACT(YEAR FROM CURRENT_DATE)::int
 );
+
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS annee INTEGER NOT NULL DEFAULT EXTRACT(YEAR FROM CURRENT_DATE)::int;
+
+ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_membre_mois_unique;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'payments_membre_annee_mois_unique'
+    ) THEN
+        ALTER TABLE payments
+            ADD CONSTRAINT payments_membre_annee_mois_unique UNIQUE (membre_id, annee, mois);
+    END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS depenses (
     id SERIAL PRIMARY KEY,

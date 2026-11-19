@@ -70,7 +70,7 @@ Le routeur doit utiliser `validate()` de `middleware/validators.js`, un limiteur
 2. Rechercher le membre via `membres.whatsapp`.
 3. Verifier que le montant correspond a sa situation (2000 pour `نعم`, 1000 sinon).
 4. Determiner le mois de la transaction.
-5. Refuser un doublon sur `id_transaction` ou sur le couple `(membre_id, mois)`.
+5. Refuser un doublon sur `id_transaction` ou sur le triplet `(membre_id, annee, mois)`.
 6. Accepter automatiquement si `confidence >= 0.9` et aucune ambiguite ; sinon `en_attente`.
 7. Ecrire un `paiement_logs` pour chaque tentative, y compris les rejets.
 
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS paiement_logs (
 );
 ```
 
-`payments` possede deja une contrainte d'unicite sur `(membre_id, mois)`.
+`payments` possede deja une contrainte d'unicite sur `(membre_id, annee, mois)`.
 
 ## Options d'interception
 

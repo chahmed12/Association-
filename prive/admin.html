@@ -291,6 +291,18 @@
     </footer>
 
     <script>
+        const PERIODES = [
+            { mois: 12, annee: 2026 },
+            { mois: 1, annee: 2027 },
+            { mois: 2, annee: 2027 },
+            { mois: 3, annee: 2027 },
+            { mois: 4, annee: 2027 },
+            { mois: 5, annee: 2027 },
+            { mois: 6, annee: 2027 },
+            { mois: 7, annee: 2027 },
+            { mois: 8, annee: 2027 }
+        ];
+
         async function loadFinancialSummary() {
             try {
                 const [resCot, resDep] = await Promise.all([
@@ -328,9 +340,10 @@
                 else if (rate > 50) bar.className = 'h-full rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 transition-all duration-700';
                 else bar.className = 'h-full rounded-full bg-gradient-to-r from-green-400 to-yellow-400 transition-all duration-700';
 
-                // Alertes retard
-                const currentMonth = new Date().getMonth() + 1;
-                const late = membres.filter(m => !m.paiements.includes(currentMonth));
+                const periodeCourante = PERIODES[PERIODES.length - 1];
+                const late = membres.filter(m => !m.paiements.some(p =>
+                    p.mois === periodeCourante.mois && p.annee === periodeCourante.annee
+                ));
                 if (late.length > 0) {
                     document.getElementById('lateAlert').classList.remove('hidden');
                     document.getElementById('lateCount').textContent = late.length;

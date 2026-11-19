@@ -212,7 +212,7 @@
             <h1 class="text-3xl md:text-5xl font-extrabold mb-3 font-cairo drop-shadow-lg">جدول الاشتراكات</h1>
             <p class="text-base md:text-xl text-green-100 font-medium font-inter tracking-wide drop-shadow-md">Suivi des
                 Cotisations</p>
-            <p class="text-sm md:text-base text-green-200 mt-2 font-inter opacity-90">(Février - Août)</p>
+            <p class="text-sm md:text-base text-green-200 mt-2 font-inter opacity-90">(Décembre 2026 - Août 2027)</p>
 
 
             <div class="mt-8 flex justify-center">
@@ -315,13 +315,15 @@
                             <th class="p-6 text-right sticky right-0 bg-gray-50 z-10 font-bold text-gray-700">الاسم
                                 (Nom)</th>
 
-                            <th id="th-2" class="p-4 text-gray-600 font-medium">Fév</th>
-                            <th id="th-3" class="p-4 text-gray-600 font-medium">Mar</th>
-                            <th id="th-4" class="p-4 text-gray-600 font-medium">Avr</th>
-                            <th id="th-5" class="p-4 text-gray-600 font-medium">Mai</th>
-                            <th id="th-6" class="p-4 text-gray-600 font-medium">Juin</th>
-                            <th id="th-7" class="p-4 text-gray-600 font-medium">Juil</th>
-                            <th id="th-8" class="p-4 text-gray-600 font-medium">Août</th>
+                            <th id="th-12-2026" class="p-4 text-gray-600 font-medium">Déc 26</th>
+                            <th id="th-1-2027" class="p-4 text-gray-600 font-medium">Jan 27</th>
+                            <th id="th-2-2027" class="p-4 text-gray-600 font-medium">Fév</th>
+                            <th id="th-3-2027" class="p-4 text-gray-600 font-medium">Mar</th>
+                            <th id="th-4-2027" class="p-4 text-gray-600 font-medium">Avr</th>
+                            <th id="th-5-2027" class="p-4 text-gray-600 font-medium">Mai</th>
+                            <th id="th-6-2027" class="p-4 text-gray-600 font-medium">Juin</th>
+                            <th id="th-7-2027" class="p-4 text-gray-600 font-medium">Juil</th>
+                            <th id="th-8-2027" class="p-4 text-gray-600 font-medium">Août</th>
                         </tr>
                     </thead>
                     <tbody id="desktopTableBody" class="divide-y divide-gray-50">
@@ -382,9 +384,12 @@
 
     <script>
         const months = [
-
-            { num: 2, name: 'Fév' }, { num: 3, name: 'Mar' }, { num: 4, name: 'Avr' },
-            { num: 5, name: 'Mai' }, { num: 6, name: 'Juin' }, { num: 7, name: 'Juil' }, { num: 8, name: 'Août' }
+            { num: 12, year: 2026, name: 'Déc 26' },
+            { num: 1, year: 2027, name: 'Jan 27' },
+            { num: 2, year: 2027, name: 'Fév' }, { num: 3, year: 2027, name: 'Mar' },
+            { num: 4, year: 2027, name: 'Avr' }, { num: 5, year: 2027, name: 'Mai' },
+            { num: 6, year: 2027, name: 'Juin' }, { num: 7, year: 2027, name: 'Juil' },
+            { num: 8, year: 2027, name: 'Août' }
         ];
         let allMembres = [];
 
@@ -402,9 +407,8 @@
                 document.getElementById('totalPayments').textContent = totalPayments;
                 document.getElementById('avgRate').textContent = avgRate + '%';
 
-                // Mettre en évidence le mois courant dans le tableau
-                const currentMonth = new Date().getMonth() + 1;
-                const thEl = document.getElementById('th-' + currentMonth);
+                const lastMonth = months[months.length - 1];
+                const thEl = document.getElementById('th-' + lastMonth.num + '-' + lastMonth.year);
                 if (thEl) {
                     thEl.className = 'p-4 font-bold text-green-700 bg-green-50 relative';
                     thEl.innerHTML = thEl.textContent + ' <span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-green-500 rounded-full"></span>';
@@ -472,7 +476,7 @@
                         </div>
                     </td>`;
                 months.forEach(month => {
-                    const isPaid = m.paiements.includes(month.num);
+                    const isPaid = m.paiements.some(p => p.mois === month.num && p.annee === month.year);
                     html += `<td class="p-2 border-l border-gray-50 align-middle">
                         ${isPaid
                             ? `<div class="w-8 h-8 mx-auto bg-green-500 rounded-full flex items-center justify-center text-white shadow-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>`
@@ -508,7 +512,7 @@
                     </div>
                     <div class="p-4"><div class="grid grid-cols-4 gap-2">`;
                 months.forEach(month => {
-                    const isPaid = m.paiements.includes(month.num);
+                    const isPaid = m.paiements.some(p => p.mois === month.num && p.annee === month.year);
                     html += `<div class="text-center">
                         <div class="text-xs text-gray-500 font-medium mb-1">${month.name}</div>
                         ${isPaid

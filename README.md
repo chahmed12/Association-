@@ -52,6 +52,7 @@ Sous Windows : `copy .env.example .env` puis renseignez le fichier.
 | `npm run dev` | Démarrer avec rechargement automatique |
 | `npm run db:migrate` | Créer/mettre à jour le schéma PostgreSQL |
 | `npm run db:seed` | Créer ou mettre à jour le compte admin |
+| `npm run finance:reset` | Vider cotisations/dépenses et générer déc. 2026 → août 2027 |
 | `npm run lint` | Vérifier le code avec ESLint |
 | `npm test` | Lancer les tests automatisés |
 

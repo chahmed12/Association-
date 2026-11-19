@@ -197,13 +197,13 @@ router.get('/public/stats', (req, res) => {
 router.get('/public/cotisations', (req, res) => {
     db.query("SELECT id, nom FROM membres ORDER BY nom ASC", (err, resMembres) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-        db.query("SELECT membre_id, mois FROM payments", (err, resPaiements) => {
+        db.query("SELECT membre_id, mois, annee FROM payments", (err, resPaiements) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
             const membres = resMembres ? resMembres.rows : [];
             const paiements = resPaiements ? resPaiements.rows : [];
             res.json(membres.map(m => ({
                 nom: m.nom,
-                paiements: paiements.filter(p => p.membre_id === m.id).map(p => p.mois)
+                paiements: paiements.filter(p => p.membre_id === m.id).map(p => ({ mois: p.mois, annee: p.annee }))
             })));
         });
     });
@@ -221,7 +221,7 @@ router.get('/cotisations', isAuthenticated, (req, res) => {
             const paiements = resPaiements ? resPaiements.rows : [];
             const data = membres.map(m => ({
                 ...m,
-                paiements: paiements.filter(p => p.membre_id === m.id).map(p => p.mois)
+                paiements: paiements.filter(p => p.membre_id === m.id).map(p => ({ mois: p.mois, annee: p.annee }))
             }));
             res.json(data);
         });
@@ -230,15 +230,16 @@ router.get('/cotisations', isAuthenticated, (req, res) => {
 
 router.post('/cotisations/toggle', isAuthenticated, (req, res) => {
     const { membre_id, mois } = req.body;
-    db.query("SELECT * FROM payments WHERE membre_id = $1 AND mois = $2", [membre_id, mois], (err, result) => {
+    const annee = Number(req.body.annee) || new Date().getFullYear();
+    db.query("SELECT * FROM payments WHERE membre_id = $1 AND mois = $2 AND annee = $3", [membre_id, mois, annee], (err, result) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         const results = result ? result.rows : [];
         if (results.length > 0) {
-            db.query("DELETE FROM payments WHERE membre_id = $1 AND mois = $2", [membre_id, mois], () => {
+            db.query("DELETE FROM payments WHERE membre_id = $1 AND mois = $2 AND annee = $3", [membre_id, mois, annee], () => {
                 res.json({ success: true, status: 'removed' });
             });
         } else {
-            db.query("INSERT INTO payments (membre_id, mois) VALUES ($1, $2)", [membre_id, mois], () => {
+            db.query("INSERT INTO payments (membre_id, mois, annee) VALUES ($1, $2, $3)", [membre_id, mois, annee], () => {
                 res.json({ success: true, status: 'added' });
             });
         }

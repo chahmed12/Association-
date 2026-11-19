@@ -49,8 +49,14 @@ function resultFor(sql, params) {
     if (query.includes('SELECT id, nom FROM membres')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
     }
-    if (query.includes('SELECT membre_id, mois FROM payments') || query.includes('SELECT * FROM payments')) {
-        return { rows: [{ membre_id: 1, mois: 1 }, { membre_id: 1, mois: 2 }] };
+    if (query.includes('SELECT membre_id, mois, annee FROM payments')) {
+        return { rows: [{ membre_id: 1, mois: 1, annee: 2027 }, { membre_id: 1, mois: 2, annee: 2027 }] };
+    }
+    if (query.includes('SELECT * FROM payments WHERE')) {
+        return { rows: [] };
+    }
+    if (query.includes('SELECT * FROM payments')) {
+        return { rows: [{ membre_id: 1, mois: 1, annee: 2027 }] };
     }
     if (query.includes('SELECT * FROM membres')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
@@ -85,7 +91,7 @@ test('les cotisations publiques ne renvoient ni montant ni telephone', async () 
     const response = await request(app).get('/api/public/cotisations').expect(200);
     assert.equal(response.body.length, 1);
     assert.deepEqual(Object.keys(response.body[0]).sort(), ['nom', 'paiements']);
-    assert.deepEqual(response.body[0].paiements, [1, 2]);
+    assert.deepEqual(response.body[0].paiements, [{ mois: 1, annee: 2027 }, { mois: 2, annee: 2027 }]);
 });
 
 test('les routes sensibles exigent une session', async () => {
@@ -109,6 +115,11 @@ test('check-auth indique etat non connecte puis connecte', async () => {
 
     await agent.get('/api/check-auth').expect(200, { authenticated: true });
     await agent.get('/api/cotisations').expect(200);
+
+    const toggle = await agent.post('/api/cotisations/toggle')
+        .send({ membre_id: 1, mois: 12, annee: 2026 })
+        .expect(200);
+    assert.equal(toggle.body.status, 'added');
 });
 
 test('une route API inconnue renvoie un JSON 404', async () => {
