@@ -11,6 +11,7 @@ const PDFDocument = require('pdfkit');
 const ArabicReshaperModule = require('arabic-persian-reshaper');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const { normalizePhone } = require('../utils/phone');
 
 // Utilisation de la méthode statique directe
 const ArabicShaper = ArabicReshaperModule.ArabicShaper;
@@ -184,7 +185,7 @@ router.get('/check-auth', (req, res) => {
 });
 
 router.get('/public/stats', (req, res) => {
-    db.query("SELECT COUNT(*)::int AS total FROM membres", (err, hommes) => {
+    db.query("SELECT COUNT(*)::int AS total FROM membres WHERE actif = true", (err, hommes) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         db.query("SELECT COUNT(*)::int AS total FROM femmes", (err, femmes) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
@@ -201,7 +202,7 @@ router.get('/public/stats', (req, res) => {
 });
 
 router.get('/public/cotisations', (req, res) => {
-    db.query("SELECT id, nom FROM membres ORDER BY nom ASC", (err, resMembres) => {
+    db.query("SELECT id, nom FROM membres WHERE actif = true ORDER BY nom ASC", (err, resMembres) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         db.query("SELECT membre_id, mois, annee FROM payments", (err, resPaiements) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
@@ -219,7 +220,7 @@ router.get('/public/cotisations', (req, res) => {
 //  2. COTISATIONS
 // ═══════════════════════════════════════════════════════════════
 router.get('/cotisations', isAuthenticated, (req, res) => {
-    db.query("SELECT * FROM membres ORDER BY nom ASC", (err, resMembres) => {
+    db.query("SELECT * FROM membres WHERE actif = true ORDER BY nom ASC", (err, resMembres) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         const membres = resMembres ? resMembres.rows : [];
         db.query("SELECT * FROM payments", (err, resPaiements) => {
@@ -349,10 +350,105 @@ router.get('/femmes', isAuthenticated, (req, res) => {
     });
 });
 
-router.get('/membres', isAuthenticated, (req, res) => {
-    db.query("SELECT * FROM membres ORDER BY date_inscription DESC", (err, result) => {
+router.use('/membres', isAuthenticated);
+
+router.get('/membres', validate('membreQuery', 'query'), (req, res) => {
+    const { q, actif, limit, page } = req.query;
+    const conditions = [];
+    const params = [];
+
+    if (q) {
+        params.push(`%${q}%`);
+        const like = `$${params.length}`;
+        conditions.push(`(nom ILIKE ${like} OR telephone ILIKE ${like} OR numero_adherent ILIKE ${like})`);
+    }
+    if (!actif || actif === 'true') {
+        conditions.push('actif = true');
+    } else if (actif === 'false') {
+        conditions.push('actif = false');
+    }
+
+    let sql = 'SELECT * FROM membres';
+    if (conditions.length > 0) sql += ` WHERE ${conditions.join(' AND ')}`;
+    sql += ' ORDER BY date_inscription DESC';
+
+    const hasLimit = limit !== undefined;
+    const hasPage = page !== undefined;
+    const effectiveLimit = hasLimit ? Number(limit) : 200;
+    if (hasLimit || hasPage) {
+        params.push(effectiveLimit);
+        sql += ` LIMIT $${params.length}`;
+    }
+    if (hasPage) {
+        params.push((Number(page) - 1) * effectiveLimit);
+        sql += ` OFFSET $${params.length}`;
+    }
+
+    db.query(sql, params, (err, result) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
         res.json({ success: true, membres: result ? result.rows : [] });
+    });
+});
+
+router.get('/membres/:id', (req, res) => {
+    db.query("SELECT * FROM membres WHERE id = $1", [req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const rows = result ? result.rows : [];
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        res.json({ success: true, membre: rows[0] });
+    });
+});
+
+router.post('/membres', validate('membreCreate'), (req, res) => {
+    const { nom, telephone, situation, email } = req.body;
+    const montant = req.body.montant === undefined ? (situation === 'نعم' ? 2000 : 1000) : req.body.montant;
+    const whatsapp = normalizePhone(req.body.whatsapp) || null;
+
+    db.query(
+        "INSERT INTO membres (nom, telephone, situation, montant, whatsapp, email) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+        [nom, telephone, situation, montant, whatsapp, email || null],
+        (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            const id = result && result.rows && result.rows[0] ? result.rows[0].id : null;
+            if (id === null) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+
+            const numeroAdherent = `MEM-${String(id).padStart(4, '0')}`;
+            db.query("UPDATE membres SET numero_adherent = $1 WHERE id = $2", [numeroAdherent, id], (err) => {
+                if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+                res.status(201).json({ success: true, id, numero_adherent: numeroAdherent });
+            });
+        }
+    );
+});
+
+router.put('/membres/:id', validate('membreUpdate'), (req, res) => {
+    const fields = [];
+    const values = [];
+    const add = (column, value) => {
+        values.push(value);
+        fields.push(`${column} = $${values.length}`);
+    };
+
+    if (req.body.nom !== undefined) add('nom', req.body.nom);
+    if (req.body.telephone !== undefined) add('telephone', req.body.telephone);
+    if (req.body.situation !== undefined) add('situation', req.body.situation);
+    if (req.body.montant !== undefined) add('montant', req.body.montant);
+    if (req.body.whatsapp !== undefined) add('whatsapp', normalizePhone(req.body.whatsapp) || null);
+    if (req.body.email !== undefined) add('email', req.body.email || null);
+    if (req.body.actif !== undefined) add('actif', req.body.actif);
+    fields.push('updated_at = NOW()');
+
+    values.push(req.params.id);
+    db.query(`UPDATE membres SET ${fields.join(', ')} WHERE id = $${values.length}`, values, (err) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.json({ success: true });
+    });
+});
+
+router.delete('/membres/:id', (req, res) => {
+    db.query("UPDATE membres SET actif = false, deleted_at = NOW() WHERE id = $1", [req.params.id], (err) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.json({ success: true });
     });
 });
 
@@ -362,7 +458,7 @@ router.get('/membres', isAuthenticated, (req, res) => {
 router.post('/inscrire', validate('inscription'), (req, res) => {
     const { nom, telephone, situation } = req.body;
     if (!nom || !telephone || !situation) return res.status(400).json({ success: false });
-    db.query("SELECT * FROM membres WHERE telephone = $1", [telephone], (err, result) => {
+    db.query("SELECT * FROM membres WHERE telephone = $1 AND actif = true", [telephone], (err, result) => {
         if (err) return res.status(500).json({ success: false });
         const results = result ? result.rows : [];
         if (results.length > 0) return res.status(400).json({ success: false, message: 'Numéro déjà enregistré!' });
@@ -381,7 +477,7 @@ router.post('/inscrire', validate('inscription'), (req, res) => {
 
 router.get('/pdf/rapport-financier', isAuthenticated, (req, res) => {
     // Charger toutes les données en parallèle
-    db.query("SELECT * FROM membres", (err, resMembres) => {
+    db.query("SELECT * FROM membres WHERE actif = true", (err, resMembres) => {
         if (err) return res.status(500).send('Erreur DB');
         const membres = resMembres ? resMembres.rows : [];
         db.query("SELECT * FROM payments", (err, resPaiements) => {

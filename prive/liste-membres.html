@@ -422,8 +422,15 @@
                     <div class="flex items-center gap-3 flex-shrink-0">
                         <!-- Compteur résultats -->
                         <span id="searchCount" class="text-sm font-semibold text-green-600 font-inter bg-green-50 px-3 py-1 rounded-full hidden md:inline-block"></span>
+                        <button id="addMemberBtn"
+                            class="hidden px-4 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center gap-2 whitespace-nowrap"
+                            title="Ajouter un membre / إضافة عضو">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span class="hidden md:inline">Ajouter un membre</span>
+                            <span class="md:hidden">إضافة عضو</span>
+                        </button>
                         <!-- Bouton actualiser -->
-                        <button onclick="refreshData()" title="Actualiser"
+                        <button onclick="refreshData(this)" title="Actualiser"
                             class="px-4 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center gap-2 whitespace-nowrap">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                             <span class="hidden md:inline">تحديث</span>
@@ -456,13 +463,13 @@
             <div id="tableHommes" class="tab-content p-4 md:p-6 bg-white/40 backdrop-blur-sm hidden">
                 <div
                     class="flex flex-col md:flex-row flex-wrap justify-center md:justify-start gap-3 mb-6 no-print filter-buttons bg-white/60 p-2 rounded-xl inline-flex shadow-sm border border-white/80 w-full md:w-auto">
-                    <button onclick="filterHommes('all')"
+                    <button onclick="filterHommes('all', this)"
                         class="filter-btn flex-1 md:flex-none active px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-green-500 shadow-md transition-all">الكل
                         (Tous)</button>
-                    <button onclick="filterHommes('travaille')"
+                    <button onclick="filterHommes('travaille', this)"
                         class="filter-btn flex-1 md:flex-none px-5 py-2.5 rounded-lg text-sm font-bold text-gray-600 hover:bg-green-50 hover:text-green-700 transition-all">💼
                         يعملون</button>
-                    <button onclick="filterHommes('chomage')"
+                    <button onclick="filterHommes('chomage', this)"
                         class="filter-btn flex-1 md:flex-none px-5 py-2.5 rounded-lg text-sm font-bold text-gray-600 hover:bg-green-50 hover:text-green-700 transition-all">🏠
                         بدون عمل</button>
                 </div>
@@ -487,6 +494,12 @@
                                     Téléphone</th>
                                 <th
                                     class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
+                                    WhatsApp</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
+                                    N° Adhérent</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
                                     Situation</th>
                                 <th
                                     class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
@@ -494,6 +507,9 @@
                                 <th
                                     class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
                                     Date</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody id="hommesBody" class="divide-y divide-gray-100">
@@ -533,6 +549,53 @@
         </div>
     </div>
 
+    <div id="membreModal" class="fixed inset-0 z-[1500] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4 no-print" role="dialog" aria-modal="true" aria-labelledby="membreModalTitle">
+        <div class="glass-card w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200/50 bg-white/40">
+                <h2 id="membreModalTitle" class="text-lg font-extrabold text-green-700">Ajouter un membre</h2>
+                <button type="button" id="membreModalClose" class="w-8 h-8 rounded-full bg-white/60 hover:bg-red-100 text-gray-600 hover:text-red-600 font-bold text-xl leading-none flex items-center justify-center transition" title="Fermer / إغلاق">×</button>
+            </div>
+            <form id="membreForm" class="p-6 space-y-4">
+                <input type="hidden" id="membreId" name="id">
+                <div>
+                    <label for="membreNom" class="block text-sm font-bold text-gray-700 mb-1">الاسم / Nom *</label>
+                    <input type="text" id="membreNom" name="nom" required maxlength="100" autocomplete="off" class="w-full px-4 py-2.5 rounded-xl border-2 border-white/60 bg-white/70 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right" style="background:var(--input-bg)">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="membreTelephone" class="block text-sm font-bold text-gray-700 mb-1">الهاتف / Téléphone *</label>
+                        <input type="tel" id="membreTelephone" name="telephone" required inputmode="numeric" maxlength="15" autocomplete="off" class="w-full px-4 py-2.5 rounded-xl border-2 border-white/60 bg-white/70 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right" style="background:var(--input-bg)" dir="ltr">
+                    </div>
+                    <div>
+                        <label for="membreWhatsapp" class="block text-sm font-bold text-gray-700 mb-1">واتساب / WhatsApp</label>
+                        <input type="tel" id="membreWhatsapp" name="whatsapp" maxlength="20" autocomplete="off" class="w-full px-4 py-2.5 rounded-xl border-2 border-white/60 bg-white/70 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right" style="background:var(--input-bg)" dir="ltr">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="membreSituation" class="block text-sm font-bold text-gray-700 mb-1">الحالة / Situation *</label>
+                        <select id="membreSituation" name="situation" required class="w-full px-4 py-2.5 rounded-xl border-2 border-white/60 bg-white/70 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-bold" style="background:var(--input-bg)">
+                            <option value="نعم">نعم (Travaille)</option>
+                            <option value="لا">لا (Sans emploi)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="membreMontant" class="block text-sm font-bold text-gray-700 mb-1">المبلغ / Montant</label>
+                        <input type="number" id="membreMontant" name="montant" min="1" step="1" inputmode="numeric" class="w-full px-4 py-2.5 rounded-xl border-2 border-white/60 bg-white/70 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right" style="background:var(--input-bg)" placeholder="2000">
+                    </div>
+                </div>
+                <div>
+                    <label for="membreEmail" class="block text-sm font-bold text-gray-700 mb-1">البريد / Email</label>
+                    <input type="email" id="membreEmail" name="email" maxlength="255" autocomplete="off" class="w-full px-4 py-2.5 rounded-xl border-2 border-white/60 bg-white/70 focus:ring-4 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all shadow-sm font-inter text-right" style="background:var(--input-bg)" dir="ltr">
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" id="membreModalCancel" class="px-5 py-2.5 rounded-xl text-sm font-bold text-gray-600 bg-white/70 hover:bg-gray-100 border border-gray-200 transition">Annuler / إلغاء</button>
+                    <button type="submit" id="membreModalSubmit" class="px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md hover:shadow-lg transition">Enregistrer / حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- TABLE CACHÉE POUR IMPRESSION - UTILISE UNIQUEMENT DES STYLES INLINE -->
     <div id="printTable"></div>
 
@@ -543,8 +606,175 @@
         let currentDisplayData = [];
         let isAuthenticated = false;
 
+        async function apiRequest(url, options = {}) {
+            let response;
+            try {
+                response = await fetch(url, options);
+            } catch (networkError) {
+                throw new Error('Erreur réseau');
+            }
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                data = {};
+            }
+            if (!response.ok || !data.success) {
+                const detail = data && (data.message || (Array.isArray(data.errors) ? data.errors.join(', ') : ''));
+                throw new Error(detail || `Erreur HTTP ${response.status}`);
+            }
+            return data;
+        }
+
+        function showToast(icon, message) {
+            if (typeof Swal !== 'undefined' && typeof Swal.mixin === 'function') {
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500, timerProgressBar: true });
+                Toast.fire({ icon: icon === 'error' ? 'error' : 'success', title: message });
+                return;
+            }
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 z-[2000] px-4 py-3 rounded-xl shadow-lg text-sm font-bold text-white ' + (icon === 'error' ? 'bg-red-600' : 'bg-green-600');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function confirmArchive() {
+            if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function') {
+                return Swal.fire({
+                    title: 'Archiver le membre ?',
+                    text: 'سيتم أرشفة العضو وإخفاؤه من القائمة.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Archiver / أرشفة',
+                    cancelButtonText: 'Annuler / إلغاء'
+                }).then((result) => result.isConfirmed);
+            }
+            return Promise.resolve(window.confirm('Archiver ce membre ? / أرشفة هذا العضو؟'));
+        }
+
+        function openMembreModal(mode, id) {
+            const modal = document.getElementById('membreModal');
+            const form = document.getElementById('membreForm');
+            const submit = document.getElementById('membreModalSubmit');
+            form.reset();
+            document.getElementById('membreId').value = '';
+            submit.disabled = true;
+            document.getElementById('membreModalTitle').textContent = mode === 'edit' ? 'Modifier le membre' : 'Ajouter un membre';
+
+            if (mode === 'edit') {
+                apiRequest(`/api/membres/${encodeURIComponent(id)}`)
+                    .then((data) => {
+                        const membre = data.membre || {};
+                        document.getElementById('membreId').value = membre.id || '';
+                        document.getElementById('membreNom').value = membre.nom || '';
+                        document.getElementById('membreTelephone').value = membre.telephone || '';
+                        document.getElementById('membreSituation').value = membre.situation === 'نعم' ? 'نعم' : 'لا';
+                        document.getElementById('membreMontant').value = membre.montant === null || membre.montant === undefined ? '' : membre.montant;
+                        document.getElementById('membreWhatsapp').value = membre.whatsapp || '';
+                        document.getElementById('membreEmail').value = membre.email || '';
+                        submit.disabled = false;
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    })
+                    .catch((error) => {
+                        submit.disabled = false;
+                        showToast('error', error.message || 'Erreur de chargement du membre');
+                    });
+                return;
+            }
+
+            document.getElementById('membreSituation').value = 'نعم';
+            submit.disabled = false;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeMembreModal() {
+            const modal = document.getElementById('membreModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function saveMembre(event) {
+            event.preventDefault();
+            const submit = document.getElementById('membreModalSubmit');
+            const id = document.getElementById('membreId').value;
+            const nom = document.getElementById('membreNom').value.trim();
+            const telephone = document.getElementById('membreTelephone').value.trim();
+            const situation = document.getElementById('membreSituation').value;
+            const montantBrut = document.getElementById('membreMontant').value.trim();
+            const whatsapp = document.getElementById('membreWhatsapp').value.trim();
+            const email = document.getElementById('membreEmail').value.trim();
+
+            if (!nom || !telephone || !situation) {
+                showToast('error', 'Veuillez remplir les champs obligatoires / يرجى ملء الحقول الإلزامية');
+                return;
+            }
+
+            const payload = { nom, telephone, situation, whatsapp, email };
+            if (montantBrut !== '') {
+                const montant = Number(montantBrut);
+                if (!Number.isInteger(montant) || montant <= 0) {
+                    showToast('error', 'Montant invalide / مبلغ غير صالح');
+                    return;
+                }
+                payload.montant = montant;
+            }
+
+            submit.disabled = true;
+            try {
+                if (id) {
+                    await apiRequest(`/api/membres/${encodeURIComponent(id)}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    await apiRequest('/api/membres', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+                await loadData();
+                closeMembreModal();
+                showToast('success', id ? 'Membre modifié ✅' : 'Membre ajouté ✅');
+            } catch (error) {
+                showToast('error', error.message || 'Erreur lors de l\'enregistrement');
+            } finally {
+                submit.disabled = false;
+            }
+        }
+
+        async function handleMembreAction(event) {
+            const button = event.target.closest('[data-action]');
+            if (!button) return;
+            const id = button.dataset.id;
+            if (!id) return;
+
+            if (button.dataset.action === 'edit') {
+                openMembreModal('edit', id);
+                return;
+            }
+            if (button.dataset.action === 'archive') {
+                const confirmed = await confirmArchive();
+                if (!confirmed) return;
+                button.disabled = true;
+                try {
+                    await apiRequest(`/api/membres/${encodeURIComponent(id)}`, { method: 'DELETE' });
+                    await loadData();
+                    showToast('success', 'Membre archivé ✅');
+                } catch (error) {
+                    button.disabled = false;
+                    showToast('error', error.message || 'Erreur lors de l\'archivage');
+                }
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
-            // Check if user is logged in to show admin button
             try {
                 const res = await fetch('/api/check-auth');
                 if (res.ok) {
@@ -553,50 +783,59 @@
                         isAuthenticated = true;
                         document.getElementById('adminBackButton').classList.remove('hidden');
                         document.getElementById('homeBackButton').classList.add('hidden');
+                        document.getElementById('addMemberBtn').classList.remove('hidden');
                     }
                 }
             } catch (e) {
                 console.error("Erreur de vérification d'authentification", e);
             }
 
-            loadData();
-        });
+            document.getElementById('addMemberBtn').addEventListener('click', () => openMembreModal('create'));
+            document.getElementById('membreModalClose').addEventListener('click', closeMembreModal);
+            document.getElementById('membreModalCancel').addEventListener('click', closeMembreModal);
+            document.getElementById('membreModal').addEventListener('click', (e) => {
+                if (e.target.id === 'membreModal') closeMembreModal();
+            });
+            document.getElementById('membreForm').addEventListener('submit', saveMembre);
+            document.getElementById('hommesBody').addEventListener('click', handleMembreAction);
+            document.getElementById('hommesMobileView').addEventListener('click', handleMembreAction);
 
-        async function loadData() {
             try {
-                const responseHommes = await fetch('/api/membres');
-                const dataHommes = await responseHommes.json();
-
-                const responseFemmes = await fetch('/api/femmes');
-                const dataFemmes = await responseFemmes.json();
-
-                if (dataHommes.success) { hommesData = dataHommes.membres || []; }
-                if (dataFemmes.success) { femmesData = dataFemmes.femmes || []; }
-
-                updateStats();
-                document.getElementById('statsGrid').classList.remove('hidden');
-                showTab('hommes');
-                document.getElementById('loadingState').style.display = 'none';
-                updateLastRefreshed();
+                await loadData();
             } catch (error) {
                 console.error('Erreur:', error);
                 document.getElementById('loadingState').innerHTML = '<p class="text-red-600">Erreur de chargement</p>';
             }
+        });
+
+        async function loadData() {
+            const dataHommes = await apiRequest('/api/membres');
+            const dataFemmes = await apiRequest('/api/femmes');
+            hommesData = dataHommes.membres || [];
+            femmesData = dataFemmes.femmes || [];
+
+            updateStats();
+            document.getElementById('statsGrid').classList.remove('hidden');
+            showTab('hommes');
+            document.getElementById('loadingState').style.display = 'none';
+            updateLastRefreshed();
         }
 
-        async function refreshData() {
-            const btn = event.currentTarget;
+        async function refreshData(btn) {
+            if (!btn) return;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div><span class="hidden md:inline">جاري التحديث...</span>';
             btn.disabled = true;
 
-            await loadData();
-
-            btn.innerHTML = originalHtml;
-            btn.disabled = false;
-            
-            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
-            Toast.fire({ icon: 'success', title: 'تم تحديث البيانات ✅' });
+            try {
+                await loadData();
+                showToast('success', 'تم تحديث البيانات ✅');
+            } catch (error) {
+                showToast('error', error.message || 'Erreur de chargement');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
         }
 
         function updateStats() {
@@ -670,6 +909,8 @@
                                 <th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">#</th>
                                 <th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Nom</th>
                                 ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Téléphone</th>' : ''}
+                                ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">WhatsApp</th>' : ''}
+                                ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">N° Adhérent</th>' : ''}
                                 ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Situation</th>' : ''}
                                 ${isHommes ? '<th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Montant</th>' : ''}
                                 <th style="border: 1px solid #333; padding: 8px; text-align: right; font-weight: bold; color: black;">Date</th>
@@ -689,6 +930,8 @@
                             <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;">${index + 1}</td>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black; font-weight: 600;">${escapeHtml(item.nom)}</td>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;" dir="ltr">${isAuthenticated ? escapeHtml(item.telephone) : 'مخفي'}</td>
+                            <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;" dir="ltr">${isAuthenticated ? (item.whatsapp ? escapeHtml(item.whatsapp) : '—') : 'مخفي'}</td>
+                            <td style="border: 1px solid #333; padding: 8px; text-align: right; color: black;">${item.numero_adherent ? escapeHtml(item.numero_adherent) : '—'}</td>
                             <td style="border: 1px solid #333; padding: 8px; text-align: right;">
                                 <span style="background-color: ${situationBg}; color: ${situationColor}; padding: 4px 8px; border-radius: 12px; font-size: 8pt; font-weight: 600;">
                                     ${situationText}
@@ -724,18 +967,18 @@
             }, 100);
         }
 
-        function filterHommes(type) {
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                // Determine base color classes based on the button text to style active vs inactive correctly
+        function filterHommes(type, btn) {
+            document.querySelectorAll('.filter-btn').forEach(button => {
                 let textClass = 'text-gray-600 hover:text-gray-800 hover:bg-white/80';
-                btn.className = `filter-btn flex-1 md:flex-none px-5 py-2.5 rounded-lg text-sm font-bold ${textClass} transition-all`;
+                button.className = `filter-btn flex-1 md:flex-none px-5 py-2.5 rounded-lg text-sm font-bold ${textClass} transition-all`;
             });
 
-            // Apply active class
-            if (type === 'all') {
-                event.target.className = "filter-btn flex-1 md:flex-none active px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-green-500 shadow-md transition-all";
-            } else {
-                event.target.className = "filter-btn flex-1 md:flex-none active px-5 py-2.5 rounded-lg text-sm font-bold text-green-700 bg-green-100 shadow-md transition-all border border-green-200";
+            if (btn) {
+                if (type === 'all') {
+                    btn.className = "filter-btn flex-1 md:flex-none active px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-green-500 shadow-md transition-all";
+                } else {
+                    btn.className = "filter-btn flex-1 md:flex-none active px-5 py-2.5 rounded-lg text-sm font-bold text-green-700 bg-green-100 shadow-md transition-all border border-green-200";
+                }
             }
 
             let filtered = [];
@@ -744,6 +987,12 @@
             else { filtered = hommesData.filter(h => h.situation !== 'نعم'); }
 
             displayHommes(filtered);
+        }
+
+        function matchMembre(membre, term) {
+            if (!term) return true;
+            return [membre.nom, membre.telephone, membre.whatsapp, membre.numero_adherent]
+                .some(value => String(value || '').toLowerCase().includes(term));
         }
 
         // Fonction utilitaire pour surbrillance
@@ -757,8 +1006,7 @@
 
         function copyPhone(phone) {
             navigator.clipboard.writeText(phone).then(() => {
-                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
-                Toast.fire({ icon: 'success', title: 'تم نسخ الرقم ✅' });
+                showToast('success', 'تم نسخ الرقم ✅');
             }).catch(() => {
                 prompt('انسخ الرقم:', phone);
             });
@@ -768,6 +1016,7 @@
             currentDisplayData = data;
             const tbody = document.getElementById('hommesBody');
             const mobileView = document.getElementById('hommesMobileView');
+            const colCount = isAuthenticated ? 8 : 7;
 
             // Afficher le compteur
             const searchCount = document.getElementById('searchCount');
@@ -777,27 +1026,48 @@
             }
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Aucun résultat</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="${colCount}" class="px-6 py-4 text-center text-gray-500">Aucun résultat</td></tr>`;
                 mobileView.innerHTML = '<p class="text-center text-gray-500 py-8">Aucun résultat</p>';
                 return;
             }
 
             // Vue Desktop (Table) avec copie téléphone + highlight
-            tbody.innerHTML = data.map((membre, index) => `
+            tbody.innerHTML = data.map((membre, index) => {
+                const membreId = escapeHtml(membre.id);
+                const whatsappBrut = membre.whatsapp ? String(membre.whatsapp) : '';
+                const whatsappDigits = whatsappBrut.replace(/\D/g, '');
+                const whatsappHtml = whatsappDigits
+                    ? `<a href="https://wa.me/${escapeHtml(whatsappDigits)}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:underline font-bold font-inter" dir="ltr">${escapeHtml(whatsappBrut)}</a>`
+                    : '<span class="text-gray-400">—</span>';
+                const numeroHtml = membre.numero_adherent
+                    ? `<span class="font-inter text-xs font-bold text-indigo-600">${escapeHtml(membre.numero_adherent)}</span>`
+                    : '<span class="text-gray-400">—</span>';
+                const copyButton = isAuthenticated ? `<button onclick="copyPhone('${escapeJs(membre.telephone)}')" title="Copier le numéro"
+                                style="width:24px;height:24px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
+                                onmouseover="this.style.background='rgba(16,185,129,0.25)'"
+                                onmouseout="this.style.background='rgba(16,185,129,0.1)'">
+                                <svg width="12" height="12" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>` : '';
+                const actionsHtml = isAuthenticated ? `
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                        <div class="flex items-center justify-start gap-2" dir="ltr">
+                            <button type="button" data-action="edit" data-id="${membreId}" title="Modifier / تعديل" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 border border-green-200 transition">Modifier</button>
+                            <button type="button" data-action="archive" data-id="${membreId}" title="Archiver / أرشفة" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200 transition">Archiver</button>
+                        </div>
+                    </td>` : '';
+
+                return `
                 <tr class="hover:bg-green-50/50 transition duration-150">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">${highlight(membre.nom, searchTerm)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-inter tracking-wide" dir="ltr">
                         <div class="flex items-center gap-2">
                             <span>${isAuthenticated ? escapeHtml(membre.telephone) : '<span class="text-gray-400 italic">مخفي</span>'}</span>
-                            ${isAuthenticated ? `<button onclick="copyPhone('${escapeJs(membre.telephone)}')" title="Copier le numéro"
-                                style="width:24px;height:24px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
-                                onmouseover="this.style.background='rgba(16,185,129,0.25)'"
-                                onmouseout="this.style.background='rgba(16,185,129,0.1)'">
-                                <svg width="12" height="12" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            </button>` : ''}
+                            ${copyButton}
                         </div>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-inter">${whatsappHtml}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${numeroHtml}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${membre.situation === 'نعم' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'}">
                             ${membre.situation === 'نعم' ? 'Travaille' : 'Sans emploi'}
@@ -805,11 +1075,36 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 font-inter bg-green-50/30">${escapeHtml(membre.montant)} UM</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${formatDate(membre.date_inscription)}</td>
+                    ${actionsHtml}
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
             // Vue Mobile (Cartes) avec copie téléphone
-            mobileView.innerHTML = data.map((membre, index) => `
+            mobileView.innerHTML = data.map((membre, index) => {
+                const membreId = escapeHtml(membre.id);
+                const whatsappBrut = membre.whatsapp ? String(membre.whatsapp) : '';
+                const whatsappDigits = whatsappBrut.replace(/\D/g, '');
+                const whatsappHtml = whatsappDigits
+                    ? `<a href="https://wa.me/${escapeHtml(whatsappDigits)}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:underline font-bold font-inter" dir="ltr">${escapeHtml(whatsappBrut)}</a>`
+                    : '<span class="text-gray-400">—</span>';
+                const numeroHtml = membre.numero_adherent
+                    ? `<span class="font-inter text-xs font-bold text-indigo-600">${escapeHtml(membre.numero_adherent)}</span>`
+                    : '<span class="text-gray-400">—</span>';
+                const copyButton = isAuthenticated ? `<button onclick="copyPhone('${escapeJs(membre.telephone)}')" title="Copier"
+                                style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                                <svg width="14" height="14" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>` : '';
+                const actionsHtml = isAuthenticated ? `
+                    <div class="member-card-row">
+                        <span class="member-card-label">إجراءات (Actions)</span>
+                        <span class="member-card-value flex items-center gap-2 justify-end" dir="ltr">
+                            <button type="button" data-action="edit" data-id="${membreId}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 border border-green-200">Modifier</button>
+                            <button type="button" data-action="archive" data-id="${membreId}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200">Archiver</button>
+                        </span>
+                    </div>` : '';
+
+                return `
                 <div class="member-card">
                     <div class="flex justify-between items-start mb-2">
                         <span class="text-lg font-bold text-blue-600">#${index + 1}</span>
@@ -825,11 +1120,16 @@
                         <span class="member-card-label">الهاتف (Tél)</span>
                         <span class="member-card-value flex items-center gap-2 justify-end" dir="ltr">
                             ${isAuthenticated ? escapeHtml(membre.telephone) : '<span class="text-gray-400 italic">مخفي</span>'}
-                            ${isAuthenticated ? `<button onclick="copyPhone('${escapeJs(membre.telephone)}')" title="Copier"
-                                style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                                <svg width="14" height="14" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            </button>` : ''}
+                            ${copyButton}
                         </span>
+                    </div>
+                    <div class="member-card-row">
+                        <span class="member-card-label">واتساب (WhatsApp)</span>
+                        <span class="member-card-value" dir="ltr">${whatsappHtml}</span>
+                    </div>
+                    <div class="member-card-row">
+                        <span class="member-card-label">رقم العضوية (N° Adhérent)</span>
+                        <span class="member-card-value">${numeroHtml}</span>
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">المبلغ (Montant)</span>
@@ -839,8 +1139,10 @@
                         <span class="member-card-label">التاريخ (Date)</span>
                         <span class="member-card-value">${formatDate(membre.date_inscription)}</span>
                     </div>
+                    ${actionsHtml}
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function displayFemmes(data = femmesData, searchTerm = '') {
@@ -897,7 +1199,7 @@
             if (clearBtn) clearBtn.style.display = term ? 'flex' : 'none';
 
             if (currentTab === 'hommes') {
-                const filtered = hommesData.filter(m => m.nom.toLowerCase().includes(term));
+                const filtered = hommesData.filter(m => matchMembre(m, term));
                 displayHommes(filtered, term);
                 if (searchCount && term) searchCount.textContent = `${filtered.length} résultat(s)`;
                 else if (searchCount) searchCount.textContent = '';

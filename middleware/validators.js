@@ -36,16 +36,43 @@ const schemas = {
         membre_id: Joi.number().integer().positive().required(),
         mois: Joi.number().integer().min(1).max(12).required(),
         annee: Joi.number().integer().min(2000).max(2100)
+    }),
+
+    membreCreate: Joi.object({
+        nom: Joi.string().min(3).max(100).required(),
+        telephone: Joi.string().pattern(/^[0-9]{8,15}$/).required(),
+        situation: Joi.string().valid('نعم', 'لا').required(),
+        montant: Joi.number().integer().positive(),
+        whatsapp: Joi.string().allow('', null),
+        email: Joi.string().email({ tlds: false }).allow('', null)
+    }),
+
+    membreUpdate: Joi.object({
+        nom: Joi.string().min(3).max(100),
+        telephone: Joi.string().pattern(/^[0-9]{8,15}$/),
+        situation: Joi.string().valid('نعم', 'لا'),
+        montant: Joi.number().integer().positive(),
+        whatsapp: Joi.string().allow('', null),
+        email: Joi.string().email({ tlds: false }).allow('', null),
+        actif: Joi.boolean()
+    }).min(1),
+
+    membreQuery: Joi.object({
+        q: Joi.string().allow('').max(100),
+        actif: Joi.string().valid('all', 'true', 'false'),
+        limit: Joi.number().integer().min(1).max(200),
+        page: Joi.number().integer().min(1)
     })
 };
 
 // Middleware générique de validation
-const validate = (schemaName) => {
+const validate = (schemaName, source = 'body') => {
     return (req, res, next) => {
         const schema = schemas[schemaName];
         if (!schema) return next();
 
-        const { error } = schema.validate(req.body, { abortEarly: false });
+        const data = req[source] === undefined ? {} : req[source];
+        const { error } = schema.validate(data, { abortEarly: false });
         if (error) {
             const errors = error.details.map(d => d.message);
             return res.status(400).json({ success: false, errors });

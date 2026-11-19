@@ -65,8 +65,17 @@ function resultFor(sql, params) {
     if (query.includes('SELECT * FROM payments')) {
         return { rows: [{ membre_id: 1, mois: 1, annee: 2027 }] };
     }
+    if (query.includes('SELECT * FROM membres WHERE id = $1')) {
+        return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
+    }
     if (query.includes('SELECT * FROM membres')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
+    }
+    if (query.includes('INSERT INTO membres')) {
+        return { rows: [{ id: 2 }] };
+    }
+    if (query.includes('UPDATE membres')) {
+        return { rows: [] };
     }
     if (query.includes('DELETE FROM "sessions" WHERE expire')) {
         return { rows: [] };
@@ -106,6 +115,17 @@ test('les routes sensibles exigent une session', async () => {
         const response = await request(app).get(url).expect(401);
         assert.equal(response.body.success, false);
     }
+});
+
+test('les écritures membres exigent une session', async () => {
+    for (const method of ['post', 'put', 'delete']) {
+        const response = await request(app)[method]('/api/membres/1').expect(401);
+        assert.equal(response.body.success, false);
+    }
+    const creation = await request(app).post('/api/membres')
+        .send({ nom: 'Beta', telephone: '00000000', situation: 'لا' })
+        .expect(401);
+    assert.equal(creation.body.success, false);
 });
 
 test('la page liste-membres redirige vers login sans session', async () => {
