@@ -152,6 +152,27 @@ const schemas = {
 
     rsvpToken: Joi.object({
         token: Joi.string().pattern(/^[0-9a-fA-F]{64}$/).required()
+    }),
+
+    journalCreate: Joi.object({
+        nom: Joi.string().trim().min(2).max(100).required().messages({
+            'string.min': "Le nom doit faire au moins 2 caractères.",
+            'string.max': "Le nom ne doit pas dépasser 100 caractères.",
+            'any.required': "Le nom est obligatoire."
+        }),
+        message: Joi.string().trim().min(10).max(2000).required().messages({
+            'string.min': "Le message doit faire au moins 10 caractères.",
+            'string.max': "Le message ne doit pas dépasser 2000 caractères.",
+            'any.required': "Le message est obligatoire."
+        })
+    }),
+
+    journalDecision: Joi.object({
+        statut: Joi.string().valid('publie', 'rejete').required()
+    }),
+
+    journalId: Joi.object({
+        id: Joi.number().integer().positive().required()
     })
 };
 

@@ -47,6 +47,7 @@ npm start
 - Inscriptions a moderer : http://localhost:3000/gestion-inscriptions.html
 - Evenements : http://localhost:3000/gestion-evenements.html
 - Cotisations, depenses et actualites : `/gestion-cotisations.html`, `/gestion-depenses.html`, `/gestion-nouveautes.html`
+- Journal a moderer : `/gestion-journal.html`
 
 Les pages d'administration redirigent vers `/login.html` sans session.
 
@@ -58,5 +59,6 @@ Les pages d'administration redirigent vers `/login.html` sans session.
 - Rappels : `/api/notifications` et `/api/notifications/rappels-cotisations` creent des liens wa.me ; aucun envoi automatique, le statut est mis a jour manuellement via `PATCH /api/notifications/:id`.
 - Exports et recus : `/api/export/membres.csv`, `/api/export/cotisations.csv`, `/api/export/depenses.csv`, `/api/recus/:id`, `/api/recus/membre/:id?mois=&annee=`.
 - Evenements : administration via `/api/admin/evenements`, RSVP public via `POST /api/evenements/:id/rsvp` et annulation par token via `POST /api/rsvp/:token/annuler`.
+- Journal : lecture/depot public via `GET`/`POST /api/journal`, moderation via `GET`/`PATCH`/`DELETE /api/admin/journal`, page `/gestion-journal.html`.
 
 Attention : `npm run finance:reset` vide `payments` et `depenses` puis genere 9 mois de cotisations pour les membres actifs. Sauvegardez la base avant de l'utiliser.

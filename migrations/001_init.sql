@@ -194,3 +194,16 @@ CREATE TABLE IF NOT EXISTS rsvps (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_rsvps_membre ON rsvps(evenement_id, membre_id) WHERE membre_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_rsvps_telephone ON rsvps(evenement_id, telephone) WHERE membre_id IS NULL AND telephone IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS journal_entries (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    statut VARCHAR(20) NOT NULL DEFAULT 'en_attente' CHECK (statut IN ('en_attente', 'publie', 'rejete')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    publie_at TIMESTAMPTZ,
+    traite_at TIMESTAMPTZ,
+    traite_par VARCHAR(100)
+);
+
+CREATE INDEX IF NOT EXISTS idx_journal_entries_statut_created_at ON journal_entries(statut, created_at DESC);

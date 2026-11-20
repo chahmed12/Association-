@@ -46,7 +46,7 @@ app.use(compression());
 
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: process.env.NODE_ENV === 'test' ? 10000 : 100,
     message: "Trop de requêtes, veuillez réessayer plus tard."
 });
 
@@ -64,6 +64,15 @@ const rsvpLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: "Trop de requêtes RSVP, veuillez réessayer plus tard."
+});
+
+const journalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => req.method !== 'POST',
+    message: "Trop de messages envoyés, veuillez réessayer plus tard."
 });
 
 app.set('trust proxy', 1);
@@ -96,10 +105,12 @@ app.use(session({
 
 // 3. ROUTES STATIQUES & PAGES PROTÉGÉES
 // Ajout d'un cache de 7 jours pour soulager le serveur sur les fichiers statiques (images, css, js)
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
+app.use(express.static(path.join(__dirname, 'public'), { index: false, maxAge: '7d' }));
+
+app.get('/index.html', (req, res) => res.redirect(308, '/'));
 
 app.get('/', (req, res) => {
-    res.render('index', { title: 'Accueil' });
+    res.render('premium', { title: 'Accueil' });
 });
 
 // Accès aux pages admin
@@ -111,11 +122,13 @@ app.get('/gestion-nouveautes.html', isAuthenticated, (req, res) => res.sendFile(
 app.get('/gestion-notifications.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-notifications.html')));
 app.get('/gestion-inscriptions.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-inscriptions.html')));
 app.get('/gestion-evenements.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-evenements.html')));
+app.get('/gestion-journal.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-journal.html')));
 
 // 4. ROUTES API
 // On applique le limiteur uniquement sur les requêtes API (et non sur les fichiers statiques)
 app.use('/api', globalLimiter);
 app.use('/api/evenements/:id/rsvp', rsvpLimiter);
+app.use('/api/journal', journalLimiter);
 app.use('/api', apiRoutes);
 
 app.get('/logout', (req, res) => {

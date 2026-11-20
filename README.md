@@ -61,7 +61,8 @@ Sous Windows, utiliser `copy .env.example .env` puis renseigner le fichier avant
 | Variable | Description |
 |---|---|
 | `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` | Connexion PostgreSQL |
-| `PORT` | Port HTTP, valeur par défaut `3000` |
+| `PGSSLMODE` | `require` pour Neon et la plupart des bases managées |
+| `PORT` | Port HTTP en local, valeur par défaut `3000` ; inutile sur Vercel |
 | `NODE_ENV` | `production` active les cookies sécurisés |
 | `SESSION_SECRET` | Obligatoire au démarrage ; chaîne aléatoire longue |
 | `CORS_ORIGIN` | Origines autorisées séparées par des virgules ; vide signifie même origine |
@@ -69,7 +70,7 @@ Sous Windows, utiliser `copy .env.example .env` puis renseigner le fichier avant
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Identifiants utilisés par `npm run db:seed` |
 | `PAYMENT_AUTOMATION_KEY` | Réservé à la route `/api/paiement-auto`, actuellement non implémentée |
 
-Aucune valeur secrète réelle n'est versionnée. `.env` reste local et `.env.example` ne contient que des modèles.
+Aucune valeur secrète réelle n'est versionnée. `.env` reste local et `.env.example` ne contient que des modèles. Pour le déploiement Vercel, voir `DEPLOIEMENT.md`.
 
 ## Scripts disponibles
 
@@ -163,21 +164,33 @@ La page publique `/carte.html` permet de vérifier un token et de télécharger 
 
 Les pages associées sont `/agenda.html` pour le public et `/gestion-evenements.html` pour l'administration. La capacité bloque les nouveaux RSVP `oui` mais autorise la mise à jour d'une réponse existante. Les doublons sont évités par membre ou par numéro de téléphone pour un même événement.
 
+### Journal
+
+| Route | Rôle |
+|---|---|
+| `GET /api/journal` | Contributions publiées, lecture publique non limitée |
+| `POST /api/journal` | Dépôt public d'un message `nom + message + date`, modéré avant publication |
+| `GET /api/admin/journal` | Liste filtrable `statut=publie|en_attente|rejete` avec session |
+| `PATCH /api/admin/journal/:id` | Publication ou rejet avec session |
+| `DELETE /api/admin/journal/:id` | Suppression avec session |
+
+La page publique est la section « سجل الرابطة — Journal de l’association » de `/`. La modération se fait dans `/gestion-journal.html`. Seules les contributions `publie` sont renvoyées au public.
+
 ### Pages
 
 | Type | Pages |
 |---|---|
 | Publiques | `/`, `/inscription-hommes.html`, `/inscription-femmes.html`, `/suivi-dons.html`, `/nouveautes.html`, `/agenda.html`, `/carte.html`, `/login.html` |
-| Administrateur | `/admin.html`, `/liste-membres.html`, `/gestion-cotisations.html`, `/gestion-depenses.html`, `/gestion-nouveautes.html`, `/gestion-notifications.html`, `/gestion-inscriptions.html`, `/gestion-evenements.html` |
+| Administrateur | `/admin.html`, `/liste-membres.html`, `/gestion-cotisations.html`, `/gestion-depenses.html`, `/gestion-nouveautes.html`, `/gestion-notifications.html`, `/gestion-inscriptions.html`, `/gestion-evenements.html`, `/gestion-journal.html` |
 
 ## Modèle de sécurité
 
 - `SESSION_SECRET` est obligatoire au démarrage et aucune valeur secrète n'est codée en dur.
 - Une session est régénérée après un `/api/login` réussi afin de prévenir la fixation de session.
 - Helmet applique une politique de sécurité ; CORS est désactivé par défaut et les cookies utilisent `SameSite=Lax`, avec l'attribut `Secure` en production.
-- Trois limiteurs de débit protègent l'API globale, `/api/login` et les RSVP publics.
-- Les écritures membres, la gestion des cotisations, des dépenses, des actualités, des notifications, des inscriptions et des événements exigent une session administrateur.
-- Les visiteurs accèdent uniquement aux routes publiques : statistiques, cotisations agrégées, actualités, inscriptions, carte, événements et RSVP.
+- Quatre limiteurs de débit protègent l'API globale, `/api/login`, les RSVP publics et le dépôt `POST /api/journal` ; `GET /api/journal` n'est pas limité.
+- Les écritures membres, la gestion des cotisations, des dépenses, des actualités, des notifications, des inscriptions, des événements et la modération du journal exigent une session administrateur.
+- Les visiteurs accèdent uniquement aux routes publiques : statistiques, cotisations agrégées, actualités, inscriptions, carte, événements, RSVP et lecture/dépôt du journal.
 - Les routes publiques n'exposent ni montants, ni numéros de téléphone, ni jetons d'administration.
 - Les mots de passe sont hachés avec Bcrypt et les entrées validées avec Joi.
 - Les données injectées dans le DOM sont échappées avec `escapeHtml` et `escapeJs` via `public/js/utils.js`.
@@ -185,7 +198,7 @@ Les pages associées sont `/agenda.html` pour le public et `/gestion-evenements.
 
 ## Données et maintenance
 
-Le schéma complet est décrit dans `migrations/001_init.sql`. Il couvre les tables `membres`, `femmes`, `payments`, `depenses`, `nouveautes`, `admins`, `paiement_logs`, `export_logs`, `notifications`, `notification_preferences`, `inscriptions`, `evenements` et `rsvps`.
+Le schéma complet est décrit dans `migrations/001_init.sql`. Il couvre les tables `membres`, `femmes`, `payments`, `depenses`, `nouveautes`, `admins`, `paiement_logs`, `export_logs`, `notifications`, `notification_preferences`, `inscriptions`, `evenements`, `rsvps` et `journal_entries`.
 
 Les colonnes ajoutées aux membres sont `whatsapp`, `actif`, `deleted_at`, `updated_at`, `email`, `photo_url`, `numero_adherent`, `source`, `carte_token` et `carte_expire_le`. Les colonnes ajoutées aux paiements sont `annee`, `created_at`, `numero_recu` et `montant_snapshot`.
 

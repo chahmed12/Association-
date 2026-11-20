@@ -45,6 +45,7 @@ database_export*.sql
 # Si vous permettez l'upload de photos de membres, ne pas les mettre sur Git
 uploads/
 images/temp/
+/public/index-3d-test.html
 
 # --- Logs du serveur ---
 logs/

@@ -1,0 +1,4 @@
+.env
+.env.*
+test/
+public/index-3d-test.html

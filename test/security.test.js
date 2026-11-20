@@ -23,6 +23,11 @@ const evenements = [
     { id: 3, titre: 'Evenement Passe', description: 'Description', lieu: 'Jeddah', date_debut: '2020-01-01T10:00:00Z', date_fin: null, image_url: null, capacite: 1, statut: 'publie' }
 ];
 const rsvps = [];
+let journalCreatedId = null;
+const journalEntries = [
+    { id: 1, nom: 'Auteur Public', message: 'Message public approuve par ladministration.', statut: 'publie', created_at: '2026-11-20T10:00:00Z', publie_at: '2026-11-20T10:01:00Z', traite_at: '2026-11-20T10:01:00Z', traite_par: 'admin' },
+    { id: 2, nom: 'Auteur Attente', message: 'Message en attente de moderation ici.', statut: 'en_attente', created_at: '2026-11-20T11:00:00Z', publie_at: null, traite_at: null, traite_par: null }
+];
 
 function evenementPublic(event) {
     const publicEvent = {};
@@ -231,6 +236,43 @@ function resultFor(sql, params) {
     if (query.includes('FROM rsvps r LEFT JOIN membres')) {
         return { rows: rsvps.filter(r => String(r.evenement_id) === String(params[0])).map(r => ({ ...r, membre_nom: null })) };
     }
+    if (query.includes("FROM journal_entries WHERE statut = 'publie'")) {
+        return { rows: journalEntries.filter(entry => entry.statut === 'publie').map(entry => ({ id: entry.id, nom: entry.nom, message: entry.message, publie_at: entry.publie_at })) };
+    }
+    if (query.includes('INSERT INTO journal_entries')) {
+        const entry = {
+            id: journalEntries.length + 1,
+            nom: params[0],
+            message: params[1],
+            statut: 'en_attente',
+            created_at: new Date().toISOString(),
+            publie_at: null,
+            traite_at: null,
+            traite_par: null
+        };
+        journalEntries.push(entry);
+        return { rows: [{ id: entry.id, nom: entry.nom, message: entry.message, statut: entry.statut, created_at: entry.created_at }] };
+    }
+    if (query.includes('FROM journal_entries') && query.includes('ORDER BY created_at DESC')) {
+        let rows = journalEntries;
+        if (params.length > 0) rows = rows.filter(entry => entry.statut === params[0]);
+        return { rows: rows.map(entry => ({ ...entry })) };
+    }
+    if (query.includes('UPDATE journal_entries')) {
+        const entry = journalEntries.find(item => String(item.id) === String(params[2]));
+        if (!entry) return { rowCount: 0, rows: [] };
+        entry.statut = params[0];
+        entry.publie_at = params[0] === 'publie' ? new Date().toISOString() : entry.publie_at;
+        entry.traite_at = new Date().toISOString();
+        entry.traite_par = params[1];
+        return { rowCount: 1, rows: [{ ...entry }] };
+    }
+    if (query.includes('DELETE FROM journal_entries')) {
+        const index = journalEntries.findIndex(entry => String(entry.id) === String(params[0]));
+        if (index < 0) return { rowCount: 0, rows: [] };
+        journalEntries.splice(index, 1);
+        return { rowCount: 1, rows: [] };
+    }
     return { rows: [] };
 }
 
@@ -267,7 +309,7 @@ test('les routes sensibles exigent une session', async () => {
         '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
         '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
         '/api/notifications', '/api/membres/1/preferences',
-        '/api/admin/evenements', '/api/evenements/1/rsvps'
+        '/api/admin/evenements', '/api/admin/journal', '/api/evenements/1/rsvps'
     ]) {
         const response = await request(app).get(url).expect(401);
         assert.equal(response.body.success, false);
@@ -285,6 +327,9 @@ test('les routes sensibles exigent une session', async () => {
     const patchRes = await request(app).patch('/api/notifications/1').send({ action: 'envoye' }).expect(401);
     assert.equal(patchRes.body.success, false);
 
+    const journalPatch = await request(app).patch('/api/admin/journal/1').send({ statut: 'publie' }).expect(401);
+    assert.equal(journalPatch.body.success, false);
+
     const putRes = await request(app).put('/api/membres/1/preferences').send({ whatsapp_optin: true }).expect(401);
     assert.equal(putRes.body.success, false);
 
@@ -293,6 +338,9 @@ test('les routes sensibles exigent une session', async () => {
 
     const eventDelete = await request(app).delete('/api/evenements/1').expect(401);
     assert.equal(eventDelete.body.success, false);
+
+    const journalDelete = await request(app).delete('/api/admin/journal/1').expect(401);
+    assert.equal(journalDelete.body.success, false);
 });
 
 test('les écritures membres exigent une session', async () => {
@@ -320,6 +368,10 @@ test('la page gestion-inscriptions redirige vers login sans session', async () =
 
 test('la page gestion-evenements redirige vers login sans session', async () => {
     await request(app).get('/gestion-evenements.html').expect(302).expect('Location', '/login.html');
+});
+
+test('la page gestion-journal redirige vers login sans session', async () => {
+    await request(app).get('/gestion-journal.html').expect(302).expect('Location', '/login.html');
 });
 
 test('les evenements publics n exposent que les champs autorises', async () => {
@@ -553,6 +605,72 @@ test('toggle cotisation refuse les parametres invalides', async () => {
         const response = await agent.post('/api/cotisations/toggle').send(payload).expect(400);
         assert.equal(response.body.success, false);
     }
+});
+
+test('/index.html redirige vers la racine premium', async () => {
+    const response = await request(app).get('/index.html').expect(308);
+    assert.equal(response.headers.location, '/');
+});
+
+test('le journal public n expose que les contributions publiees', async () => {
+    const response = await request(app).get('/api/journal').expect(200);
+    assert.equal(response.body.success, true);
+    assert.equal(response.body.entries.length, 1);
+    assert.deepEqual(Object.keys(response.body.entries[0]).sort(), ['id', 'message', 'nom', 'publie_at']);
+    assert.equal(response.body.entries[0].statut, undefined);
+    assert.equal(response.body.entries[0].created_at, undefined);
+});
+
+test('le GET du journal n est pas soumis au limiteur de messages', async () => {
+    for (let i = 0; i < 7; i += 1) {
+        const response = await request(app).get('/api/journal').expect(200);
+        assert.equal(response.body.success, true);
+    }
+});
+
+test('le journal public cree une contribution en attente et valide les donnees', async () => {
+    const created = await request(app).post('/api/journal')
+        .send({ nom: 'Nouvel Auteur', message: 'Bonjour depuis le public du site.' })
+        .expect(201);
+    assert.equal(created.body.success, true);
+    assert.equal(created.body.entry.statut, 'en_attente');
+    journalCreatedId = created.body.entry.id;
+
+    const invalid = await request(app).post('/api/journal')
+        .send({ nom: 'A', message: 'court' })
+        .expect(400);
+    assert.equal(invalid.body.success, false);
+});
+
+test('moderation du journal par un admin', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const liste = await agent.get('/api/admin/journal').expect(200);
+    assert.equal(liste.body.entries.length, 3);
+
+    const enAttente = await agent.get('/api/admin/journal?statut=en_attente').expect(200);
+    assert.equal(enAttente.body.entries.length, 2);
+    assert.ok(enAttente.body.entries.every(entry => entry.statut === 'en_attente'));
+
+    const publie = await agent.patch(`/api/admin/journal/${journalCreatedId}`)
+        .send({ statut: 'publie' })
+        .expect(200);
+    assert.equal(publie.body.entry.statut, 'publie');
+    assert.ok(publie.body.entry.publie_at);
+
+    await agent.patch('/api/admin/journal/abc').send({ statut: 'publie' }).expect(400);
+    await agent.patch('/api/admin/journal/999').send({ statut: 'publie' }).expect(404);
+    await agent.patch('/api/admin/journal/1').send({ statut: 'autre' }).expect(400);
+
+    const publies = await agent.get('/api/admin/journal?statut=publie').expect(200);
+    assert.equal(publies.body.entries.length, 2);
+
+    await agent.delete(`/api/admin/journal/${journalCreatedId}`).expect(200);
+    const apresSuppression = await agent.get('/api/admin/journal').expect(200);
+    assert.equal(apresSuppression.body.entries.length, 2);
 });
 
 test('une route API inconnue renvoie un JSON 404', async () => {

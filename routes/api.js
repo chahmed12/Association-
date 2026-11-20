@@ -1729,4 +1729,63 @@ router.post('/rsvp/:token/annuler', validate('rsvpToken', 'params'), (req, res) 
     );
 });
 
+router.get('/journal', async (req, res) => {
+    try {
+        const result = await queryAsync(
+            `SELECT id, nom, message, publie_at FROM journal_entries WHERE statut = 'publie' ORDER BY publie_at DESC LIMIT 50`
+        );
+        res.json({ success: true, entries: result.rows });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.post('/journal', validate('journalCreate'), async (req, res) => {
+    try {
+        const result = await queryAsync(
+            `INSERT INTO journal_entries (nom, message, statut) VALUES ($1, $2, 'en_attente') RETURNING id, nom, message, statut, created_at`,
+            [req.body.nom, req.body.message]
+        );
+        res.status(201).json({ success: true, entry: result.rows[0], message: 'Message en attente de modération' });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.get('/admin/journal', isAuthenticated, async (req, res) => {
+    const statut = ['en_attente', 'publie', 'rejete'].includes(req.query.statut) ? req.query.statut : null;
+    const sql = statut
+        ? `SELECT id, nom, message, statut, created_at, publie_at, traite_at, traite_par FROM journal_entries WHERE statut = $1 ORDER BY created_at DESC`
+        : `SELECT id, nom, message, statut, created_at, publie_at, traite_at, traite_par FROM journal_entries ORDER BY created_at DESC`;
+    try {
+        const result = await queryAsync(sql, statut ? [statut] : []);
+        res.json({ success: true, entries: result.rows });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.patch('/admin/journal/:id', isAuthenticated, validate('journalId', 'params'), validate('journalDecision'), async (req, res) => {
+    try {
+        const result = await queryAsync(
+            `UPDATE journal_entries SET statut = $1::varchar, publie_at = CASE WHEN $1::varchar = 'publie' THEN NOW() ELSE publie_at END, traite_at = NOW(), traite_par = $2 WHERE id = $3 RETURNING id, nom, message, statut, publie_at, traite_at, traite_par`,
+            [req.body.statut, req.session.username || 'admin', Number(req.params.id)]
+        );
+        if (!result || result.rowCount === 0) return res.status(404).json({ success: false, message: 'Journal introuvable' });
+        res.json({ success: true, entry: result.rows[0] });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.delete('/admin/journal/:id', isAuthenticated, validate('journalId', 'params'), async (req, res) => {
+    try {
+        const result = await queryAsync(`DELETE FROM journal_entries WHERE id = $1`, [Number(req.params.id)]);
+        if (!result || result.rowCount === 0) return res.status(404).json({ success: false, message: 'Journal introuvable' });
+        res.json({ success: true });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
 module.exports = router;
