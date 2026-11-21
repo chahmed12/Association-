@@ -294,17 +294,16 @@
 </head>
 
 <body class="min-h-screen flex flex-col">
+    <a href="/admin.html" class="ajj-back ajj-back--fixed ajj-back--with-dark" aria-label="العودة إلى لوحة التحكم / Retour au tableau de bord">
+  <svg class="ajj-back__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+  <span>لوحة التحكم</span>
+  <span class="ajj-back__fr" lang="fr">Retour Dashboard</span>
+</a>
 
     <!-- Dark Mode Toggle -->
     <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
 
-    <!-- Scroll To Top -->
-    <button id="scrollTop"
-        onclick="window.scrollTo({top:0,behavior:'smooth'})"
-        title="Retour en haut"
-        style="position:fixed;bottom:6rem;left:1rem;z-index:999;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.4);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
-        ↑
-    </button>
+    <button id="scrollTop" class="ajj-back-top" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="العودة إلى الأعلى / Retour en haut" aria-label="العودة إلى الأعلى / Retour en haut"><span aria-hidden="true">↑</span></button>
 
     <!-- ===== HEADER ===== -->
     <header class="glass-header text-white shadow-2xl relative overflow-hidden no-print">
@@ -312,27 +311,7 @@
         </div>
         <div class="container mx-auto px-4 py-8 md:py-12 relative z-10 text-center">
 
-            <div class="flex items-center justify-between mb-4">
-                <a href="/admin.html"
-                    class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2 px-6 rounded-full transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] hidden"
-                    id="adminBackButton">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    <span class="font-inter text-sm">Retour Admin</span>
-                </a>
 
-                <a href="/"
-                    class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2 px-6 rounded-full transition duration-300 flex items-center justify-center gap-2 backdrop-blur-sm shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                    id="homeBackButton">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    <span class="font-inter text-sm">Retour à l'accueil</span>
-                </a>
-            </div>
 
             <h1 class="text-4xl md:text-5xl font-extrabold mb-2 tracking-tight drop-shadow-lg font-cairo">
                 قائمة <span class="text-green-300">الأعضاء</span>
@@ -976,8 +955,6 @@
                     const data = await res.json();
                     if (data.authenticated) {
                         isAuthenticated = true;
-                        document.getElementById('adminBackButton').classList.remove('hidden');
-                        document.getElementById('homeBackButton').classList.add('hidden');
                         document.getElementById('addMemberBtn').classList.remove('hidden');
                     }
                 }

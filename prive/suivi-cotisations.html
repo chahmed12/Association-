@@ -241,17 +241,16 @@
 </head>
 
 <body class="min-h-screen flex flex-col text-gray-800">
+    <a href="/admin.html" class="ajj-back ajj-back--fixed ajj-back--with-dark" aria-label="العودة إلى لوحة التحكم / Retour au tableau de bord">
+  <svg class="ajj-back__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+  <span>لوحة التحكم</span>
+  <span class="ajj-back__fr" lang="fr">Retour Dashboard</span>
+</a>
 
     <!-- Dark Mode Toggle -->
     <button id="darkToggle" onclick="toggleDark()" title="Mode sombre">🌙</button>
 
-    <!-- Scroll To Top -->
-    <button id="scrollTop"
-        onclick="window.scrollTo({top:0,behavior:'smooth'})"
-        title="Retour en haut"
-        style="position:fixed;bottom:2rem;left:1rem;z-index:999;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.4);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
-        ↑
-    </button>
+    <button id="scrollTop" class="ajj-back-top" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="العودة إلى الأعلى / Retour en haut" aria-label="العودة إلى الأعلى / Retour en haut"><span aria-hidden="true">↑</span></button>
 
     <!-- Header -->
     <header class="glass-header text-white shadow-2xl relative overflow-hidden">
@@ -264,16 +263,7 @@
             <p class="text-sm md:text-base text-green-200 mt-2 font-inter opacity-90">(Décembre 2026 - Août 2027)</p>
 
 
-            <div class="mt-8 flex justify-center">
-                <a href="/"
-                    class="inline-flex items-center gap-3 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full backdrop-blur-sm transition border border-white/20 shadow-lg hover:shadow-[0_0_15px_rgba(255,255,255,0.3)] font-inter font-bold">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    <span>Retour à l'accueil</span>
-                </a>
-            </div>
+
         </div>
 
         <!-- Bottom Wave SVG -->

@@ -102,13 +102,10 @@
 
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <a href="/"
-        class="fixed top-4 left-4 bg-white/40 hover:bg-white/60 backdrop-blur-md text-gray-800 font-bold py-2 px-4 rounded-xl shadow-md transition duration-300 flex items-center gap-2 text-sm z-50 border border-white/50">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
-            </path>
-        </svg>
-        <span class="font-inter">Retour</span>
+    <a href="/" class="ajj-back ajj-back--fixed" aria-label="العودة إلى الرئيسية / Retour à l'accueil">
+        <svg class="ajj-back__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>العودة إلى الرئيسية</span>
+        <span class="ajj-back__fr" lang="fr">Retour à l'accueil</span>
     </a>
 
     <div class="glass-card rounded-3xl w-full max-w-md overflow-hidden relative border-t-4 border-green-500 shadow-2xl">
@@ -166,11 +163,6 @@
 
             <div id="formMessage" class="hidden mt-6 rounded-2xl border border-green-200 bg-white/90 p-6 shadow-inner"
                 role="status"></div>
-
-            <a href="/"
-                class="mt-6 inline-block text-sm font-bold text-green-700 hover:text-green-900 underline font-inter">
-                العودة إلى الرئيسية / Retour à l'accueil
-            </a>
         </div>
 
         <div class="bg-gray-100/80 p-4 text-center text-xs text-gray-500 border-t border-gray-200/50 font-inter">

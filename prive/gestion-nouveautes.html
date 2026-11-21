@@ -66,15 +66,18 @@
 </head>
 
 <body class="bg-gray-100 min-h-screen p-8">
+    <a href="/admin.html" class="ajj-back ajj-back--fixed" aria-label="العودة إلى لوحة التحكم / Retour au tableau de bord">
+  <svg class="ajj-back__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+  <span>لوحة التحكم</span>
+  <span class="ajj-back__fr" lang="fr">Retour Dashboard</span>
+</a>
     <a href="/logout" class="text-red-500 hover:text-red-700 font-bold ml-4">
         Déconnexion (خروج)
     </a>
     <div class="max-w-2xl mx-auto">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="bg-gradient-to-r from-amber-600 to-amber-600 p-6 text-center relative">
-                <a href="/admin.html" class="absolute left-4 top-4 text-white/80 hover:text-white font-bold text-sm">
-                    ← Retour Dashboard
-                </a>
+
                 <h1 class="text-white text-3xl font-bold">Administration</h1>
                 <p class="text-green-100 text-sm mt-1">Ajouter une nouveauté</p>
             </div>
@@ -162,10 +165,9 @@
         </div>
 
         <div class="mt-6 text-center">
-            <a href="/" class="text-green-600 hover:text-green-800 font-semibold">← Retour à l'accueil</a>
+            <a href="/" class="ajj-exit-link" aria-label="زيارة الموقع العمومي / Voir le site public"><span aria-hidden="true">↗</span><span>زيارة الموقع العمومي / Voir le site public</span></a>
             <span class="mx-4 text-gray-400">|</span>
-            <a href="/nouveautes.html" class="text-green-600 hover:text-green-800 font-semibold">Voir les nouveautés
-                →</a>
+            <a href="/nouveautes.html" class="ajj-exit-link" aria-label="عرض المستجدات / Voir les nouveautés"><span aria-hidden="true">↗</span><span>عرض المستجدات / Voir les nouveautés</span></a>
         </div>
     </div>
 
