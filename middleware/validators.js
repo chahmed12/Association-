@@ -128,7 +128,7 @@ const schemas = {
         lieu: Joi.string().allow('', null).max(255),
         date_debut: Joi.date().iso().required(),
         date_fin: Joi.date().iso().allow(null, ''),
-        capacite: Joi.number().integer().positive().allow(null),
+        capacite: Joi.number().integer().positive().allow(null, ''),
         statut: Joi.string().valid('brouillon', 'publie', 'annule').default('brouillon')
     }),
 
@@ -138,7 +138,7 @@ const schemas = {
         lieu: Joi.string().allow('', null).max(255),
         date_debut: Joi.date().iso(),
         date_fin: Joi.date().iso().allow(null, ''),
-        capacite: Joi.number().integer().positive().allow(null),
+        capacite: Joi.number().integer().positive().allow(null, ''),
         statut: Joi.string().valid('brouillon', 'publie', 'annule')
     }),
 

@@ -570,6 +570,27 @@ test('administration des evenements et liste des rsvps', async () => {
     assert.equal(rsvpsList.body.rsvps[0].telephone, '12345678');
 });
 
+test('la capacite vide est acceptee et enregistree comme illimitee', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const created = await agent.post('/api/evenements').send({
+        titre: 'Evenement Sans Capacite',
+        date_debut: '2032-01-01T10:00:00Z',
+        capacite: '',
+        statut: 'brouillon'
+    }).expect(201);
+    assert.equal(created.body.id, 10);
+
+    const list = await agent.get('/api/admin/evenements').expect(200);
+    const event = list.body.evenements.find(item => String(item.id) === '10');
+    assert.equal(event.capacite, null);
+
+    await agent.put('/api/evenements/10').send({ capacite: '' }).expect(200);
+});
+
 test('inscription publique exige le consentement', () => avecInscriptionsOuvertes(async () => {
     const response = await request(app).post('/api/inscriptions')
         .send({ nom: 'Candidat Test', telephone: '12345678', situation: 'لا' })

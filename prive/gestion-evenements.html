@@ -446,7 +446,8 @@
                 }
                 const resultat = await reponse.json();
                 if (!reponse.ok || !resultat.success) {
-                    afficherMessage(resultat.message || 'Erreur lors de l\'enregistrement', true);
+                    const details = Array.isArray(resultat.errors) ? resultat.errors.join(' · ') : resultat.message;
+                    afficherMessage(details || 'Erreur lors de l\'enregistrement', true);
                     return;
                 }
                 afficherMessage(editingId ? 'Événement mis à jour avec succès.' : 'Événement créé avec succès.', false);

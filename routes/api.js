@@ -365,6 +365,28 @@ const uploadProof = multer({
     fileFilter: imageFileFilter
 });
 
+function handleImageUpload(middleware) {
+    return (req, res, next) => {
+        middleware(req, res, (err) => {
+            if (!err) return next();
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ success: false, message: 'Image trop volumineuse (5 Mo maximum).' });
+            }
+            if (/^Uniquement des images/i.test(err.message || '')) {
+                return res.status(400).json({ success: false, message: err.message });
+            }
+            console.error('Erreur upload image:', err.message || err);
+            return res.status(503).json({
+                success: false,
+                message: 'Stockage d’images indisponible. Vérifiez CLOUDINARY_URL sur Vercel.'
+            });
+        });
+    };
+}
+
+const uploadImage = handleImageUpload(upload.single('image'));
+const uploadProofImage = handleImageUpload(uploadProof.single('image'));
+
 const preuveSelect = `SELECT id, mois, annee, image_url, created_at, uploaded_by FROM payment_proofs`;
 
 // ═══════════════════════════════════════════════════════════════
@@ -511,7 +533,7 @@ router.delete('/depenses/:id', isAuthenticated, (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 //  4. NOUVEAUTÉS
 // ═══════════════════════════════════════════════════════════════
-router.post('/nouveautes', isAuthenticated, upload.single('image'), (req, res) => {
+router.post('/nouveautes', isAuthenticated, uploadImage, (req, res) => {
     const { titre } = req.body;
     const imageUrl = req.file ? req.file.path : null;
     if (!imageUrl) return res.status(400).json({ success: false, message: 'Image requise.' });
@@ -634,7 +656,7 @@ router.get('/membres/:id/preuves', isAuthenticated, validate('preuveId', 'params
     });
 });
 
-router.post('/membres/:id/preuves', isAuthenticated, validate('preuveId', 'params'), uploadProof.single('image'), validate('preuveCreate'), async (req, res) => {
+router.post('/membres/:id/preuves', isAuthenticated, validate('preuveId', 'params'), uploadProofImage, validate('preuveCreate'), async (req, res) => {
     try {
         const found = await queryAsync('SELECT id FROM membres WHERE id = $1', [req.params.id]);
         const membres = found && found.rows ? found.rows : [];
@@ -1694,7 +1716,7 @@ router.get('/evenements/:id', (req, res) => {
     );
 });
 
-router.post('/evenements', isAuthenticated, upload.single('image'), validate('evenementCreate'), (req, res) => {
+router.post('/evenements', isAuthenticated, uploadImage, validate('evenementCreate'), (req, res) => {
     const { titre, description, lieu, date_debut, date_fin, capacite, statut } = req.body;
     const imageUrl = req.file ? req.file.path : null;
     db.query('SELECT id FROM admins WHERE username = $1', [req.session.username], (err, adminResult) => {
@@ -1715,7 +1737,7 @@ router.post('/evenements', isAuthenticated, upload.single('image'), validate('ev
     });
 });
 
-router.put('/evenements/:id', isAuthenticated, upload.single('image'), validate('evenementUpdate'), (req, res) => {
+router.put('/evenements/:id', isAuthenticated, uploadImage, validate('evenementUpdate'), (req, res) => {
     const fields = [];
     const values = [];
     const add = (column, value) => {
