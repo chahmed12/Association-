@@ -852,6 +852,121 @@
             .structure-grid { grid-template-columns: 1fr; }
             .structure-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
         }
+        .gallery-album { margin-bottom: 52px; }
+        .gallery-album-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+        .gallery-album-head h3 { margin-block: 6px; font-size: clamp(1.5rem,3.2vw,2.2rem); line-height: 1.2; }
+        .gallery-album-head p { max-width: 560px; color: var(--text-secondary); font-size: 13px; line-height: 1.8; }
+        .gallery-album-count {
+            flex: none;
+            padding: 10px 16px;
+            border: 1px solid rgba(216,170,85,.35);
+            border-radius: 999px;
+            background: rgba(216,170,85,.12);
+            color: var(--ajj-gold);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .gallery-bento { display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); grid-auto-rows: 104px; gap: 14px; }
+        .gallery-tile {
+            position: relative;
+            grid-column: span 4;
+            grid-row: span 2;
+            overflow: hidden;
+            border-radius: 24px;
+            background: var(--ajj-deep);
+            border: 1px solid rgba(233,215,180,.16);
+            box-shadow: 0 18px 44px rgba(6,44,42,.16);
+            isolation: isolate;
+        }
+        .gallery-tile--hero { grid-area: 1 / 1 / 6 / 8; }
+        .gallery-tile--slot-2 { grid-area: 1 / 8 / 6 / 13; }
+        .gallery-tile--slot-3 { grid-area: 6 / 1 / 8 / 7; }
+        .gallery-tile--slot-4 { grid-area: 6 / 7 / 8 / 13; }
+        .gallery-tile--slot-5 { grid-area: 8 / 1 / 12 / 7; }
+        .gallery-tile--slot-6 { grid-area: 8 / 7 / 12 / 13; }
+        .gallery-tile::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(180deg,rgba(6,44,42,.04) 0%,rgba(6,44,42,.12) 42%,rgba(6,44,42,.88) 100%);
+            pointer-events: none;
+        }
+        .gallery-tile-button { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+        .gallery-tile-button img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--focus, center); filter: saturate(1.04); transition: transform .7s ease, filter .7s ease; }
+        .gallery-tile-button:hover img, .gallery-tile-button:focus-visible img { transform: scale(1.06); filter: saturate(1.14); }
+        .gallery-tile-button:focus-visible { outline: 3px solid var(--ajj-gold); outline-offset: -5px; }
+        .gallery-tile-year {
+            position: absolute;
+            top: 12px;
+            inset-inline-end: 12px;
+            z-index: 3;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(216,170,85,.9);
+            color: var(--ajj-deep);
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .08em;
+        }
+        .gallery-tile-label {
+            position: absolute;
+            inset-inline: 0;
+            bottom: 0;
+            z-index: 3;
+            display: grid;
+            gap: 4px;
+            padding: 18px;
+            color: #fff;
+            text-align: start;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity .4s ease, transform .4s ease;
+            pointer-events: none;
+        }
+        .gallery-tile:hover .gallery-tile-label, .gallery-tile:focus-within .gallery-tile-label { opacity: 1; transform: none; }
+        .gallery-tile-label strong { font-size: 15px; line-height: 1.4; }
+        .gallery-tile-label span { color: rgba(255,255,255,.76); font-size: 11px; line-height: 1.6; }
+        .gallery-tile--hero .gallery-tile-label strong { font-size: clamp(18px,2.4vw,26px); }
+        .gallery-subhead { margin: 0 0 18px; color: var(--text-secondary); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+        @media (max-width: 900px) {
+            .gallery-bento { grid-template-columns: repeat(2,minmax(0,1fr)); grid-auto-rows: 140px; }
+            .gallery-tile, .gallery-tile--hero, .gallery-tile--wide, .gallery-tile--tall, .gallery-tile--normal { grid-area: auto; }
+            .gallery-tile--slot-1, .gallery-tile--slot-4 { grid-column: span 2; }
+            .gallery-tile--slot-1 { grid-row: span 3; }
+            .gallery-tile--slot-4 { grid-row: span 2; }
+            .gallery-tile--slot-2, .gallery-tile--slot-3, .gallery-tile--slot-5, .gallery-tile--slot-6 { grid-column: span 1; }
+            .gallery-tile--slot-2, .gallery-tile--slot-3 { grid-row: span 2; }
+            .gallery-tile--slot-5, .gallery-tile--slot-6 { grid-row: span 3; }
+        }
+        @media (max-width: 600px) {
+            .gallery-album-head { align-items: flex-start; flex-direction: column; gap: 10px; }
+            .gallery-bento {
+                display: flex;
+                grid-template-columns: none;
+                grid-auto-rows: none;
+                gap: 12px;
+                margin-inline: -16px;
+                padding: 4px 16px 18px;
+                overflow-x: auto;
+                scroll-snap-type: x mandatory;
+                scrollbar-width: none;
+            }
+            .gallery-bento::-webkit-scrollbar { display: none; }
+            .gallery-tile, .gallery-tile--hero, .gallery-tile--wide, .gallery-tile--tall, .gallery-tile--normal {
+                flex: 0 0 min(84vw,340px);
+                height: 300px;
+                scroll-snap-align: center;
+            }
+            .gallery-tile--hero { flex-basis: min(92vw,380px); height: 350px; }
+            .gallery-tile--tall { flex-basis: min(72vw,300px); height: 350px; }
+            .gallery-tile-label { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .gallery-tile-button img, .gallery-tile-label { transition: none; }
+            .gallery-tile-button:hover img, .gallery-tile-button:focus-visible img { transform: none; }
+        }
         .gallery-section { position: relative; padding: 78px 22px 84px; background: linear-gradient(180deg,var(--bg-grad-2),var(--bg-grad-4)); color: var(--text-primary); overflow: hidden; }
         .gallery-section::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 12% 18%,rgba(16,185,129,.10),transparent 32%),radial-gradient(circle at 88% 82%,rgba(216,170,85,.10),transparent 30%); pointer-events: none; }
         .gallery-shell { position: relative; width: min(1120px,100%); margin-inline: auto; }
@@ -883,6 +998,37 @@
         #galerieNext { inset-inline-end: -8px; }
         #galerieClose { top: 12px; inset-inline-end: 12px; transform: none; }
         body.gallery-open { overflow: hidden; }
+        .gallery-dialog { width: min(1120px,100%); display: grid; gap: 10px; }
+        .gallery-dialog img { max-height: 68vh; }
+        .gallery-lightbox-meta { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+        .gallery-lightbox-meta p { padding-top: 0; text-align: start; }
+        .gallery-counter-visible {
+            flex: none;
+            padding: 7px 12px;
+            border: 1px solid rgba(233,215,180,.35);
+            border-radius: 999px;
+            background: rgba(255,255,255,.08);
+            color: var(--ajj-sand);
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .gallery-thumbs { display: flex; gap: 8px; overflow-x: auto; padding: 5px 2px 8px; scrollbar-width: thin; }
+        .gallery-thumbs button {
+            position: relative;
+            top: auto;
+            inset: auto;
+            flex: none;
+            inline-size: 68px;
+            block-size: 52px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            overflow: hidden;
+            transform: none;
+            opacity: .62;
+        }
+        .gallery-thumbs button:hover, .gallery-thumbs button[aria-current="true"] { opacity: 1; border-color: var(--ajj-gold); }
+        .gallery-thumbs img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
         @media (max-width: 900px) {
             .gallery-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
             .gallery-item:hover { transform: none; }
@@ -892,6 +1038,9 @@
             .gallery-grid { grid-template-columns: 1fr; }
             .gallery-thumb img { height: 230px; }
             .gallery-lightbox { padding: 12px; }
+            .gallery-dialog img { max-height: 60vh; }
+            .gallery-lightbox-meta { align-items: flex-start; flex-direction: column; gap: 8px; }
+            .gallery-thumbs { max-inline-size: 100%; }
             #galeriePrev { inset-inline-start: 2px; }
             #galerieNext { inset-inline-end: 2px; }
         }
@@ -1153,6 +1302,8 @@
         .gallery-lightbox { padding: 12px; }
         .gallery-dialog img { max-height: 70vh; border-radius: 14px; }
         .gallery-lightbox button { width: 48px; height: 48px; min-width: 48px; min-height: 48px; background: rgba(6,44,42,.82); border-color: rgba(233,215,180,.45); }
+        .gallery-thumbs button { inline-size: 68px; block-size: 52px; min-inline-size: 68px; min-block-size: 52px; }
+        .gallery-dialog img { max-height: 58vh; }
         #galeriePrev { inset-inline-start: 4px; }
         #galerieNext { inset-inline-end: 4px; }
         #galerieClose { top: 8px; inset-inline-end: 8px; }
@@ -1474,6 +1625,18 @@
                 <h2 id="galleryTitle">لحظات من حياة الرابطة</h2>
                 <p class="story-lead">صور حقيقية من أنشطة الرابطة ومبادراتها، تُعرض بعد اعتمادها ونشرها.</p>
             </div>
+            <div class="gallery-album reveal">
+                <div class="gallery-album-head">
+                    <div>
+                        <div class="story-eyebrow"><span class="story-eyebrow-dot"></span> ألبوم 2026 <span class="story-eyebrow-en">ALBUM</span></div>
+                        <h3>أحداث الرابطة 2026</h3>
+                        <p>لقطات من فعاليات الرابطة لسنة 2026، بعناوين مستمدة من أسماء الصور.</p>
+                    </div>
+                    <span id="galerie2026Count" class="gallery-album-count" role="status" aria-live="polite">0 صورة — 0 photo</span>
+                </div>
+                <div id="galerie2026Container" class="gallery-bento"></div>
+            </div>
+            <p class="gallery-subhead reveal">صور أخرى من الرابطة — Autres souvenirs de l’association</p>
             <div id="galerieContainer" class="gallery-grid"></div>
         </div>
     </section>
@@ -1482,8 +1645,12 @@
         <div class="gallery-dialog">
             <button id="galerieClose" type="button" aria-label="إغلاق العارض">×</button>
             <img id="galerieImage" alt="">
-            <p id="galerieCaption"></p>
-            <span id="galerieCounter" class="sr-only" aria-live="polite"></span>
+            <div class="gallery-lightbox-meta">
+                <p id="galerieCaption"></p>
+                <span id="galerieCounterVisible" class="gallery-counter-visible" aria-hidden="true"></span>
+                <span id="galerieCounter" class="sr-only" aria-live="polite"></span>
+            </div>
+            <div id="galerieThumbs" class="gallery-thumbs" aria-label="مصنغرات الصور — Miniatures"></div>
             <button id="galeriePrev" type="button" dir="ltr" aria-label="الصورة السابقة">›</button>
             <button id="galerieNext" type="button" dir="ltr" aria-label="الصورة التالية">‹</button>
         </div>
@@ -2592,29 +2759,57 @@
             { src: '/images/galerie/jeddeta-equipe.jpg', alt: 'صورة جماعية لفريق جدة — Photo d’équipe de Jeddah', caption: 'فريق جدة — Équipe de Jeddah', date: '', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 1280, height: 960 },
             { src: '/images/galerie/jeddeta-festival-rabita.jpg', alt: 'مهرجان جدة — Festival de Jeddah', caption: 'مهرجان جدة — Festival de Jeddah', date: '', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 2048, height: 1150 }
         ];
+        const galerie2026Photos = [
+            { src: '/images/galerie/jeddeta-tournoi-classement-semi-final-2026.jpg', alt: 'ترتيب نصف نهائي بطولة جدة 2026 — Classement semi-final du tournoi de Jeddah 2026', caption: 'بطولة جدة — ترتيب نصف النهائي — Tournoi de Jeddah — classement semi-final', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 1024, height: 1536, layout: 'tall', focus: 'center' },
+            { src: '/images/galerie/jeddeta-festival-nuit-2026.jpg', alt: 'مهرجان جدة ليلا 2026 — Festival de Jeddah de nuit 2026', caption: 'مهرجان جدة — ليل — Festival de Jeddah — nuit', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 1536, height: 2048, layout: 'hero', focus: 'center' },
+            { src: '/images/galerie/jeddeta-vert-2026.jpg', alt: 'جدة فيرت 2026 — Jeddeta Vert 2026', caption: 'جدة فيرت — Jeddeta Vert', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 810, height: 1080, layout: 'normal', focus: 'center' },
+            { src: '/images/galerie/jeddeta-vert-event-2026.jpg', alt: 'فعالية جدة فيرت 2026 — Événement Jeddeta Vert 2026', caption: 'جدة فيرت — فعالية — Jeddeta Vert — événement', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 2048, height: 1536, layout: 'wide', focus: 'center' },
+            { src: '/images/galerie/jeddah-festival-nuit-portrait-2026.jpg', alt: 'مهرجان جدة ليلا بصورة عمودية 2026 — Festival de Jeddah de nuit, portrait 2026', caption: 'مهرجان جدة — ليل (عمودي) — Festival de Jeddah — nuit (portrait)', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 720, height: 1280, layout: 'tall', focus: 'center' },
+            { src: '/images/galerie/jeddeta-concours-national-recompenses-admin-2026.jpg', alt: 'تكريم الإدارة في المسابقة الوطنية 2026 — Récompenses des responsables au concours national 2026', caption: 'المسابقة الوطنية — تكريم الإدارة — Concours national — récompenses des responsables', date: '2026', lieu: '', credit: 'رابطة شباب جدة', width: 2048, height: 1150, layout: 'wide', focus: 'center' }
+        ];
         const galerieContainer = document.getElementById('galerieContainer');
+        const galerie2026Container = document.getElementById('galerie2026Container');
+        const galerie2026Count = document.getElementById('galerie2026Count');
         const galerieLightbox = document.getElementById('galerieLightbox');
         const galerieImage = document.getElementById('galerieImage');
         const galerieCaption = document.getElementById('galerieCaption');
         const galerieCounter = document.getElementById('galerieCounter');
+        const galerieCounterVisible = document.getElementById('galerieCounterVisible');
+        const galerieThumbs = document.getElementById('galerieThumbs');
         const galeriePrev = document.getElementById('galeriePrev');
         const galerieNext = document.getElementById('galerieNext');
         const galerieClose = document.getElementById('galerieClose');
+        let activeGaleriePhotos = galeriePhotos;
         let galerieIndex = 0;
         let galerieLastFocus = null;
+        let galerieTouchX = 0;
+
+        function renderGalerieThumbs() {
+            if (!galerieThumbs) return;
+            galerieThumbs.innerHTML = activeGaleriePhotos.map((photo, index) => `
+                <button type="button" data-galerie-thumb="${index}" aria-current="${index === galerieIndex}" aria-label="Afficher l’image ${index + 1} / عرض الصورة ${index + 1}">
+                    <img src="${escapeHtml(photo.src)}" alt="" loading="lazy" decoding="async">
+                </button>
+            `).join('');
+        }
 
         function updateGalerieLightbox() {
-            const photo = galeriePhotos[galerieIndex];
+            const photo = activeGaleriePhotos[galerieIndex];
             if (!photo) return;
+            const counter = `${galerieIndex + 1} / ${activeGaleriePhotos.length}`;
             galerieImage.src = photo.src;
             galerieImage.alt = photo.alt || '';
             galerieCaption.textContent = [photo.caption, photo.date, photo.lieu, photo.credit].filter(Boolean).join(' · ');
-            galerieCounter.textContent = `${galerieIndex + 1} / ${galeriePhotos.length}`;
+            galerieCounter.textContent = counter;
+            if (galerieCounterVisible) galerieCounterVisible.textContent = counter;
+            renderGalerieThumbs();
         }
 
-        function openGalerie(index) {
-            if (!galerieLightbox || !galeriePhotos[index]) return;
+        function openGalerie(index, photos) {
+            const collection = Array.isArray(photos) && photos.length ? photos : galeriePhotos;
+            if (!galerieLightbox || !collection[index]) return;
             galerieLastFocus = document.activeElement;
+            activeGaleriePhotos = collection;
             galerieIndex = index;
             updateGalerieLightbox();
             galerieLightbox.hidden = false;
@@ -2633,8 +2828,8 @@
         }
 
         function stepGalerie(step) {
-            if (!galeriePhotos.length) return;
-            galerieIndex = (galerieIndex + step + galeriePhotos.length) % galeriePhotos.length;
+            if (!activeGaleriePhotos.length) return;
+            galerieIndex = (galerieIndex + step + activeGaleriePhotos.length) % activeGaleriePhotos.length;
             updateGalerieLightbox();
         }
 
@@ -2672,25 +2867,74 @@
             }).join('');
         }
 
-        renderGalerie();
-        document.querySelectorAll('#galerieContainer .reveal').forEach((el) => { if (revealObserver) revealObserver.observe(el); else el.classList.add('visible'); });
+        function renderGalerie2026() {
+            if (!galerie2026Container) return;
+            if (galerie2026Count) galerie2026Count.textContent = `${galerie2026Photos.length} صورة — ${galerie2026Photos.length} photo`;
+            galerie2026Container.innerHTML = galerie2026Photos.map((photo, index) => {
+                const src = escapeHtml(photo.src);
+                const alt = escapeHtml(photo.alt || '');
+                const caption = escapeHtml(photo.caption || '');
+                const meta = [photo.date, photo.lieu, photo.credit].filter(Boolean).map((part) => escapeHtml(part)).join(' · ');
+                const layout = photo.layout ? ` gallery-tile--${escapeHtml(photo.layout)}` : '';
+                const focus = photo.focus ? ` style="--focus:${escapeHtml(photo.focus)}"` : '';
+                const delay = (index % 4) + 1;
+                return `
+                    <figure class="gallery-tile gallery-tile--slot-${index + 1}${layout} reveal reveal-delay-${delay}"${focus}>
+                        <button type="button" class="gallery-tile-button" data-galerie-index="${index}" aria-label="فتح صورة ${index + 1} من ألبوم 2026 — Afficher la photo ${index + 1} de l’album 2026">
+                            <img src="${src}" alt="${alt}" loading="lazy" decoding="async" width="${Number(photo.width) || 800}" height="${Number(photo.height) || 600}">
+                        </button>
+                        <span class="gallery-tile-year" aria-hidden="true">2026</span>
+                        <figcaption class="gallery-tile-label"><strong>${caption}</strong><span>${meta}</span></figcaption>
+                    </figure>
+                `;
+            }).join('');
+        }
 
-        if (galerieLightbox && galeriePhotos.length) {
-            galerieContainer.addEventListener('click', (event) => {
+        function lierContainerGalerie(container, photos) {
+            if (!container) return;
+            container.addEventListener('click', (event) => {
                 const button = event.target.closest('[data-galerie-index]');
-                if (button) openGalerie(Number(button.dataset.galerieIndex));
+                if (button) openGalerie(Number(button.dataset.galerieIndex), photos);
             });
+        }
+
+        renderGalerie();
+        renderGalerie2026();
+        document.querySelectorAll('#galerieContainer .reveal, #galerie2026Container .reveal').forEach((el) => { if (revealObserver) revealObserver.observe(el); else el.classList.add('visible'); });
+
+        if (galerieLightbox && (galeriePhotos.length || galerie2026Photos.length)) {
+            lierContainerGalerie(galerieContainer, galeriePhotos);
+            lierContainerGalerie(galerie2026Container, galerie2026Photos);
             galerieClose.addEventListener('click', closeGalerie);
             galeriePrev.addEventListener('click', () => stepGalerie(-1));
             galerieNext.addEventListener('click', () => stepGalerie(1));
+            if (galerieThumbs) {
+                galerieThumbs.addEventListener('click', (event) => {
+                    const button = event.target.closest('[data-galerie-thumb]');
+                    if (!button) return;
+                    galerieIndex = Number(button.dataset.galerieThumb);
+                    updateGalerieLightbox();
+                    const activeThumb = galerieThumbs.querySelector(`[data-galerie-thumb="${galerieIndex}"]`);
+                    if (activeThumb) activeThumb.focus();
+                });
+            }
             galerieLightbox.addEventListener('click', (event) => { if (event.target === galerieLightbox) closeGalerie(); });
+            galerieLightbox.addEventListener('touchstart', (event) => {
+                galerieTouchX = event.target.closest('.gallery-thumbs') ? null : event.changedTouches[0].clientX;
+            }, { passive: true });
+            galerieLightbox.addEventListener('touchend', (event) => {
+                if (galerieTouchX === null) return;
+                const delta = event.changedTouches[0].clientX - galerieTouchX;
+                if (Math.abs(delta) > 50) stepGalerie(delta > 0 ? -1 : 1);
+            }, { passive: true });
             document.addEventListener('keydown', (event) => {
                 if (galerieLightbox.hidden) return;
                 if (event.key === 'Escape') { closeGalerie(); return; }
                 if (event.key === 'ArrowRight') { stepGalerie(-1); return; }
                 if (event.key === 'ArrowLeft') { stepGalerie(1); return; }
                 if (event.key !== 'Tab') return;
-                const focusables = [galerieClose, galeriePrev, galerieNext];
+                const thumbButtons = galerieThumbs ? Array.from(galerieThumbs.querySelectorAll('button')) : [];
+                const focusables = [galerieClose, ...thumbButtons, galeriePrev, galerieNext];
                 const first = focusables[0];
                 const last = focusables[focusables.length - 1];
                 if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
