@@ -30,6 +30,15 @@ const legacyFiles = [
     'public/legacy-index.html',
     'public/index-3d-test.html'
 ];
+const publicNavFiles = [
+    'views/premium.ejs',
+    'public/nouveautes.html',
+    'public/legacy-index.html'
+];
+const publicHomeFiles = [
+    'views/premium.ejs',
+    'public/legacy-index.html'
+];
 
 function lire(relatif) {
     return fs.readFileSync(path.join(root, relatif), 'utf8');
@@ -46,6 +55,11 @@ function backFixe(html) {
 function attribut(ancre, nom) {
     const correspondance = ancre.match(new RegExp(`${nom}="([^"]*)"`));
     return correspondance ? correspondance[1] : null;
+}
+
+function navigationMobile(html) {
+    const correspondance = html.match(/<nav id="mobileNav"[\s\S]*?<\/nav>/);
+    return correspondance ? correspondance[0] : '';
 }
 
 test('les retours publics utilisent un seul composant fixe vers /', () => {
@@ -115,4 +129,28 @@ test('le CSS compilé contient les composants partagés', () => {
     assert.match(css, /\.ajj-back--fixed/);
     assert.match(css, /\.ajj-back-top/);
     assert.match(css, /\.ajj-exit-link/);
+});
+
+test('la navigation mobile publique mène à la liste publique des membres', () => {
+    for (const relatif of publicNavFiles) {
+        const nav = navigationMobile(lire(relatif));
+        assert.match(nav, /href="\/membres\.html"/, relatif);
+        assert.doesNotMatch(nav, /href="\/liste-membres\.html"/, relatif);
+    }
+});
+
+test('la navigation mobile publique ne contient pas de raccourci Actualités', () => {
+    for (const relatif of publicNavFiles) {
+        const nav = navigationMobile(lire(relatif));
+        assert.doesNotMatch(nav, /href="\/nouveautes\.html"/, relatif);
+    }
+});
+
+test('les accueils publics n’affichent ni carte nouveautés ni stat photos', () => {
+    for (const relatif of publicHomeFiles) {
+        const html = lire(relatif);
+        assert.doesNotMatch(html, /Dernières nouveautés/, relatif);
+        assert.doesNotMatch(html, /statPhotos/, relatif);
+        assert.doesNotMatch(html, /photos\s*:\s*stats\.photos/, relatif);
+    }
 });

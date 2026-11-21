@@ -396,7 +396,7 @@
 
     <!-- ══ STATS SECTION ══ -->
     <div class="container mx-auto px-4 py-10 relative -mt-4 z-20">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto reveal">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto reveal">
             <div class="stat-card reveal-delay-1">
                 <div class="text-3xl mb-2">👥</div>
                 <div class="stat-number text-green-600" id="statMembres">—</div>
@@ -408,12 +408,6 @@
                 <div class="stat-number text-green-500" id="statFemmes">—</div>
                 <div class="text-xs font-semibold text-gray-500 font-inter mt-1">نساء</div>
                 <div class="text-xs text-gray-400 font-inter">Femmes</div>
-            </div>
-            <div class="stat-card reveal-delay-4">
-                <div class="text-3xl mb-2">📸</div>
-                <div class="stat-number text-green-500" id="statPhotos">—</div>
-                <div class="text-xs font-semibold text-gray-500 font-inter mt-1">صور</div>
-                <div class="text-xs text-gray-400 font-inter">Photos</div>
             </div>
         </div>
     </div>
@@ -452,21 +446,6 @@
                 </div>
             </a>
 
-            <!-- Nouveautés -->
-            <a href="/nouveautes.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-3">
-                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-r from-amber-500 to-amber-500 h-3 w-full"></div>
-                <div class="p-8 text-center relative z-10">
-                    <div class="w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:-rotate-6 transition duration-300">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold mb-2">أخبار الرابطة</h2>
-                    <p class="text-gray-500 text-sm font-inter">Dernières nouveautés</p>
-                </div>
-            </a>
-
             <a href="/agenda.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-4">
                 <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-3 w-full"></div>
@@ -482,7 +461,7 @@
             </a>
 
             <!-- Liste des membres -->
-            <a href="/liste-membres.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-4">
+            <a href="/membres.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-4">
                 <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="bg-gradient-to-r from-amber-500 to-amber-500 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
@@ -591,11 +570,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             <span>الرئيسية</span>
         </a>
-        <a href="/nouveautes.html" class="mobile-nav-item">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>أخبار</span>
-        </a>
-        <a href="/liste-membres.html" class="mobile-nav-item">
+        <a href="/membres.html" class="mobile-nav-item">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             <span>أعضاء</span>
         </a>
@@ -740,7 +715,6 @@
 
                 animateCounter(document.getElementById('statMembres'), stats.membres || 0);
                 animateCounter(document.getElementById('statFemmes'), stats.femmes || 0);
-                animateCounter(document.getElementById('statPhotos'), stats.photos || 0);
             } catch (e) {
                 console.warn('Stats non disponibles', e);
             }
