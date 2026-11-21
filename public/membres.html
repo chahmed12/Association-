@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أعضاء الرابطة — Membres de l'association</title>
+    <link href="/css/app.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(-45deg, #fbf8f1, #e9d7b4, #f4eee1, #ffffff);
+            background-size: 400% 400%;
+            color: #062c2a;
+            min-height: 100vh;
+        }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, .82);
+            border: 1px solid rgba(8, 127, 91, .14);
+            box-shadow: 0 18px 45px rgba(6, 44, 42, .1);
+            backdrop-filter: blur(12px);
+        }
+        .member-name { min-height: 44px; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-ajj-deep text-white shadow-2xl">
+        <div class="container mx-auto px-4 py-8 md:py-12 text-center">
+            <a href="/" class="inline-flex items-center gap-2 text-sm font-bold text-ajj-sand hover:text-white transition mb-6">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                <span class="font-inter">Retour à l'accueil</span>
+            </a>
+            <h1 class="text-2xl md:text-4xl font-extrabold mb-3">أعضاء الرابطة — Membres de l'association</h1>
+            <p id="memberCount" class="text-ajj-sand font-inter text-sm md:text-base" role="status" aria-live="polite">—</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12 flex-grow w-full">
+        <div id="loadingState" class="glass-card rounded-3xl p-6 md:p-10 text-center">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-ajj-sand border-t-ajj-emerald mb-4"></div>
+            <p class="text-sm font-bold">جاري التحميل... — Chargement…</p>
+        </div>
+
+        <div id="errorState" class="hidden glass-card rounded-3xl p-6 md:p-10 text-center text-ajj-deep font-bold"></div>
+
+        <div id="membersList" class="hidden space-y-10"></div>
+    </main>
+
+    <footer class="bg-ajj-deep text-ajj-sand py-6 text-center text-xs md:text-sm font-inter">
+        © 2026 رابطة شباب جدة — Association de la Jeunesse de Jeddetta
+    </footer>
+
+    <script>
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const membersList = document.getElementById('membersList');
+        const memberCount = document.getElementById('memberCount');
+
+        function creerCarte(nom) {
+            const carte = document.createElement('div');
+            carte.className = 'glass-card member-name rounded-2xl px-4 py-3 flex items-center font-bold text-ajj-deep break-words';
+            carte.textContent = nom;
+            return carte;
+        }
+
+        function afficherMembres(noms) {
+            const propres = noms
+                .filter(nom => typeof nom === 'string' && nom.trim())
+                .map(nom => nom.trim())
+                .sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
+
+            memberCount.textContent = `أعضاء الرابطة — Membres de l'association : ${propres.length}`;
+            loadingState.classList.add('hidden');
+            membersList.replaceChildren();
+
+            if (propres.length === 0) {
+                errorState.textContent = 'لا يوجد أعضاء حالياً — Aucun membre pour le moment.';
+                errorState.classList.remove('hidden');
+                membersList.classList.remove('hidden');
+                return;
+            }
+
+            const groupes = new Map();
+            propres.forEach(nom => {
+                const lettre = nom[0].toLocaleUpperCase('fr');
+                if (!groupes.has(lettre)) groupes.set(lettre, []);
+                groupes.get(lettre).push(nom);
+            });
+
+            [...groupes.keys()].sort((a, b) => a.localeCompare(b, 'fr')).forEach(lettre => {
+                const section = document.createElement('section');
+                const titre = document.createElement('h2');
+                titre.className = 'text-xl font-extrabold text-ajj-emerald mb-4';
+                titre.textContent = lettre;
+                const grille = document.createElement('div');
+                grille.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4';
+                groupes.get(lettre).forEach(nom => grille.appendChild(creerCarte(nom)));
+                section.appendChild(titre);
+                section.appendChild(grille);
+                membersList.appendChild(section);
+            });
+
+            membersList.classList.remove('hidden');
+        }
+
+        async function chargerMembres() {
+            try {
+                const response = await fetch('/api/public/membres');
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) throw new Error(data.message || 'HTTP ' + response.status);
+                afficherMembres(Array.isArray(data.membres) ? data.membres : []);
+            } catch (error) {
+                loadingState.classList.add('hidden');
+                errorState.textContent = 'تعذر تحميل الأعضاء — Impossible de charger les membres.';
+                errorState.classList.remove('hidden');
+                memberCount.textContent = '—';
+            }
+        }
+
+        chargerMembres();
+    </script>
+</body>
+
+</html>

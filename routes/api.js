@@ -213,6 +213,29 @@ function queryAsync(sql, params) {
     });
 }
 
+function messageBilingue(fr, ar) {
+    return {
+        message: `${fr} / ${ar}`,
+        message_fr: fr,
+        message_ar: ar
+    };
+}
+
+function inscriptionsOuvertes() {
+    return process.env.INSCRIPTIONS_OPEN === 'true';
+}
+
+function requireInscriptionsOuvertes(req, res, next) {
+    if (!inscriptionsOuvertes()) {
+        return res.status(403).json({
+            success: false,
+            ...messageBilingue('Inscriptions fermées', 'التسجيلات مغلقة'),
+            code: 'INSCRIPTIONS_FERMEES'
+        });
+    }
+    next();
+}
+
 async function getCarteMembre(token) {
     const result = await queryAsync(
         'SELECT nom, numero_adherent, carte_expire_le, actif FROM membres WHERE carte_token = $1',
@@ -314,17 +337,35 @@ const storage = new CloudinaryStorage({
     }
 });
 
+const imageFileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) return cb(null, true);
+    cb(new Error('Uniquement des images (JPG, PNG, WEBP) sont autorisées.'));
+};
+
 const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (mimetype && extname) return cb(null, true);
-        cb(new Error('Uniquement des images (JPG, PNG, WEBP) sont autorisées.'));
+    fileFilter: imageFileFilter
+});
+
+const proofStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'association_preuves',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
     }
 });
+
+const uploadProof = multer({
+    storage: proofStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: imageFileFilter
+});
+
+const preuveSelect = `SELECT id, mois, annee, image_url, created_at, uploaded_by FROM payment_proofs`;
 
 // ═══════════════════════════════════════════════════════════════
 //  1. AUTHENTIFICATION
@@ -380,17 +421,21 @@ router.get('/public/stats', (req, res) => {
 });
 
 router.get('/public/cotisations', (req, res) => {
-    db.query("SELECT id, nom FROM membres WHERE actif = true ORDER BY nom ASC", (err, resMembres) => {
+    res.status(403).json({
+        success: false,
+        ...messageBilingue('Données financières privées', 'البيانات المالية خاصة'),
+        detail: 'donnees financieres privees',
+        code: 'DONNEES_FINANCIERES_PRIVEES'
+    });
+});
+
+const nomChenneliLehmoud = /chenneli\s+lehmoud|شنلي\s+لحمود/i;
+
+router.get('/public/membres', (req, res) => {
+    db.query('SELECT nom FROM membres WHERE actif = true ORDER BY nom ASC', (err, result) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-        db.query("SELECT membre_id, mois, annee FROM payments", (err, resPaiements) => {
-            if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-            const membres = resMembres ? resMembres.rows : [];
-            const paiements = resPaiements ? resPaiements.rows : [];
-            res.json(membres.map(m => ({
-                nom: m.nom,
-                paiements: paiements.filter(p => p.membre_id === m.id).map(p => ({ mois: p.mois, annee: p.annee }))
-            })));
-        });
+        const membres = result ? result.rows : [];
+        res.json({ success: true, membres: membres.map(m => m.nom).filter(nom => !nomChenneliLehmoud.test(nom)) });
     });
 });
 
@@ -577,6 +622,77 @@ router.get('/membres/:id', (req, res) => {
     });
 });
 
+router.get('/membres/:id/preuves', isAuthenticated, validate('preuveId', 'params'), (req, res) => {
+    db.query('SELECT id FROM membres WHERE id = $1', [req.params.id], (err, result) => {
+        if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        const membres = result ? result.rows : [];
+        if (membres.length === 0) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        db.query(`${preuveSelect} WHERE membre_id = $1 ORDER BY created_at DESC, id DESC`, [req.params.id], (proofErr, proofs) => {
+            if (proofErr) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+            res.json({ success: true, proofs: proofs ? proofs.rows : [] });
+        });
+    });
+});
+
+router.post('/membres/:id/preuves', isAuthenticated, validate('preuveId', 'params'), uploadProof.single('image'), validate('preuveCreate'), async (req, res) => {
+    try {
+        const found = await queryAsync('SELECT id FROM membres WHERE id = $1', [req.params.id]);
+        const membres = found && found.rows ? found.rows : [];
+        if (membres.length === 0) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        if (!req.file) return res.status(400).json({ success: false, message: 'Image requise.' });
+
+        const admins = await queryAsync('SELECT id FROM admins WHERE username = $1', [req.session.username]);
+        const adminRows = admins && admins.rows ? admins.rows : [];
+        const uploadedBy = adminRows.length > 0 ? adminRows[0].id : null;
+
+        const inserted = await queryAsync(
+            `INSERT INTO payment_proofs (membre_id, mois, annee, image_url, public_id, uploaded_by)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING id, mois, annee, image_url, created_at, uploaded_by`,
+            [
+                req.params.id,
+                req.body.mois === undefined ? null : req.body.mois,
+                req.body.annee === undefined ? null : req.body.annee,
+                req.file.path,
+                req.file.filename || null,
+                uploadedBy
+            ]
+        );
+        const proof = inserted && inserted.rows ? inserted.rows[0] : null;
+        if (!proof) return res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.status(201).json({ success: true, proof, proofs: [proof] });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.delete('/preuves/:id', isAuthenticated, validate('preuveId', 'params'), async (req, res) => {
+    try {
+        const found = await queryAsync('SELECT id, public_id, image_url FROM payment_proofs WHERE id = $1', [req.params.id]);
+        const rows = found && found.rows ? found.rows : [];
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Preuve introuvable' });
+
+        const proof = rows[0];
+        let publicId = proof.public_id;
+        if (!publicId && proof.image_url) {
+            const parts = String(proof.image_url).split('/');
+            publicId = `${parts[parts.length - 2]}/${parts[parts.length - 1].split('.')[0]}`;
+        }
+        if (publicId) {
+            try {
+                await cloudinary.uploader.destroy(publicId);
+            } catch (cloudErr) {
+                console.error('Erreur de suppression Cloudinary:', cloudErr);
+                return res.status(500).json({ success: false, message: 'Erreur lors de la suppression du fichier' });
+            }
+        }
+        await queryAsync('DELETE FROM payment_proofs WHERE id = $1', [req.params.id]);
+        res.json({ success: true });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
 router.post('/membres/:id/carte/token', async (req, res) => {
     try {
         const found = await queryAsync('SELECT * FROM membres WHERE id = $1', [req.params.id]);
@@ -652,7 +768,7 @@ router.delete('/membres/:id', (req, res) => {
 // ═══════════════════════════════════════════════════════════════
 //  6. INSCRIPTIONS
 // ═══════════════════════════════════════════════════════════════
-router.post('/inscrire', validate('inscription'), (req, res) => {
+router.post('/inscrire', requireInscriptionsOuvertes, validate('inscription'), (req, res) => {
     const { nom, telephone, situation } = req.body;
     if (!nom || !telephone || !situation) return res.status(400).json({ success: false });
     db.query("SELECT * FROM membres WHERE telephone = $1 AND actif = true", [telephone], (err, result) => {
@@ -668,7 +784,7 @@ router.post('/inscrire', validate('inscription'), (req, res) => {
     });
 });
 
-router.post('/inscriptions', validate('inscriptionPublic'), (req, res) => {
+router.post('/inscriptions', requireInscriptionsOuvertes, validate('inscriptionPublic'), (req, res) => {
     const { nom, telephone, situation } = req.body;
     const token = crypto.randomBytes(32).toString('hex');
     const montant = situation === 'نعم' ? 2000 : 1000;

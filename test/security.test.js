@@ -35,6 +35,17 @@ function evenementPublic(event) {
     return publicEvent;
 }
 
+async function avecInscriptionsOuvertes(callback) {
+    const precedent = process.env.INSCRIPTIONS_OPEN;
+    process.env.INSCRIPTIONS_OPEN = 'true';
+    try {
+        return await callback();
+    } finally {
+        if (precedent === undefined) delete process.env.INSCRIPTIONS_OPEN;
+        else process.env.INSCRIPTIONS_OPEN = precedent;
+    }
+}
+
 function resultFor(sql, params) {
     const query = String(sql);
 
@@ -106,7 +117,10 @@ function resultFor(sql, params) {
         return { rows: [{ id: 7, nom: 'Alpha', telephone: '12345678', mois: 1, annee: 2027, montant: '2000.00', numero_recu: 'REC-7', created_at: '2027-01-15T10:00:00Z' }] };
     }
     if (query.includes('SELECT id, nom FROM membres')) {
-        return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
+        return { rows: [{ id: 1, nom: 'Alpha' }] };
+    }
+    if (query.includes('SELECT nom FROM membres WHERE actif = true')) {
+        return { rows: [{ nom: 'Alpha' }, { nom: 'Beta' }, { nom: 'تيت شنلي لحمود' }, { nom: 'أحمد لحمود' }] };
     }
     if (query.includes('SELECT membre_id, mois, annee FROM payments')) {
         return { rows: [{ membre_id: 1, mois: 1, annee: 2027 }, { membre_id: 1, mois: 2, annee: 2027 }] };
@@ -122,6 +136,26 @@ function resultFor(sql, params) {
     }
     if (query.includes('SELECT * FROM payments')) {
         return { rows: [{ membre_id: 1, mois: 1, annee: 2027 }] };
+    }
+    if (query.includes('INSERT INTO payment_proofs')) {
+        return { rows: [{ id: 1, mois: Number(params[1]) || null, annee: Number(params[2]) || null, image_url: params[3], created_at: '2026-11-21T10:00:00Z', uploaded_by: params[5] }] };
+    }
+    if (query.includes('SELECT id, public_id, image_url FROM payment_proofs')) {
+        return { rows: [{ id: Number(params[0]), public_id: 'association_preuves/preuve1', image_url: 'https://example.test/preuve1.png' }] };
+    }
+    if (query.includes('DELETE FROM payment_proofs')) {
+        return { rowCount: 1, rows: [] };
+    }
+    if (query.includes('FROM payment_proofs')) {
+        return { rows: [
+            { id: 1, mois: 11, annee: 2026, image_url: 'https://example.test/preuve1.png', created_at: '2026-11-21T10:00:00Z', uploaded_by: 1 }
+        ] };
+    }
+    if (query.includes('SELECT id FROM membres WHERE id = $1')) {
+        return { rows: [{ id: Number(params[0]) }] };
+    }
+    if (query.includes('SELECT * FROM membres WHERE telephone')) {
+        return { rows: [] };
     }
     if (query.includes('SELECT * FROM membres WHERE id = $1')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
@@ -296,19 +330,65 @@ test('les statistiques publiques ne renvoient que des compteurs', async () => {
     assert.deepEqual(response.body, { membres: 12, femmes: 7, photos: 3 });
 });
 
-test('les cotisations publiques ne renvoient ni montant ni telephone', async () => {
-    const response = await request(app).get('/api/public/cotisations').expect(200);
-    assert.equal(response.body.length, 1);
-    assert.deepEqual(Object.keys(response.body[0]).sort(), ['nom', 'paiements']);
-    assert.deepEqual(response.body[0].paiements, [{ mois: 1, annee: 2027 }, { mois: 2, annee: 2027 }]);
+test('les cotisations publiques sont privees', async () => {
+    const response = await request(app).get('/api/public/cotisations').expect(403);
+    assert.equal(response.body.success, false);
+    assert.match(response.body.message, /financières privées/i);
+    assert.match(response.body.message, /البيانات المالية خاصة/);
+    assert.equal(response.body.detail, 'donnees financieres privees');
+    assert.equal(response.body.code, 'DONNEES_FINANCIERES_PRIVEES');
+    assert.ok(!JSON.stringify(response.body).includes('paiements'));
 });
+
+test('la liste publique des membres ne contient que des noms', async () => {
+    const response = await request(app).get('/api/public/membres').expect(200);
+    assert.equal(response.body.success, true);
+    assert.deepEqual(response.body.membres, ['Alpha', 'Beta', 'أحمد لحمود']);
+    assert.ok(!JSON.stringify(response.body).includes('شنلي لحمود'));
+    assert.deepEqual(Object.keys(response.body).sort(), ['membres', 'success']);
+    assert.ok(response.body.membres.every(nom => typeof nom === 'string'));
+
+    const champsSensibles = ['id', 'telephone', 'whatsapp', 'email', 'montant', 'numero_adherent', 'carte_token', 'paiement', 'public_id'];
+    const corps = JSON.stringify(response.body);
+    for (const champ of champsSensibles) {
+        assert.ok(!corps.includes(`"${champ}"`), `le champ ${champ} ne doit pas apparaître`);
+    }
+});
+
+test('les inscriptions sont fermees par defaut', async () => {
+    const payload = { nom: 'Candidat Ferme', telephone: '12345678', situation: 'لا', consentement: true };
+    for (const url of ['/api/inscrire', '/api/inscriptions']) {
+        const response = await request(app).post(url).send(payload).expect(403);
+        assert.equal(response.body.success, false);
+        assert.match(response.body.message, /[Ff]ermées/);
+        assert.match(response.body.message_ar, /التسجيلات مغلقة/);
+        assert.equal(response.body.message_fr, 'Inscriptions fermées');
+    }
+
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+    await agent.post('/api/membres')
+        .send({ nom: 'Admin Direct', telephone: '00000000', situation: 'لا' })
+        .expect(201);
+});
+
+test('les inscriptions ouvrent uniquement avec INSCRIPTIONS_OPEN=true', () => avecInscriptionsOuvertes(async () => {
+    await request(app).post('/api/inscrire')
+        .send({ nom: 'Candidat Libre', telephone: '12345678', situation: 'لا' })
+        .expect(200);
+    await request(app).post('/api/inscriptions')
+        .send({ nom: 'Candidat Libre', telephone: '12345678', situation: 'لا', consentement: true })
+        .expect(202);
+}));
 
 test('les routes sensibles exigent une session', async () => {
     for (const url of [
         '/api/cotisations', '/api/depenses', '/api/femmes', '/api/membres', '/api/inscriptions',
         '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
         '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
-        '/api/notifications', '/api/membres/1/preferences',
+        '/api/notifications', '/api/membres/1/preferences', '/api/membres/1/preuves',
         '/api/admin/evenements', '/api/admin/journal', '/api/evenements/1/rsvps'
     ]) {
         const response = await request(app).get(url).expect(401);
@@ -318,7 +398,7 @@ test('les routes sensibles exigent une session', async () => {
     for (const url of [
         '/api/notifications', '/api/notifications/rappels-cotisations',
         '/api/inscriptions/1/valider', '/api/inscriptions/1/rejeter', '/api/membres/1/carte/token',
-        '/api/evenements'
+        '/api/membres/1/preuves', '/api/evenements'
     ]) {
         const response = await request(app).post(url).send({ motif: 'Motif valide' }).expect(401);
         assert.equal(response.body.success, false);
@@ -341,6 +421,17 @@ test('les routes sensibles exigent une session', async () => {
 
     const journalDelete = await request(app).delete('/api/admin/journal/1').expect(401);
     assert.equal(journalDelete.body.success, false);
+
+    const preuveDelete = await request(app).delete('/api/preuves/1').expect(401);
+    assert.equal(preuveDelete.body.success, false);
+});
+
+test('les preuves de paiement exigent une session', async () => {
+    await request(app).get('/api/membres/1/preuves').expect(401);
+    await request(app).post('/api/membres/1/preuves')
+        .send({ mois: 11, annee: 2026 })
+        .expect(401);
+    await request(app).delete('/api/preuves/1').expect(401);
 });
 
 test('les écritures membres exigent une session', async () => {
@@ -479,15 +570,15 @@ test('administration des evenements et liste des rsvps', async () => {
     assert.equal(rsvpsList.body.rsvps[0].telephone, '12345678');
 });
 
-test('inscription publique exige le consentement', async () => {
+test('inscription publique exige le consentement', () => avecInscriptionsOuvertes(async () => {
     const response = await request(app).post('/api/inscriptions')
         .send({ nom: 'Candidat Test', telephone: '12345678', situation: 'لا' })
         .expect(400);
     assert.equal(response.body.success, false);
     assert.ok(response.body.errors.some(message => /consentement/i.test(message)));
-});
+}));
 
-test('inscription publique renvoie un token en attente', async () => {
+test('inscription publique renvoie un token en attente', () => avecInscriptionsOuvertes(async () => {
     const response = await request(app).post('/api/inscriptions')
         .send({
             nom: 'Candidat Test',
@@ -500,7 +591,7 @@ test('inscription publique renvoie un token en attente', async () => {
         .expect(202);
     assert.equal(response.body.success, true);
     assert.match(response.body.token, /^[0-9a-f]{64}$/);
-});
+}));
 
 test('la carte publique n expose que les champs autorises', async () => {
     const response = await request(app).get(`/api/carte/${carteToken}`).expect(200);

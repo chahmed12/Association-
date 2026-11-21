@@ -31,11 +31,12 @@ app.use(helmet({
         useDefaults: false,
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
+            scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com'],
             styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
             fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
             imgSrc: ["'self'", 'data:', 'https:'],
-            connectSrc: ["'self'", 'https://api.rss2json.com'],
+            connectSrc: ["'self'", 'https://api.rss2json.com', 'https://www.google.com', 'https://maps.googleapis.com', 'https://maps.gstatic.com', 'https://www.gstatic.com'],
+            frameSrc: ["'self'", 'https://www.google.com', 'https://maps.google.com'],
             objectSrc: ["'none'"],
             baseUri: ["'self'"],
             frameAncestors: ["'none'"]
@@ -123,6 +124,7 @@ app.get('/gestion-notifications.html', isAuthenticated, (req, res) => res.sendFi
 app.get('/gestion-inscriptions.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-inscriptions.html')));
 app.get('/gestion-evenements.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-evenements.html')));
 app.get('/gestion-journal.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-journal.html')));
+app.get('/suivi-cotisations.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'suivi-cotisations.html')));
 
 // 4. ROUTES API
 // On applique le limiteur uniquement sur les requêtes API (et non sur les fichiers statiques)

@@ -6,33 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>رابطة شباب جدة - Accueil</title>
     <meta name="description" content="رابطة شباب جدة - Association de la Jeunesse de Jeddetta, Mauritanie. Plateforme de gestion des membres, cotisations et actualités.">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-grad-1: #f0fdf4;
-            --bg-grad-2: #dcfce7;
-            --bg-grad-3: #ecfdf5;
+            --ajj-emerald: #087f5b;
+            --ajj-deep: #062c2a;
+            --ajj-gold: #d8aa55;
+            --ajj-sand: #e9d7b4;
+            --scroll-progress: 0;
+            --tap-target: 44px;
+            --radius-ajj: 24px;
+            --bg-grad-1: #f7f2e8;
+            --bg-grad-2: #e9d7b4;
+            --bg-grad-3: #f4eee1;
             --bg-grad-4: #ffffff;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --card-bg: rgba(255,255,255,0.75);
-            --card-border: rgba(255,255,255,0.5);
-            --footer-bg: #1f2937;
-            --footer-text: #ffffff;
+            --text-primary: #062c2a;
+            --text-secondary: #5d7169;
+            --card-bg: rgba(255,255,255,0.78);
+            --card-border: rgba(8,127,91,0.14);
+            --footer-bg: #062c2a;
+            --footer-text: #f7f2e8;
         }
         [data-theme="dark"] {
-            --bg-grad-1: #0f172a;
-            --bg-grad-2: #1e293b;
-            --bg-grad-3: #0f172a;
-            --bg-grad-4: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --card-bg: rgba(30,41,59,0.85);
-            --card-border: rgba(255,255,255,0.08);
-            --footer-bg: #0f172a;
-            --footer-text: #94a3b8;
+            --ajj-emerald: #087f5b;
+            --ajj-deep: #062c2a;
+            --ajj-gold: #d8aa55;
+            --ajj-sand: #e9d7b4;
+            --bg-grad-1: #041d1c;
+            --bg-grad-2: #062c2a;
+            --bg-grad-3: #052724;
+            --bg-grad-4: #073630;
+            --text-primary: #f7f2e8;
+            --text-secondary: #a9bdb3;
+            --card-bg: rgba(6,44,42,0.86);
+            --card-border: rgba(233,215,180,0.12);
+            --footer-bg: #021312;
+            --footer-text: #a9bdb3;
         }
 
         * { transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
@@ -315,13 +326,6 @@
            AJJ — CINEMATIC SCROLL EXPERIENCE
            Motion is GPU-friendly, responsive, and respects reduced motion.
         ═══════════════════════════════════════════════════════════════ */
-        :root {
-            --ajj-emerald: #087f5b;
-            --ajj-deep: #062c2a;
-            --ajj-gold: #d8aa55;
-            --ajj-sand: #e9d7b4;
-            --scroll-progress: 0;
-        }
         html { scroll-behavior: smooth; scroll-padding-top: 22px; }
         body { overflow-x: clip; }
         body::before {
@@ -567,24 +571,6 @@
         #newsContainer .glass-card:nth-child(2) { transition-delay: .12s; }
         #newsContainer .glass-card:nth-child(3) { transition-delay: .24s; }
         .glass-card, .stat-card { will-change: transform; }
-        #citySection > div {
-            position: relative;
-            overflow: hidden;
-            border-radius: 26px;
-            box-shadow: 0 18px 50px rgba(6,95,70,.08);
-        }
-        #citySection > div::before {
-            content: "";
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            top: -115px;
-            inset-inline-end: -70px;
-            border: 1px solid rgba(16,185,129,.18);
-            border-radius: 50%;
-            box-shadow: 0 0 0 18px rgba(16,185,129,.035), 0 0 0 38px rgba(16,185,129,.025);
-            pointer-events: none;
-        }
         #newsSection .bg-blue-100 { background: rgba(219,234,254,.7); }
         #scrollTop {
             opacity: 0;
@@ -643,7 +629,6 @@
             .stat-number { font-size: clamp(1.8rem, 8vw, 2.35rem); }
             #villes .glass-card { border-radius: 22px; }
             #villes .glass-card > div.p-8 { padding: 1.45rem 1rem; }
-            #citySection > div { padding: 1.35rem !important; }
             #newsContainer { grid-template-columns: 1fr; }
             #newsContainer > * { grid-column: auto !important; }
             #scrollTop { left: .75rem; bottom: calc(5.7rem + env(safe-area-inset-bottom)); }
@@ -942,8 +927,378 @@
             .journal-layout { grid-template-columns: 1fr; }
         }
 
+        .text-ajj-emerald { color: var(--ajj-emerald); }
+        .text-ajj-deep { color: var(--ajj-deep); }
+        .text-ajj-gold { color: var(--ajj-gold); }
+        .text-ajj-sand { color: var(--ajj-sand); }
+        .text-green-700, .text-green-600, .text-green-500, .text-green-300, .text-green-200,
+        .text-blue-500, .text-blue-600, .text-blue-800, .text-teal-600,
+        .text-amber-600, .text-yellow-600, .text-purple-600 { color: var(--ajj-emerald); }
+        .text-green-50 { color: var(--ajj-sand); }
+        .text-pink-500 { color: var(--ajj-gold); }
+        .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-500, .text-gray-400 { color: var(--text-secondary); }
+        [data-theme="dark"] .text-gray-800 { color: #f7f2e8 !important; }
+        [data-theme="dark"] .text-gray-700 { color: #e8ddc6 !important; }
+        [data-theme="dark"] .text-gray-600 { color: #d6c7aa !important; }
+        [data-theme="dark"] .text-gray-500 { color: #a9bdb3 !important; }
+        [data-theme="dark"] .text-gray-400 { color: #8fa69b !important; }
+        .bg-gray-800, .bg-gray-900\/10 { background-color: var(--ajj-deep); }
+        .bg-gray-600 { background-color: var(--ajj-emerald); }
+        .bg-green-500 { background-color: var(--ajj-emerald); }
+        .bg-blue-100 { background-color: rgba(216,170,85,.18); }
+        .border-gray-800 { border-color: var(--ajj-deep); }
+        .border-gray-200, .border-gray-300 { border-color: rgba(8,127,91,.2); }
+        #villes .glass-card > div.absolute.inset-0 { background: linear-gradient(135deg, rgba(233,215,180,.22), transparent); }
+        #villes a[href="/inscription-femmes.html"] > div.absolute.inset-0 { background: linear-gradient(135deg, rgba(219,39,119,.16), transparent); }
+        #villes .glass-card > div.h-3 { background: linear-gradient(90deg, var(--ajj-deep), var(--ajj-emerald)) !important; }
+        #villes .glass-card > div.p-8 > div:first-child { background-color: rgba(8,127,91,.1); color: var(--ajj-emerald); }
+        #villes a[href="/inscription-femmes.html"] > div.h-3 { background: linear-gradient(90deg, #db2777, #7c3aed) !important; }
+        #villes a[href="/inscription-femmes.html"] > div.p-8 > div:first-child { background-color: rgba(219,39,119,.1); color: #db2777; }
+        .glass-header {
+            background:
+                radial-gradient(circle at 50% 45%, rgba(8,127,91,.34) 0%, transparent 58%),
+                linear-gradient(135deg, var(--ajj-deep) 0%, #063f35 55%, var(--ajj-emerald) 100%) !important;
+        }
+        #heroHeader {
+            min-height: max(560px, 88svh) !important;
+            background:
+                radial-gradient(ellipse at 50% 42%, rgba(216,170,85,.16), transparent 46%),
+                linear-gradient(135deg, #041b1c 0%, var(--ajj-deep) 48%, var(--ajj-emerald) 100%) !important;
+            box-shadow: 0 24px 70px rgba(6,44,42,.24);
+        }
+        #heroContent { padding: 88px 14px 128px; transform: none; }
+        #heroHeader h1 { font-size: clamp(2.05rem, 10vw, 2.9rem); line-height: 1.25; }
+        #heroHeader .font-inter { letter-spacing: 0; }
+        #heroHeader .text-xl { font-size: clamp(.98rem, 4vw, 1.2rem); }
+        #logoContainer { width: 88px; height: 88px; margin-bottom: 22px; }
+        #heroHeader .cta-spotlight { min-height: 48px; padding-inline: 18px; font-size: .9rem; }
+        #heroHeader > div.mt-8 { gap: 10px; }
+        #heroHeader > div.mt-8 a { flex: 1 1 150px; }
+        .scroll-cue { bottom: 64px; font-size: 10px; }
+        .waves { height: 52px; }
+        #threeCanvas { opacity: .5; }
+        .text-gradient {
+            background: linear-gradient(135deg, var(--ajj-gold) 0%, var(--ajj-emerald) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+        .animate-shine {
+            background: linear-gradient(110deg, #fff 12%, var(--ajj-sand) 32%, #b7f7dc 52%, #fff 72%);
+            background-size: 240% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #loadingBar { background: linear-gradient(90deg, var(--ajj-deep), var(--ajj-gold), var(--ajj-emerald)); }
+        #pageProgress span { background: linear-gradient(90deg, var(--ajj-gold), var(--ajj-emerald)); }
+
+        html, body { overflow-x: clip; }
+        body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+        button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+        button, .mobile-nav-item, .gallery-thumb, .presence-item, .event-rsvp,
+        .journal-form button, #darkToggle, #scrollTop, .cta-spotlight, .story-cta,
+        .presence-map-link, .scroll-rail-link { min-height: var(--tap-target); }
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
+        select:focus-visible, iframe:focus-visible {
+            outline: 3px solid rgba(216,170,85,.85);
+            outline-offset: 3px;
+        }
+        #darkToggle {
+            top: max(.75rem, env(safe-area-inset-top));
+            left: .75rem;
+            width: 44px;
+            height: 44px;
+            background: rgba(233,215,180,.16);
+            border-color: rgba(233,215,180,.35);
+            color: var(--ajj-sand);
+        }
+        #scrollTop { bottom: calc(5.5rem + env(safe-area-inset-bottom)); left: .75rem; background: linear-gradient(135deg, var(--ajj-deep), var(--ajj-emerald)); }
+        a.fixed[href^="https://wa.me/"] { background: var(--ajj-emerald); color: #fff; }
+        a.fixed[href^="https://wa.me/"]:hover { background: var(--ajj-deep); }
+        #mobileNav {
+            display: flex;
+            position: fixed;
+            inset: auto 0 0;
+            z-index: 99;
+            align-items: center;
+            justify-content: space-around;
+            min-height: calc(66px + env(safe-area-inset-bottom));
+            padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+            background: var(--card-bg);
+            border-top: 1px solid var(--card-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 -8px 32px rgba(6,44,42,.12);
+        }
+        .mobile-nav-item {
+            flex: 1;
+            min-height: 48px;
+            padding: 6px 2px;
+            gap: 3px;
+            border-radius: 12px;
+            font-size: .61rem;
+        }
+        .mobile-nav-item svg { width: 21px; height: 21px; flex: none; }
+        .mobile-nav-item.active { color: var(--ajj-emerald); background: rgba(8,127,91,.1); }
+        .scroll-rail { display: none !important; }
+        .scroll-rail-link { width: 44px; height: 44px; display: grid; place-items: center; }
+        .scroll-rail-link::before {
+            content: "";
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: rgba(93,113,105,.4);
+            transition: transform .3s ease, background .3s ease, box-shadow .3s ease;
+        }
+        .scroll-rail-link.is-active::before {
+            transform: scale(1.28);
+            background: var(--ajj-emerald);
+            box-shadow: 0 0 0 5px rgba(8,127,91,.14), 0 0 16px rgba(8,127,91,.42);
+        }
+        .scroll-rail-link span {
+            inset-inline-end: calc(100% + 8px);
+            transform: translateY(-50%);
+            background: var(--ajj-deep);
+            color: var(--ajj-sand);
+        }
+        .scroll-rail-link:hover span { transform: translateY(-50%); }
+
+        .story-section {
+            padding: 64px 16px 0;
+            background:
+                radial-gradient(ellipse at 8% 16%, rgba(8,127,91,.2), transparent 34%),
+                radial-gradient(ellipse at 92% 76%, rgba(216,170,85,.16), transparent 32%),
+                linear-gradient(145deg, #041f20 0%, #073d35 53%, var(--ajj-deep) 100%) !important;
+        }
+        .story-shell { grid-template-columns: 1fr; gap: 24px; width: min(100%, 720px); }
+        .story-intro { position: static; top: auto; padding: 0 0 8px; }
+        .story-intro h2 { font-size: clamp(1.85rem, 8.5vw, 2.6rem); }
+        .story-lead { font-size: 13px; line-height: 1.95; }
+        .story-progress { margin-top: 26px; }
+        .story-stack { padding-bottom: 0; }
+        .story-card {
+            position: relative;
+            top: auto;
+            grid-template-columns: 1fr;
+            min-height: 0;
+            margin-bottom: 16px;
+            border-radius: 20px;
+            transform: none;
+            opacity: 1;
+        }
+        .story-card-copy { padding: 22px 20px 10px; }
+        .story-card h3 { margin: 16px 0 8px; font-size: 1.9rem; }
+        .story-card p { font-size: 12.5px; line-height: 1.95; }
+        .story-card-tag { margin-top: 16px; }
+        .story-art { min-height: 200px; }
+        .story-marquee { width: calc(100% + 32px); margin: 44px -16px 0; }
+
+        .presence-section { padding: 60px 16px; }
+        .presence-head h2 { font-size: clamp(1.7rem, 7vw, 2.4rem); }
+        .presence-grid { grid-template-columns: 1fr; gap: 16px; }
+        .presence-map { min-height: 0; padding: 14px; border-radius: 20px; text-align: start; }
+        .presence-map-frame {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 240px;
+            overflow: hidden;
+            border-radius: 16px;
+            background: var(--ajj-sand);
+        }
+        .presence-map-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .presence-map-caption { display: grid; gap: 8px; padding-top: 12px; }
+        .presence-map-caption > span { color: var(--text-secondary); font-size: 12px; line-height: 1.7; }
+        .presence-map-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: var(--ajj-emerald);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .presence-map-link:hover { background: var(--ajj-deep); }
+        .presence-item { min-height: 44px; }
+        .presence-item[aria-pressed="true"] { border-color: var(--ajj-emerald); background: rgba(8,127,91,.14); }
+
+        .events-section { padding: 60px 16px; background: var(--bg-grad-4); }
+        .events-columns { grid-template-columns: 1fr; gap: 16px; }
+        .events-group { padding: 18px; border-radius: 20px; }
+        .event-card { padding: 16px; }
+        .event-card time { color: var(--ajj-emerald); }
+        .event-meta span { background: rgba(8,127,91,.09); }
+        .event-rsvp { min-height: 44px; background: var(--ajj-emerald); }
+        .event-rsvp:hover { background: var(--ajj-deep); }
+
+        .structure-section {
+            padding: 60px 16px;
+            background:
+                radial-gradient(circle at 10% 12%, rgba(8,127,91,.22), transparent 34%),
+                radial-gradient(circle at 90% 88%, rgba(216,170,85,.18), transparent 32%),
+                linear-gradient(135deg, var(--ajj-deep), #0b4f3f 55%, #07362f) !important;
+        }
+        .structure-grid { grid-template-columns: 1fr; gap: 14px; }
+        .structure-card { padding: 18px; border-radius: 20px; }
+        .structure-card h3, .structure-list-card h3, .journal-list-card h3, .structure-multi h3 { color: var(--ajj-sand); }
+        .structure-stat strong { color: var(--ajj-gold); }
+        .structure-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+        .structure-stat { min-height: 88px; padding: 12px 8px; }
+        .structure-chip { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; background: rgba(216,170,85,.12); border-color: rgba(233,215,180,.24); color: var(--ajj-sand); }
+        .structure-role { color: var(--ajj-gold); }
+
+        .gallery-section { padding: 60px 16px 66px; background: linear-gradient(180deg, var(--bg-grad-2), var(--bg-grad-4)); }
+        .gallery-grid { grid-template-columns: 1fr; gap: 14px; }
+        .gallery-thumb img { height: 220px; }
+        .gallery-item { border-radius: 20px; }
+        .gallery-lightbox { padding: 12px; }
+        .gallery-dialog img { max-height: 70vh; border-radius: 14px; }
+        .gallery-lightbox button { width: 48px; height: 48px; min-width: 48px; min-height: 48px; background: rgba(6,44,42,.82); border-color: rgba(233,215,180,.45); }
+        #galeriePrev { inset-inline-start: 4px; }
+        #galerieNext { inset-inline-end: 4px; }
+        #galerieClose { top: 8px; inset-inline-end: 8px; }
+        #villes { padding-block: 60px; }
+        #villes > div { grid-template-columns: 1fr !important; gap: 16px !important; }
+        #villes .glass-card { border-radius: 20px; }
+        #villes .glass-card > div.p-8 { padding: 1.5rem 1rem; }
+        #newsSection { padding-block: 60px; }
+        #newsContainer { grid-template-columns: 1fr !important; }
+        .col-span-3, #newsContainer .col-span-3 { grid-column: 1 / -1; }
+
+        .journal-section { padding: 60px 16px; background: linear-gradient(180deg, var(--ajj-deep), #0b3f35) !important; }
+        .journal-layout { grid-template-columns: 1fr; gap: 16px; }
+        .journal-form, .journal-list-card { padding: 18px; border-radius: 20px; }
+        .journal-form label { color: var(--ajj-sand); }
+        .journal-form input, .journal-form textarea {
+            width: 100%;
+            min-height: 48px;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(233,215,180,.28);
+            border-radius: 14px;
+            background: rgba(6,44,42,.55);
+            color: #f7f2e8;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .journal-form textarea { min-height: 140px; resize: vertical; }
+        .journal-form input::placeholder, .journal-form textarea::placeholder { color: rgba(233,215,180,.65); }
+        .journal-form button { min-height: 48px; background: var(--ajj-emerald); color: #fff; }
+        .journal-form button:hover { background: var(--ajj-deep); }
+        .journal-list-card h3, .journal-entry strong, .journal-list-card .journal-status { color: var(--ajj-sand); }
+        footer { background: var(--footer-bg) !important; color: var(--footer-text); }
+
+        @media (min-width: 600px) {
+            #heroHeader { min-height: max(600px, 88svh) !important; }
+            #heroContent { padding: 96px 22px 132px; }
+            #heroHeader h1 { font-size: clamp(2.6rem, 7vw, 3.6rem); }
+            #logoContainer { width: 104px; height: 104px; }
+            #heroHeader .cta-spotlight { padding-inline: 28px; font-size: 1rem; }
+            #threeCanvas { opacity: .62; }
+            .waves { height: 68px; }
+            .scroll-cue { bottom: 70px; font-size: 11px; }
+            .story-section { padding: 76px 22px 0; }
+            .story-intro h2 { font-size: clamp(2.2rem, 6vw, 3rem); }
+            .story-lead { max-width: 560px; font-size: 14px; }
+            .story-card-copy { padding: 28px 30px 14px; }
+            .story-card h3 { font-size: 2.2rem; }
+            .story-card p { font-size: 13px; }
+            .story-art { min-height: 240px; }
+            .story-marquee { width: calc(100% + 44px); margin: 70px -22px 0; }
+            .presence-section, .events-section, .structure-section, .journal-section { padding-inline: 22px; }
+            .presence-map { padding: 18px; }
+            .presence-map-frame { max-height: 280px; }
+            .gallery-section { padding-inline: 22px; }
+            .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .gallery-thumb img { height: 240px; }
+            #villes > div { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            #villes .glass-card > div.p-8 { padding: 1.75rem 1.25rem; }
+            .structure-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            #darkToggle { width: 48px; height: 48px; }
+        }
+
+        @media (min-width: 901px) {
+            #mobileNav { display: none !important; }
+            body { padding-bottom: 0; }
+            .scroll-rail { display: flex !important; }
+            #scrollTop { bottom: 1.5rem; left: 1.25rem; }
+            #heroHeader { min-height: clamp(620px, 88svh, 760px) !important; }
+            #heroContent { padding: 112px 24px 126px; }
+            #heroHeader h1 { font-size: clamp(3rem, 5.5vw, 4.4rem); }
+            #logoContainer { width: 120px; height: 120px; margin-bottom: 26px; }
+            #heroHeader .cta-spotlight { min-height: 52px; padding-inline: 30px; }
+            #heroHeader > div.mt-8 a { flex: 0 0 auto; }
+            .scroll-cue { bottom: 76px; }
+            #threeCanvas { opacity: .78; }
+            .waves { height: 82px; }
+            .story-section { padding: clamp(76px, 10vw, 142px) 22px 0; }
+            .story-shell { grid-template-columns: minmax(260px, .78fr) minmax(0, 1.22fr); gap: clamp(34px, 5vw, 80px); width: min(1180px, 100%); }
+            .story-intro { position: sticky; top: 15vh; padding: 28px 0 40px; }
+            .story-progress { margin-top: 66px; }
+            .story-stack { padding: 0 0 18vh; }
+            .story-card {
+                position: sticky;
+                top: calc(10vh + (var(--stack-index) * 15px));
+                grid-template-columns: 1.06fr .94fr;
+                min-height: clamp(390px, 58vh, 530px);
+                margin-bottom: 26px;
+                border-radius: 30px;
+                transform: translateY(30px) scale(.985);
+                opacity: .72;
+            }
+            .story-card.is-seen { transform: translateY(0) scale(1); opacity: 1; }
+            .story-card-copy { padding: clamp(25px, 4vw, 52px); }
+            .story-card h3 { margin: 28px 0 12px; font-size: clamp(2rem, 4vw, 3.4rem); }
+            .story-card p { max-width: 390px; font-size: 13px; }
+            .story-card-tag { margin-top: 27px; }
+            .story-art { min-height: 100%; }
+            .story-marquee { width: calc(100% + 44px); margin: 95px -22px 0; }
+            .presence-grid { grid-template-columns: 1.1fr .9fr; gap: 22px; }
+            .presence-map { padding: 20px; border-radius: 28px; }
+            .presence-map-frame { max-height: 300px; border-radius: 20px; }
+            .events-columns { grid-template-columns: 1.3fr .7fr; gap: 22px; }
+            .events-group { padding: 22px; border-radius: 24px; }
+            .event-card { padding: 18px; }
+            .structure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+            .structure-card { padding: 22px; border-radius: 24px; }
+            .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+            .gallery-thumb img { height: 260px; }
+            .gallery-lightbox { padding: 24px; }
+            .gallery-dialog img { max-height: 74vh; }
+            #galeriePrev { inset-inline-start: -8px; }
+            #galerieNext { inset-inline-end: -8px; }
+            #galerieClose { top: 12px; inset-inline-end: 12px; }
+            #newsContainer { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+            .journal-layout { grid-template-columns: .9fr 1.1fr; gap: 22px; }
+            .journal-form, .journal-list-card { padding: 24px; border-radius: 24px; }
+            .presence-section, .events-section, .structure-section, .gallery-section, .journal-section { padding-block: 78px; }
+            .gallery-section { padding-bottom: 84px; }
+        }
+
+        @media (min-width: 1200px) {
+            #heroHeader h1 { font-size: 4.8rem; }
+            #heroContent { padding-top: 124px; }
+            .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            #villes > div { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 24px !important; }
+            .story-shell { width: min(1240px, 100%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+            #heroContent, .story-card, .gallery-item, .gallery-item:hover { transform: none !important; }
+            .reveal, .story-card { opacity: 1 !important; filter: none !important; }
+            .story-art-ring, .story-sun-rays, .story-marquee-track, .animate-shine, .animate-float { animation: none !important; }
+        }
+        [data-theme="dark"] .glass-card { background: rgba(6,44,42,.86); border-color: rgba(233,215,180,.12); }
+        [data-theme="dark"] .event-card { background: rgba(233,215,180,.06); border-color: rgba(233,215,180,.12); }
+        [data-theme="dark"] .presence-map-frame { background: #0b3f35; }
+        [data-theme="dark"] .text-gradient { background: linear-gradient(135deg, var(--ajj-gold), #9be8c6); -webkit-background-clip: text; background-clip: text; }
     </style>
-    <meta name="theme-color" content="#065f46">
+    <meta name="theme-color" content="#087f5b">
     <link rel="apple-touch-icon" href="/icons/icon-192.svg">
 </head>
 
@@ -1044,13 +1399,13 @@
             </div>
             <div class="stat-card reveal-delay-2">
                 <div class="text-3xl mb-2">👩</div>
-                <div class="stat-number text-pink-500" id="statFemmes">—</div>
+                <div class="stat-number text-ajj-gold" id="statFemmes">—</div>
                 <div class="text-xs font-semibold text-gray-500 font-inter mt-1">نساء</div>
                 <div class="text-xs text-gray-400 font-inter">Femmes</div>
             </div>
             <div class="stat-card reveal-delay-4">
                 <div class="text-3xl mb-2">📸</div>
-                <div class="stat-number text-blue-500" id="statPhotos">—</div>
+                <div class="stat-number text-ajj-emerald" id="statPhotos">—</div>
                 <div class="text-xs font-semibold text-gray-500 font-inter mt-1">صور</div>
                 <div class="text-xs text-gray-400 font-inter">Photos</div>
             </div>
@@ -1138,8 +1493,8 @@
             <img id="galerieImage" alt="">
             <p id="galerieCaption"></p>
             <span id="galerieCounter" class="sr-only" aria-live="polite"></span>
-            <button id="galeriePrev" type="button" aria-label="الصورة السابقة">‹</button>
-            <button id="galerieNext" type="button" aria-label="الصورة التالية">›</button>
+            <button id="galeriePrev" type="button" dir="ltr" aria-label="الصورة السابقة">›</button>
+            <button id="galerieNext" type="button" dir="ltr" aria-label="الصورة التالية">‹</button>
         </div>
     </div>
 
@@ -1151,11 +1506,22 @@
                 <p class="text-xs text-gray-500 font-inter">لا تُعرض إلا المواقع المؤكدة من الرابطة — Seuls les sites confirmés par l’association sont affichés.</p>
             </div>
             <div class="presence-grid reveal">
-                <div id="presenceMap" class="presence-map" role="status" aria-live="polite" data-selected="">
-                    <div>
-                        <div class="presence-map-icon" aria-hidden="true">🗺️</div>
-                        <strong id="presenceMapTitle">لا مواقع مُعتمدة بعد</strong>
-                        <span id="presenceMapHint">سيظهر الرسم بعد اعتماد المواقع — La carte sera affichée après validation des localisations.</span>
+                <div id="presenceMap" class="presence-map" role="group" aria-label="خريطة موقع الرابطة — Carte de l’association" data-selected="">
+                    <div class="presence-map-frame">
+                        <iframe
+                            src="https://maps.google.com/maps?q=7C89X5MX%2B8X&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                            title="حضور الرابطة على الخريطة — Carte de l'association"
+                            loading="lazy"
+                            allowfullscreen
+                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <div class="presence-map-caption">
+                        <strong id="presenceMapTitle" class="sr-only">حضور الرابطة على الخريطة — Carte de l’association</strong>
+                        <span id="presenceMapHint">موقع الرابطة على الخريطة — Localisation de l’association</span>
+                        <a href="https://www.google.com/maps/search/?api=1&query=7C89X5MX%2B8X"
+                            target="_blank" rel="noopener noreferrer" class="presence-map-link">
+                            افتح الخريطة في خرائط google — Ouvrir dans Google Maps
+                        </a>
                     </div>
                 </div>
                 <div class="presence-list">
@@ -1260,7 +1626,7 @@
             </a>
 
             <!-- Liste des membres -->
-            <a href="/liste-membres.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-4">
+            <a href="/membres.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-4">
                 <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
@@ -1271,21 +1637,6 @@
                     </div>
                     <h2 class="text-2xl font-bold mb-2">قائمة الأعضاء</h2>
                     <p class="text-gray-500 text-sm font-inter">Liste des Membres</p>
-                </div>
-            </a>
-
-            <!-- Suivi des cotisations -->
-            <a href="/suivi-dons.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-1">
-                <div class="absolute inset-0 bg-gradient-to-br from-yellow-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 w-full"></div>
-                <div class="p-8 text-center relative z-10">
-                    <div class="w-20 h-20 mx-auto bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition duration-300">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold mb-2">جدول الاشتراكات</h2>
-                    <p class="text-gray-500 text-sm font-inter">Suivi des Cotisations</p>
                 </div>
             </a>
 
@@ -1327,20 +1678,6 @@
                 <h2 class="text-xl font-bold font-cairo relative z-10 tracking-wider">الإدارة</h2>
                 <div class="w-12 h-1 bg-gray-600 mt-2 rounded relative z-10 group-hover:w-24 transition-all duration-300"></div>
             </a>
-        </div>
-    </div>
-
-    <!-- City Autocompletion -->
-    <div id="citySection" class="container mx-auto px-4 py-8 scroll-section">
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-lg p-8 max-w-lg mx-auto border border-green-200 text-center card-hover reveal">
-            <h2 class="text-xl font-bold mb-2">🌍 ابحث عن مدينتك</h2>
-            <p class="text-gray-600 text-sm mb-4">Recherchez une ville en Mauritanie (Autocomplétion)</p>
-            <div class="relative text-right">
-                <input type="text" id="cityInput" placeholder="أدخل اسم المدينة... (ex: Nouakchott)"
-                    class="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 outline-none text-right bg-white text-gray-800">
-                <div id="cityDropdown" class="absolute z-50 w-full bg-white border border-gray-200 rounded-xl mt-1 shadow-xl hidden max-h-48 overflow-y-auto"></div>
-            </div>
-            <p id="cityResult" class="text-green-700 font-bold mt-4 hidden"></p>
         </div>
     </div>
 
@@ -1386,7 +1723,6 @@
                         <span class="structure-chip">سيدي محمد سيدي اللب</span>
                         <span class="structure-chip">الحسن محمد ناجم</span>
                         <span class="structure-chip">مولاي الشيخ احمد اللب</span>
-                        <span class="structure-chip">تيته شنلي لحمود</span>
                         <span class="structure-chip">عبودي اللب</span>
                     </div>
                 </article>
@@ -1402,7 +1738,6 @@
                     <h3>اللجنة المالية والموارد</h3>
                     <ul>
                         <li>امريبه البلي</li>
-                        <li>تيته شنلي لحمود</li>
                     </ul>
                 </article>
                 <article class="structure-card reveal">
@@ -1444,9 +1779,9 @@
             </div>
             <div class="structure-stats reveal" aria-label="ملخص عددي للهيكلة التنظيمية 2027">
                 <div class="structure-stat"><strong>2</strong><span>القيادة العليا</span></div>
-                <div class="structure-stat"><strong>6</strong><span>المستشارون والمشرفون على اللجان</span></div>
+                <div class="structure-stat"><strong>5</strong><span>المستشارون والمشرفون على اللجان</span></div>
                 <div class="structure-stat"><strong>3</strong><span>اللجنة الإدارية والتنسيق</span></div>
-                <div class="structure-stat"><strong>2</strong><span>اللجنة المالية والموارد</span></div>
+                <div class="structure-stat"><strong>1</strong><span>اللجنة المالية والموارد</span></div>
                 <div class="structure-stat"><strong>4</strong><span>لجنة التنظيم والهيكلة</span></div>
                 <div class="structure-stat"><strong>3</strong><span>لجنة الإعلام والعلاقات العامة</span></div>
                 <div class="structure-stat"><strong>5</strong><span>لجنة الشباب والثقافة والرياضة</span></div>
@@ -1455,7 +1790,6 @@
             <div class="structure-multi reveal">
                 <h3>أعضاء يشغلون أكثر من منصب</h3>
                 <ul>
-                    <li><strong>تيته شنلي لحمود</strong> — مستشار ومشرف على اللجان + اللجنة المالية والموارد</li>
                     <li><strong>عبد الله اعبيد الله</strong> — مستشار ومشرف على اللجان + لجنة التأديب والانضباط</li>
                     <li><strong>أحمد أمحمد اللب</strong> — مسؤول الشؤون الداخلية (اللجنة الإدارية والتنسيق) + لجنة التأديب والانضباط</li>
                     <li><strong>امريبه البلي</strong> — اللجنة المالية والموارد + لجنة التأديب والانضباط</li>
@@ -1518,7 +1852,7 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             <span>أخبار</span>
         </a>
-        <a href="/liste-membres.html" class="mobile-nav-item">
+        <a href="/membres.html" class="mobile-nav-item">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             <span>أعضاء</span>
         </a>
@@ -1580,7 +1914,7 @@
 
         function updateWaveFill(theme) {
             const wave = document.getElementById('waveFill');
-            if (wave) wave.setAttribute('fill', theme === 'dark' ? '#0f172a' : '#f0fdf4');
+            if (wave) wave.setAttribute('fill', theme === 'dark' ? '#062c2a' : '#e9d7b4');
         }
 
         // ── 3D THREE.JS HERO SCENE (MODE TEST) ──
@@ -1605,7 +1939,7 @@
             const header = document.getElementById('heroHeader');
             const heroContent = document.getElementById('heroContent');
             const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            let isMobile = window.matchMedia ? window.matchMedia('(max-width: 768px)').matches : window.innerWidth < 769;
+            let isMobile = window.matchMedia ? window.matchMedia('(max-width: 900px)').matches : window.innerWidth <= 900;
             if (!canvas || !header) {
                 console.error('Éléments Three.js canvas ou header introuvables');
                 return;
@@ -1975,7 +2309,7 @@
             function handleResize() {
                 const w = header.clientWidth || window.innerWidth;
                 const h = header.clientHeight || 520;
-                isMobile = w < 769;
+                isMobile = w <= 900;
                 camera.aspect = w / h;
                 camera.position.z = isMobile ? 38 : 32;
                 mainGroup.scale.setScalar(isMobile ? 0.76 : 1);
@@ -2265,7 +2599,7 @@
             { src: '/images/galerie/jeddeta-equipe-championne-2026.jpg', alt: 'الفريق البطل في بطولة جدة 2026 — Équipe championne du tournoi de Jeddah 2026', caption: 'الفريق البطل ببطولة جدة 2026 — Équipe championne 2026', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 2048, height: 1536 },
             { src: '/images/galerie/jeddeta-festival-2026.jpg', alt: 'لقطة من مهرجان جدة 2026 — Aperçu du festival de Jeddah 2026', caption: 'مهرجان جدة 2026 — Festival de Jeddah 2026', date: '2026', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 2048, height: 1150 },
             { src: '/images/galerie/jeddeta-equipe.jpg', alt: 'صورة جماعية لفريق جدة — Photo d’équipe de Jeddah', caption: 'فريق جدة — Équipe de Jeddah', date: '', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 1280, height: 960 },
-            { src: '/images/galerie/jeddeta-chenneli-lehmoud.jpg', alt: 'مهرجان جدة — Festival de Jeddah — شنلي لحمود — Chenneli Lehmoud', caption: 'مهرجان جدة — Festival de Jeddah — شنلي لحمود — Chenneli Lehmoud', date: '', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 2048, height: 1150 }
+            { src: '/images/galerie/jeddeta-festival-rabita.jpg', alt: 'مهرجان جدة — Festival de Jeddah', caption: 'مهرجان جدة — Festival de Jeddah', date: '', lieu: 'جدة — Jeddah', credit: 'رابطة شباب جدة', width: 2048, height: 1150 }
         ];
         const galerieContainer = document.getElementById('galerieContainer');
         const galerieLightbox = document.getElementById('galerieLightbox');
@@ -2329,7 +2663,7 @@
             galerieContainer.innerHTML = galeriePhotos.map((photo, index) => {
                 const src = escapeHtml(photo.src);
                 const alt = escapeHtml(photo.alt || '');
-                const srcset = photo.srcset ? ` srcset="${escapeHtml(photo.srcset)}" sizes="(max-width: 768px) 100vw, 33vw"` : '';
+                const srcset = photo.srcset ? ` srcset="${escapeHtml(photo.srcset)}" sizes="(max-width: 900px) 100vw, 33vw"` : '';
                 const caption = photo.caption ? `<strong>${escapeHtml(photo.caption)}</strong>` : '';
                 const meta = [photo.date, photo.lieu, photo.credit].filter(Boolean).map((part) => escapeHtml(part)).join(' · ');
                 const sources = [
@@ -2362,8 +2696,8 @@
             document.addEventListener('keydown', (event) => {
                 if (galerieLightbox.hidden) return;
                 if (event.key === 'Escape') { closeGalerie(); return; }
-                if (event.key === 'ArrowLeft') { stepGalerie(-1); return; }
-                if (event.key === 'ArrowRight') { stepGalerie(1); return; }
+                if (event.key === 'ArrowRight') { stepGalerie(-1); return; }
+                if (event.key === 'ArrowLeft') { stepGalerie(1); return; }
                 if (event.key !== 'Tab') return;
                 const focusables = [galerieClose, galeriePrev, galerieNext];
                 const first = focusables[0];
@@ -2406,8 +2740,8 @@
             const item = selected ? (selected.type === 'antenne' ? antennesPermanentes[selected.index] : lieuxEvenementsTemporaires[selected.index]) : null;
             if (!item) {
                 presenceMap.dataset.selected = '';
-                presenceMapTitle.textContent = 'لا مواقع مُعتمدة بعد';
-                presenceMapHint.textContent = 'سيظهر الرسم بعد اعتماد المواقع — La carte sera affichée après validation des localisations.';
+                presenceMapTitle.textContent = 'حضور الرابطة على الخريطة — Carte de l’association';
+                presenceMapHint.textContent = 'موقع الرابطة على الخريطة — Localisation de l’association';
                 document.querySelectorAll('.presence-item').forEach((button) => button.setAttribute('aria-pressed', 'false'));
                 return;
             }
@@ -2571,40 +2905,6 @@
             const button = event.target.closest('[data-rsvp-id]');
             if (button) openRsvp(button.dataset.rsvpId);
         });
-
-        // ── CITY AUTOCOMPLETE ──
-        const villesMauritanie = [
-            "Nouakchott (نواكشوط)", "Nouadhibou (نواذيبو)", "Rosso (روصو)",
-            "Kaédi (كيهيدي)", "Boghé (بوكي)", "Kiffa (كيفه)", "Zouérate (ازويرات)",
-            "Atar (أطار)", "Sélibaby (سيلبابي)", "Néma (النعمة)", "Aleg (ألاك)",
-            "Tidjikja (تجكجة)", "Aioun (العيون)", "Akjoujt (أكجوجت)", "Boutilimit (بوتلميت)"
-        ];
-        const cityInput = document.getElementById('cityInput');
-        const cityDropdown = document.getElementById('cityDropdown');
-        const cityResult = document.getElementById('cityResult');
-
-        cityInput.addEventListener('input', function () {
-            const val = this.value.toLowerCase();
-            cityDropdown.innerHTML = '';
-            if (!val) { cityDropdown.classList.add('hidden'); cityResult.classList.add('hidden'); return; }
-            const matches = villesMauritanie.filter(v => v.toLowerCase().includes(val));
-            if (matches.length > 0) {
-                cityDropdown.classList.remove('hidden');
-                matches.forEach(match => {
-                    const div = document.createElement('div');
-                    div.className = "px-4 py-3 hover:bg-green-50 cursor-pointer text-gray-700 border-b border-gray-100 text-right";
-                    div.textContent = match;
-                    div.onclick = () => {
-                        cityInput.value = match;
-                        cityDropdown.classList.add('hidden');
-                        cityResult.innerHTML = `✅ تم اختيار مدينة: <strong>${match}</strong>`;
-                        cityResult.classList.remove('hidden');
-                    };
-                    cityDropdown.appendChild(div);
-                });
-            } else { cityDropdown.classList.add('hidden'); }
-        });
-        document.addEventListener('click', e => { if (e.target !== cityInput) cityDropdown.classList.add('hidden'); });
 
         // ── NEWS ──
         async function fetchMauritaniaNews() {
@@ -2815,7 +3115,7 @@
                     if (!entry.isIntersecting) return;
                     const sectionId = entry.target.id;
                     const href = sectionId === 'newsSection' ? '/nouveautes.html' :
-                                 sectionId === 'villes' ? '/liste-membres.html' : '/';
+                                 sectionId === 'villes' ? '/membres.html' : '/';
                     mobileLinks.forEach(link => {
                         const active = link.getAttribute('href') === href;
                         link.classList.toggle('active', active);

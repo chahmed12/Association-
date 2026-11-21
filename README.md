@@ -26,6 +26,7 @@ Application web de gestion associative pour les membres, les cotisations, les d�
 | Médias | Cloudinary pour l'envoi et la suppression d'images |
 | Sécurité | Helmet, `express-rate-limit`, Bcrypt, Joi |
 | Documents | PDFKit pour les reçus et les cartes de membre |
+| Styles | Tailwind CSS 3.4 compilé vers `public/css/app.css` |
 | Utilitaires | `utils/phone.js`, `utils/csv.js`, `public/js/utils.js` |
 
 ### Périmètre fonctionnel
@@ -35,7 +36,8 @@ Application web de gestion associative pour les membres, les cotisations, les d�
 | Gestion des membres, cotisations, dépenses et actualités | Opérationnel |
 | Exports CSV et reçus PDF | Opérationnel |
 | Rappels de cotisation par lien WhatsApp | Opérationnel, sans envoi automatique |
-| Inscriptions publiques modérées | Opérationnel |
+| Inscriptions publiques modérées | Opérationnel, fermées par défaut (`INSCRIPTIONS_OPEN=false`) |
+| Carte Google Maps sur l'accueil | Opérationnel |
 | Carte de membre PDF avec token | Opérationnel, sans QR code |
 | Agenda et RSVP | Opérationnel |
 | Paiements automatisés par webhook | Prévu, non implémenté |
@@ -46,6 +48,7 @@ Application web de gestion associative pour les membres, les cotisations, les d�
 git clone https://github.com/chahmed12/Association-.git
 cd Association-
 npm ci
+npm run build
 cp .env.example .env
 npm run db:migrate
 npm run db:seed
@@ -69,6 +72,7 @@ Sous Windows, utiliser `copy .env.example .env` puis renseigner le fichier avant
 | `CLOUDINARY_URL` | Format `cloudinary://api_key:api_secret@cloud_name` |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Identifiants utilisés par `npm run db:seed` |
 | `PAYMENT_AUTOMATION_KEY` | Réservé à la route `/api/paiement-auto`, actuellement non implémentée |
+| `INSCRIPTIONS_OPEN` | `false` (défaut) ferme les inscriptions publiques ; `true` les ouvre |
 
 Aucune valeur secrète réelle n'est versionnée. `.env` reste local et `.env.example` ne contient que des modèles. Pour le déploiement Vercel, voir `DEPLOIEMENT.md`.
 
@@ -81,6 +85,8 @@ Aucune valeur secrète réelle n'est versionnée. `.env` reste local et `.env.ex
 | `npm run db:migrate` | Appliquer le schéma PostgreSQL |
 | `npm run db:seed` | Créer ou mettre à jour le compte administrateur |
 | `npm run finance:reset` | Réinitialiser les cotisations et dépenses puis générer décembre 2026 à août 2027 |
+| `npm run build:css` | Compiler `src/input.css` vers `public/css/app.css` (minifié) avec Tailwind |
+| `npm run build` | Build complet ; aujourd'hui équivalent à `npm run build:css` |
 | `npm run lint` | Vérifier le code avec ESLint |
 | `npm test` | Exécuter les tests automatisés |
 
@@ -89,6 +95,15 @@ Aucune valeur secrète réelle n'est versionnée. `.env` reste local et `.env.ex
 ## Services et API
 
 Sauf indication contraire, les routes ci-dessous exigent une session administrateur. Les pages de `prive/` sont protégées par la même session ; les pages publiques sont servies depuis `public/`.
+
+### Routes publiques
+
+| Route | Rôle |
+|---|---|
+| `GET /api/public/stats` | Statistiques agrégées sans donnée personnelle |
+| `GET /api/public/membres` | Liste des noms de membres uniquement |
+
+L'ancienne route `GET /api/public/cotisations` a été supprimée : aucun montant ni historique de cotisation n'est exposé publiquement. La route `GET /api/public/membres` ne renvoie que les noms, sans téléphone, email, montant, jeton ni autre donnée privée.
 
 ### Membres
 
@@ -101,6 +116,10 @@ Sauf indication contraire, les routes ci-dessous exigent une session administrat
 | `DELETE /api/membres/:id` | Archivage logique avec `actif = false` et `deleted_at` |
 | `GET /api/membres/:id/preferences` | Lecture des préférences de notification |
 | `PUT /api/membres/:id/preferences` | Mise à jour de `whatsapp_optin`, `email_optin` et `locale` |
+| `GET /api/membres/:id/preuves` | Liste des preuves d'un membre (administrateurs uniquement) |
+| `GET /api/preuves/:id` | Récupération d'une preuve (administrateurs uniquement) |
+
+Les routes de preuves sont strictement admin-only : elles ne sont accessibles ni depuis les pages publiques, ni avec une simple session visiteur.
 
 Les numéros WhatsApp sont normalisés à l'écriture par `utils/phone.js`. Aucune contrainte d'unicité globale n'est appliquée à `telephone` : le numéro factice `00000000` reste valide pour plusieurs membres. L'unicité des cotisations porte sur `(membre_id, annee, mois)`.
 
@@ -137,6 +156,8 @@ La page associée est `/gestion-notifications.html`. Le serveur produit un lien 
 | `POST /api/inscriptions/:id/rejeter` | Rejet avec motif obligatoire |
 
 La file de modération est disponible sur `/gestion-inscriptions.html`. L'ancienne route `/api/inscrire` reste active pour les formulaires historiques qui créent directement un membre.
+
+Les inscriptions publiques sont fermées par défaut : tant que `INSCRIPTIONS_OPEN=false`, aucun nouveau dossier public n'est accepté. Poser `INSCRIPTIONS_OPEN=true` pour réouvrir le formulaire et `POST /api/inscriptions`.
 
 ### Carte de membre
 
@@ -180,8 +201,10 @@ La page publique est la section « سجل الرابطة — Journal de l’asso
 
 | Type | Pages |
 |---|---|
-| Publiques | `/`, `/inscription-hommes.html`, `/inscription-femmes.html`, `/suivi-dons.html`, `/nouveautes.html`, `/agenda.html`, `/carte.html`, `/login.html` |
-| Administrateur | `/admin.html`, `/liste-membres.html`, `/gestion-cotisations.html`, `/gestion-depenses.html`, `/gestion-nouveautes.html`, `/gestion-notifications.html`, `/gestion-inscriptions.html`, `/gestion-evenements.html`, `/gestion-journal.html` |
+| Publiques | `/`, `/inscription-hommes.html`, `/inscription-femmes.html`, `/nouveautes.html`, `/agenda.html`, `/carte.html`, `/membres.html`, `/login.html` |
+| Administrateur | `/admin.html`, `/liste-membres.html`, `/suivi-cotisations.html`, `/gestion-cotisations.html`, `/gestion-depenses.html`, `/gestion-nouveautes.html`, `/gestion-notifications.html`, `/gestion-inscriptions.html`, `/gestion-evenements.html`, `/gestion-journal.html` |
+
+La page d'accueil `/` intègre une carte Google Maps de localisation de l'association. La page publique `/membres.html` affiche les noms issus de `/api/public/membres`. La page `/suivi-cotisations.html` est protégée par la session administrateur ; le suivi des cotisations n'est plus disponible comme page publique.
 
 ## Modèle de sécurité
 
@@ -190,8 +213,9 @@ La page publique est la section « سجل الرابطة — Journal de l’asso
 - Helmet applique une politique de sécurité ; CORS est désactivé par défaut et les cookies utilisent `SameSite=Lax`, avec l'attribut `Secure` en production.
 - Quatre limiteurs de débit protègent l'API globale, `/api/login`, les RSVP publics et le dépôt `POST /api/journal` ; `GET /api/journal` n'est pas limité.
 - Les écritures membres, la gestion des cotisations, des dépenses, des actualités, des notifications, des inscriptions, des événements et la modération du journal exigent une session administrateur.
-- Les visiteurs accèdent uniquement aux routes publiques : statistiques, cotisations agrégées, actualités, inscriptions, carte, événements, RSVP et lecture/dépôt du journal.
-- Les routes publiques n'exposent ni montants, ni numéros de téléphone, ni jetons d'administration.
+- Les visiteurs accèdent uniquement aux routes publiques : statistiques agrégées, noms des membres via `/api/public/membres`, actualités, inscriptions si `INSCRIPTIONS_OPEN=true`, carte, événements, RSVP et lecture/dépôt du journal.
+- Les routes publiques n'exposent ni montants, ni cotisations, ni numéros de téléphone, ni emails, ni jetons d'administration.
+- Les preuves sont admin-only via `GET /api/membres/:id/preuves` et `GET /api/preuves/:id` ; la page `/suivi-cotisations.html` exige la session administrateur.
 - Les mots de passe sont hachés avec Bcrypt et les entrées validées avec Joi.
 - Les données injectées dans le DOM sont échappées avec `escapeHtml` et `escapeJs` via `public/js/utils.js`.
 - Les suppressions de membres sont logiques, ce qui conserve l'historique des cotisations.
@@ -209,20 +233,24 @@ Les index et contraintes couvrent notamment l'unicité du numéro adhérent et d
 Pour un déploiement sur Render avec un Web Service et une base PostgreSQL managée :
 
 1. Installer les dépendances avec `npm ci`.
-2. Appliquer le schéma avec `npm run db:migrate`.
-3. Démarrer le service avec `npm start`.
-4. Définir l'ensemble des variables d'environnement, avec `NODE_ENV=production` et `CLOUDINARY_URL`.
-5. Créer le compte administrateur avec `npm run db:seed`.
+2. Générer la feuille de styles avec `npm run build` (sortie : `public/css/app.css`, incluse dans le déploiement).
+3. Appliquer le schéma avec `npm run db:migrate`.
+4. Démarrer le service avec `npm start`.
+5. Définir l'ensemble des variables d'environnement, avec `NODE_ENV=production`, `CLOUDINARY_URL` et `INSCRIPTIONS_OPEN=false` par défaut.
+6. Créer le compte administrateur avec `npm run db:seed`.
 
 Derrière Nginx, configurer un reverse proxy vers `http://localhost:3000`. Le détail figure dans `DEPLOIEMENT.md`.
 
 ## Qualité et vérification
 
 ```bash
+npm run build:css
 npm run lint
 npm test
 npm audit
 ```
+
+`npm run build:css` doit produire un `public/css/app.css` non vide ; c'est également ce que `vercel.json` lance via `npm run build` avant la mise en production.
 
 La suite de tests couvre notamment la confidentialité des routes publiques, les redirections des pages protégées, la validation des inscriptions, l'accès aux cartes, la génération des PDF, les exports CSV et le cycle de vie des événements et RSVP.
 

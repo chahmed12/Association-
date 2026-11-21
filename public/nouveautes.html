@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الجديد - Nouveautés | رابطة شباب جدة</title>
     <meta name="description" content="آخر أخبار وصور رابطة شباب جدة - موريتانيا">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <script src="/js/utils.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
@@ -161,11 +161,17 @@
         }
 
         .lb-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             width: 48px;
             height: 48px;
+            min-width: 44px;
+            min-height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -175,6 +181,9 @@
             font-size: 1.3rem;
             user-select: none;
         }
+
+        #lbPrev { left: 1rem; }
+        #lbNext { right: 1rem; }
 
         .lb-arrow:hover {
             background: rgba(255, 255, 255, 0.25);
@@ -190,7 +199,55 @@
                 transform: scale(0.98);
             }
         }
-    </style>
+
+        /* Palette AJJ unifiée */
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-ajj-emerald"] { color: var(--ajj-emerald) !important; }
+        [class*="text-ajj-deep"] { color: var(--ajj-deep) !important; }
+        [class*="text-ajj-gold"] { color: var(--ajj-gold) !important; }
+        [class*="text-ajj-sand"] { color: var(--ajj-sand) !important; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-purple-"], [class*="text-violet-"], [class*="text-fuchsia-"],
+        [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+        [class*="text-pink-"], [class*="text-rose-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"],
+        [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-fuchsia-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+        [class*="bg-pink-"], [class*="bg-rose-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-teal-50"],
+        [class*="bg-blue-50"], [class*="bg-indigo-50"], [class*="bg-purple-50"],
+        [class*="bg-pink-50"], [class*="bg-rose-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="bg-gray-100"], [class*="bg-gray-200"], [class*="bg-gray-50"],
+        [class*="bg-slate-100"], [class*="bg-slate-200"], [class*="bg-slate-50"] { background-color: #f7f2e8 !important; }
+        [class*="bg-gray-800"], [class*="bg-gray-900"],
+        [class*="bg-slate-800"], [class*="bg-slate-900"] { background-color: var(--ajj-deep) !important; }
+        [class*="border-green-"], [class*="border-emerald-"], [class*="border-teal-"],
+        [class*="border-blue-"], [class*="border-indigo-"], [class*="border-amber-"],
+        [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="border-pink-"], [class*="border-purple-"], [class*="border-rose-"] { border-color: var(--ajj-gold) !important; }
+        [class*="border-gray-"], [class*="border-slate-"] { border-color: rgba(6,44,42,.14) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"], [class*="ring-teal-"],
+        [class*="ring-blue-"], [class*="ring-purple-"], [class*="ring-pink-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"],
+        [class*="from-cyan-"], [class*="from-blue-"], [class*="from-indigo-"],
+        [class*="from-purple-"], [class*="from-violet-"], [class*="from-fuchsia-"],
+        [class*="from-pink-"], [class*="from-rose-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"], [class*="from-orange-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="from-gray-"], [class*="from-slate-"] { --tw-gradient-from: var(--ajj-deep) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"],
+        [class*="to-cyan-"], [class*="to-blue-"], [class*="to-indigo-"],
+        [class*="to-purple-"], [class*="to-violet-"], [class*="to-fuchsia-"],
+        [class*="to-pink-"], [class*="to-rose-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"], [class*="to-orange-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+        [class*="to-gray-"], [class*="to-slate-"] { --tw-gradient-to: var(--ajj-deep) var(--tw-gradient-to-position) !important; }
+        [class*="via-green-"], [class*="via-emerald-"], [class*="via-yellow-"] { --tw-gradient-via: var(--ajj-emerald) var(--tw-gradient-via-position) !important; }
+</style>
 </head>
 
 <body class="min-h-screen flex flex-col">
@@ -201,7 +258,7 @@
     <button id="scrollTop"
         onclick="window.scrollTo({top:0,behavior:'smooth'})"
         title="Retour en haut"
-        style="position:fixed;bottom:2rem;left:1rem;z-index:999;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#065f46,#10b981);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(16,185,129,0.4);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
+        style="position:fixed;bottom:calc(2rem + env(safe-area-inset-bottom));left:1rem;z-index:1500;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#062c2a,#087f5b);color:white;border:none;cursor:pointer;box-shadow:0 4px 15px rgba(6,44,42,0.35);display:none;align-items:center;justify-content:center;transition:all 0.3s ease;font-size:1.2rem;">
         ↑
     </button>
 
@@ -253,7 +310,7 @@
             <!-- Hero skeleton -->
             <div class="skeleton w-full max-w-5xl mx-auto h-64 md:h-[450px] rounded-3xl mb-8 shadow-xl"></div>
             <!-- Grid skeleton -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
                 <div class="skeleton h-56 rounded-2xl shadow-lg"></div>
                 <div class="skeleton h-56 rounded-2xl shadow-lg"></div>
                 <div class="skeleton h-56 rounded-2xl shadow-lg hidden md:block"></div>
@@ -315,7 +372,7 @@
                         <span class="text-green-500">📸</span> الصور الأخيرة
                     </h2>
                 </div>
-                <div id="galleryGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
+                <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto">
                 </div>
             </div>
 
@@ -323,13 +380,13 @@
     </div>
 
     <!-- ===== LIGHTBOX ===== -->
-    <div id="lightbox" class="fixed inset-0 z-50 hidden flex-col items-center justify-center"
+    <div id="lightbox" class="fixed inset-0 z-[2000] hidden flex-col items-center justify-center"
         onclick="if(event.target===this||event.target.id==='lightbox') closeLightbox()">
 
         <!-- Top bar -->
         <div class="absolute top-0 left-0 right-0 flex items-center justify-between px-5 py-4 z-10">
             <button onclick="closeLightbox()"
-                class="text-white/60 hover:text-white transition text-sm flex items-center gap-2">
+                class="text-white/60 hover:text-white transition text-sm flex items-center gap-2 min-w-[44px] min-h-[44px] justify-center">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -342,10 +399,10 @@
         </div>
 
         <!-- Image + arrows -->
-        <div class="flex items-center gap-3 md:gap-6 px-4 w-full justify-center">
-            <button class="lb-arrow flex-shrink-0" onclick="prevImage()" id="lbPrev">&#8592;</button>
+        <div class="relative flex items-center justify-center w-full h-full px-16 md:px-24">
+            <button class="lb-arrow flex-shrink-0" onclick="prevImage()" id="lbPrev" aria-label="Précédent">&#8592;</button>
             <img id="lbImg" src="" alt="" class="select-none">
-            <button class="lb-arrow flex-shrink-0" onclick="nextImage()" id="lbNext">&#8594;</button>
+            <button class="lb-arrow flex-shrink-0" onclick="nextImage()" id="lbNext" aria-label="Suivant">&#8594;</button>
         </div>
 
         <!-- Counter -->

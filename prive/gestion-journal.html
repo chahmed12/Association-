@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إدارة السجل - Admin</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <script src="/js/utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link
@@ -15,7 +15,55 @@
         body { font-family: 'Cairo', sans-serif; background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff); background-size: 400% 400%; }
         .font-inter { font-family: 'Inter', sans-serif; }
         .glass-card { background: rgba(255,255,255,.78); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.6); box-shadow: 0 8px 32px rgba(31,38,135,.08); }
-    </style>
+
+        /* Palette AJJ unifiée */
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-ajj-emerald"] { color: var(--ajj-emerald) !important; }
+        [class*="text-ajj-deep"] { color: var(--ajj-deep) !important; }
+        [class*="text-ajj-gold"] { color: var(--ajj-gold) !important; }
+        [class*="text-ajj-sand"] { color: var(--ajj-sand) !important; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-purple-"], [class*="text-violet-"], [class*="text-fuchsia-"],
+        [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+        [class*="text-pink-"], [class*="text-rose-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"],
+        [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-fuchsia-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+        [class*="bg-pink-"], [class*="bg-rose-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-teal-50"],
+        [class*="bg-blue-50"], [class*="bg-indigo-50"], [class*="bg-purple-50"],
+        [class*="bg-pink-50"], [class*="bg-rose-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="bg-gray-100"], [class*="bg-gray-200"], [class*="bg-gray-50"],
+        [class*="bg-slate-100"], [class*="bg-slate-200"], [class*="bg-slate-50"] { background-color: #f7f2e8 !important; }
+        [class*="bg-gray-800"], [class*="bg-gray-900"],
+        [class*="bg-slate-800"], [class*="bg-slate-900"] { background-color: var(--ajj-deep) !important; }
+        [class*="border-green-"], [class*="border-emerald-"], [class*="border-teal-"],
+        [class*="border-blue-"], [class*="border-indigo-"], [class*="border-amber-"],
+        [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="border-pink-"], [class*="border-purple-"], [class*="border-rose-"] { border-color: var(--ajj-gold) !important; }
+        [class*="border-gray-"], [class*="border-slate-"] { border-color: rgba(6,44,42,.14) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"], [class*="ring-teal-"],
+        [class*="ring-blue-"], [class*="ring-purple-"], [class*="ring-pink-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"],
+        [class*="from-cyan-"], [class*="from-blue-"], [class*="from-indigo-"],
+        [class*="from-purple-"], [class*="from-violet-"], [class*="from-fuchsia-"],
+        [class*="from-pink-"], [class*="from-rose-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"], [class*="from-orange-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="from-gray-"], [class*="from-slate-"] { --tw-gradient-from: var(--ajj-deep) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"],
+        [class*="to-cyan-"], [class*="to-blue-"], [class*="to-indigo-"],
+        [class*="to-purple-"], [class*="to-violet-"], [class*="to-fuchsia-"],
+        [class*="to-pink-"], [class*="to-rose-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"], [class*="to-orange-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+        [class*="to-gray-"], [class*="to-slate-"] { --tw-gradient-to: var(--ajj-deep) var(--tw-gradient-to-position) !important; }
+        [class*="via-green-"], [class*="via-emerald-"], [class*="via-yellow-"] { --tw-gradient-via: var(--ajj-emerald) var(--tw-gradient-via-position) !important; }
+</style>
 </head>
 
 <body class="min-h-screen text-gray-800">
@@ -39,9 +87,9 @@
                     <h2 class="text-xl font-bold">المساهمات — Contributions</h2>
                     <p class="text-gray-500 text-xs font-inter">Les messages sont publiés après validation.</p>
                 </div>
-                <label class="flex items-center gap-3 text-sm">
+                <label class="flex flex-wrap items-center gap-3 text-sm w-full min-w-0">
                     <span class="font-bold">الحالة — Statut</span>
-                    <select id="statutFilter" class="rounded-xl border border-gray-300 px-4 py-2 bg-white">
+                    <select id="statutFilter" class="w-full min-w-0 rounded-xl border border-gray-300 px-4 py-2 bg-white">
                         <option value="">الكل — Tous</option>
                         <option value="en_attente">قيد المراجعة — En attente</option>
                         <option value="publie">منشور — Publié</option>

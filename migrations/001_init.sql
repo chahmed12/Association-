@@ -207,3 +207,16 @@ CREATE TABLE IF NOT EXISTS journal_entries (
 );
 
 CREATE INDEX IF NOT EXISTS idx_journal_entries_statut_created_at ON journal_entries(statut, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS payment_proofs (
+    id SERIAL PRIMARY KEY,
+    membre_id INT REFERENCES membres(id) ON DELETE CASCADE,
+    mois INT,
+    annee INT,
+    image_url VARCHAR(500) NOT NULL,
+    public_id VARCHAR(255),
+    uploaded_by INT REFERENCES admins(id),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_payment_proofs_membre_id ON payment_proofs(membre_id);

@@ -11,6 +11,8 @@
     "seed": "node scripts/seed.js",
     "db:seed": "node scripts/seed.js",
     "finance:reset": "node scripts/finance-reset.js",
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/css/app.css --minify",
+    "build": "npm run build:css",
     "lint": "eslint .",
     "test": "node --test"
   },
@@ -38,7 +40,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "eslint": "^9.39.5",
-    "supertest": "^7.3.2"
+    "supertest": "^7.3.2",
+    "tailwindcss": "^3.4.19"
   },
   "overrides": {
     "qs": "^6.17.1",

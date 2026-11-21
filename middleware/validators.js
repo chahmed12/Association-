@@ -173,6 +173,15 @@ const schemas = {
 
     journalId: Joi.object({
         id: Joi.number().integer().positive().required()
+    }),
+
+    preuveId: Joi.object({
+        id: Joi.number().integer().positive().required()
+    }),
+
+    preuveCreate: Joi.object({
+        mois: Joi.number().integer().min(1).max(12),
+        annee: Joi.number().integer().min(2000).max(2100)
     })
 };
 

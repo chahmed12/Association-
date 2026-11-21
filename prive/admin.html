@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - رابطة شباب جدة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link
@@ -90,7 +90,55 @@
                 box-shadow: 0 0 0 10px rgba(52, 211, 153, 0);
             }
         }
-    </style>
+
+        /* Palette AJJ unifiée */
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-ajj-emerald"] { color: var(--ajj-emerald) !important; }
+        [class*="text-ajj-deep"] { color: var(--ajj-deep) !important; }
+        [class*="text-ajj-gold"] { color: var(--ajj-gold) !important; }
+        [class*="text-ajj-sand"] { color: var(--ajj-sand) !important; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-purple-"], [class*="text-violet-"], [class*="text-fuchsia-"],
+        [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+        [class*="text-pink-"], [class*="text-rose-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"],
+        [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-fuchsia-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+        [class*="bg-pink-"], [class*="bg-rose-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-teal-50"],
+        [class*="bg-blue-50"], [class*="bg-indigo-50"], [class*="bg-purple-50"],
+        [class*="bg-pink-50"], [class*="bg-rose-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="bg-gray-100"], [class*="bg-gray-200"], [class*="bg-gray-50"],
+        [class*="bg-slate-100"], [class*="bg-slate-200"], [class*="bg-slate-50"] { background-color: #f7f2e8 !important; }
+        [class*="bg-gray-800"], [class*="bg-gray-900"],
+        [class*="bg-slate-800"], [class*="bg-slate-900"] { background-color: var(--ajj-deep) !important; }
+        [class*="border-green-"], [class*="border-emerald-"], [class*="border-teal-"],
+        [class*="border-blue-"], [class*="border-indigo-"], [class*="border-amber-"],
+        [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="border-pink-"], [class*="border-purple-"], [class*="border-rose-"] { border-color: var(--ajj-gold) !important; }
+        [class*="border-gray-"], [class*="border-slate-"] { border-color: rgba(6,44,42,.14) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"], [class*="ring-teal-"],
+        [class*="ring-blue-"], [class*="ring-purple-"], [class*="ring-pink-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"],
+        [class*="from-cyan-"], [class*="from-blue-"], [class*="from-indigo-"],
+        [class*="from-purple-"], [class*="from-violet-"], [class*="from-fuchsia-"],
+        [class*="from-pink-"], [class*="from-rose-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"], [class*="from-orange-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="from-gray-"], [class*="from-slate-"] { --tw-gradient-from: var(--ajj-deep) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"],
+        [class*="to-cyan-"], [class*="to-blue-"], [class*="to-indigo-"],
+        [class*="to-purple-"], [class*="to-violet-"], [class*="to-fuchsia-"],
+        [class*="to-pink-"], [class*="to-rose-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"], [class*="to-orange-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+        [class*="to-gray-"], [class*="to-slate-"] { --tw-gradient-to: var(--ajj-deep) var(--tw-gradient-to-position) !important; }
+        [class*="via-green-"], [class*="via-emerald-"], [class*="via-yellow-"] { --tw-gradient-via: var(--ajj-emerald) var(--tw-gradient-via-position) !important; }
+</style>
 </head>
 
 <body class="min-h-screen text-gray-800 flex flex-col">
@@ -138,7 +186,7 @@
                 <p class="text-green-100 text-sm font-bold uppercase tracking-widest font-inter">📊 الملخص المالي /
                     Résumé Financier</p>
             </div>
-            <div class="grid grid-cols-3 gap-6 text-center">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
                 <div>
                     <p class="text-3xl md:text-4xl font-extrabold text-white font-inter" id="dashTotal">—</p>
                     <p class="text-green-300 text-sm font-semibold mt-2 font-inter">Cotisations (MRO)</p>
@@ -166,8 +214,8 @@
                 <div class="mt-8 text-center">
                     <a href="/api/pdf/rapport-financier"
                         class="inline-flex items-center gap-4 bg-white text-green-700 hover:bg-green-50 px-10 py-4 rounded-full shadow-[0_15px_30px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition duration-300 font-extrabold border-2 border-green-200 transform hover:-translate-y-2">
-                        <span class="text-2xl">�Y""</span>
-                        <span class="font-inter">T�%L�%CHARGER LE BILAN FINANCIER (PDF PRO)</span>
+                        <span class="text-2xl">📊</span>
+                        <span class="font-inter">TÉLÉCHARGER LE BILAN FINANCIER (PDF PRO)</span>
                     </a>
                 </div>
                 <div class="mt-4 flex flex-wrap justify-center gap-3">
@@ -193,7 +241,7 @@
                         <p class="text-red-500 text-xs font-inter font-medium tracking-wide">Membres en retard de
                             cotisation</p>
                     </div>
-                    <div class="bg-gradient-to-br from-red-500 to-rose-600 text-white text-lg font-extrabold w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-inner"
+                    <div class="bg-gradient-to-br from-red-500 to-amber-600 text-white text-lg font-extrabold w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-inner"
                         id="lateCount">0</div>
                 </div>
             </div>
@@ -205,7 +253,7 @@
 
     <!-- Graphique Financier -->
     <div class="container mx-auto px-4 mb-10 relative z-20">
-        <div class="max-w-4xl mx-auto glass-card rounded-3xl p-8 border-t-4 border-blue-500">
+        <div class="max-w-4xl mx-auto glass-card rounded-3xl p-8 border-t-4 border-green-500">
             <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center font-cairo">📊 الإحصائيات المالية (Statistiques
                 Financières)</h3>
             <div class="w-full max-w-md mx-auto relative">
@@ -221,15 +269,15 @@
             <!-- Card 1: Nouveautés -->
             <!-- ✅ FIX: Route Express protégée -->
             <a href="/gestion-nouveautes.html"
-                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-purple-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
+                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-green-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
                 <div
-                    class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 </div>
                 <div
-                    class="w-20 h-20 bg-purple-100/80 backdrop-blur-sm text-purple-600 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-purple-200/50 relative z-10">
+                    class="w-20 h-20 bg-green-100/80 backdrop-blur-sm text-green-600 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-green-200/50 relative z-10">
                     📰</div>
                 <h2
-                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-purple-700 transition-colors">
+                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-green-700 transition-colors">
                     منشور جديد</h2>
                 <p class="text-gray-500 text-center text-sm font-inter relative z-10 font-medium tracking-wide">Ajouter
                     des articles, événements et photos.</p>
@@ -270,30 +318,30 @@
             <!-- Card 3: Membres -->
             <!-- ✅ FIX: Route Express protégée -->
             <a href="/liste-membres.html"
-                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-blue-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
+                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-green-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
                 <div
-                    class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 </div>
                 <div
-                    class="w-20 h-20 bg-blue-100/80 backdrop-blur-sm text-blue-600 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-blue-200/50 relative z-10">
+                    class="w-20 h-20 bg-green-100/80 backdrop-blur-sm text-green-600 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-green-200/50 relative z-10">
                     👥</div>
                 <h2
-                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-blue-700 transition-colors">
+                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-green-700 transition-colors">
                     قائمة الأعضاء</h2>
                 <p class="text-gray-500 text-center text-sm font-inter relative z-10 font-medium tracking-wide">
                     Consulter la liste complète des membres.</p>
             </a>
 
             <a href="/gestion-inscriptions.html"
-                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-indigo-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
+                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-green-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
                 <div
-                    class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 </div>
                 <div
-                    class="w-20 h-20 bg-indigo-100/80 backdrop-blur-sm text-indigo-600 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-indigo-200/50 relative z-10">
+                    class="w-20 h-20 bg-green-100/80 backdrop-blur-sm text-green-600 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-green-200/50 relative z-10">
                     📥</div>
                 <h2
-                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-indigo-700 transition-colors">
+                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-green-700 transition-colors">
                     طلبات التسجيل</h2>
                 <p class="text-gray-500 text-center text-sm font-inter relative z-10 font-medium tracking-wide">
                     Inscriptions — Valider ou rejeter les demandes en attente.</p>
@@ -302,19 +350,19 @@
             <!-- Card 4: Dépenses -->
             <!-- ✅ FIX: Route Express protégée -->
             <a href="/gestion-depenses.html"
-                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-rose-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
+                class="glass-card p-8 rounded-3xl card-hover border-t-4 border-green-500 group cursor-pointer flex flex-col items-center relative overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl">
                 <div
-                    class="absolute inset-0 bg-gradient-to-br from-rose-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 </div>
                 <div class="absolute top-4 left-4 z-20">
                     <span
-                        class="bg-gradient-to-r from-rose-500 to-red-600 text-white text-xs px-4 py-1.5 rounded-full font-bold shadow-md uppercase tracking-wider">جديد</span>
+                        class="bg-gradient-to-r from-amber-500 to-red-600 text-white text-xs px-4 py-1.5 rounded-full font-bold shadow-md uppercase tracking-wider">جديد</span>
                 </div>
                 <div
-                    class="w-20 h-20 bg-rose-100/80 backdrop-blur-sm text-rose-500 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-rose-200/50 relative z-10">
+                    class="w-20 h-20 bg-green-100/80 backdrop-blur-sm text-green-500 rounded-2xl flex items-center justify-center text-4xl mb-6 shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-green-200/50 relative z-10">
                     📤</div>
                 <h2
-                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-rose-700 transition-colors">
+                    class="text-2xl font-bold text-gray-800 mb-3 text-center font-cairo relative z-10 group-hover:text-green-700 transition-colors">
                     إدارة المصروفات</h2>
                 <p class="text-gray-500 text-center text-sm font-inter relative z-10 font-medium tracking-wide">
                     Enregistrer et suivre les dépenses de l'association.</p>

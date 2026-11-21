@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>رابطة شباب جدة - Accueil</title>
     <meta name="description" content="رابطة شباب جدة - Association de la Jeunesse de Jeddetta, Mauritanie. Plateforme de gestion des membres, cotisations et actualités.">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
@@ -241,7 +241,7 @@
         .animate-float {
             animation: floatLogo 4s ease-in-out infinite;
         }
-        
+
         /* ── SHINE TEXT ANIMATION ── */
         @keyframes shine {
             0% { background-position: 200% center; }
@@ -287,7 +287,55 @@
             0% { transform: translate3d(-90px,0,0); }
             100% { transform: translate3d(85px,0,0); }
         }
-    </style>
+
+        /* Palette AJJ unifiée */
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-ajj-emerald"] { color: var(--ajj-emerald) !important; }
+        [class*="text-ajj-deep"] { color: var(--ajj-deep) !important; }
+        [class*="text-ajj-gold"] { color: var(--ajj-gold) !important; }
+        [class*="text-ajj-sand"] { color: var(--ajj-sand) !important; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-purple-"], [class*="text-violet-"], [class*="text-fuchsia-"],
+        [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+        [class*="text-pink-"], [class*="text-rose-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"],
+        [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-fuchsia-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+        [class*="bg-pink-"], [class*="bg-rose-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-teal-50"],
+        [class*="bg-blue-50"], [class*="bg-indigo-50"], [class*="bg-purple-50"],
+        [class*="bg-pink-50"], [class*="bg-rose-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="bg-gray-100"], [class*="bg-gray-200"], [class*="bg-gray-50"],
+        [class*="bg-slate-100"], [class*="bg-slate-200"], [class*="bg-slate-50"] { background-color: #f7f2e8 !important; }
+        [class*="bg-gray-800"], [class*="bg-gray-900"],
+        [class*="bg-slate-800"], [class*="bg-slate-900"] { background-color: var(--ajj-deep) !important; }
+        [class*="border-green-"], [class*="border-emerald-"], [class*="border-teal-"],
+        [class*="border-blue-"], [class*="border-indigo-"], [class*="border-amber-"],
+        [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="border-pink-"], [class*="border-purple-"], [class*="border-rose-"] { border-color: var(--ajj-gold) !important; }
+        [class*="border-gray-"], [class*="border-slate-"] { border-color: rgba(6,44,42,.14) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"], [class*="ring-teal-"],
+        [class*="ring-blue-"], [class*="ring-purple-"], [class*="ring-pink-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"],
+        [class*="from-cyan-"], [class*="from-blue-"], [class*="from-indigo-"],
+        [class*="from-purple-"], [class*="from-violet-"], [class*="from-fuchsia-"],
+        [class*="from-pink-"], [class*="from-rose-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"], [class*="from-orange-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="from-gray-"], [class*="from-slate-"] { --tw-gradient-from: var(--ajj-deep) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"],
+        [class*="to-cyan-"], [class*="to-blue-"], [class*="to-indigo-"],
+        [class*="to-purple-"], [class*="to-violet-"], [class*="to-fuchsia-"],
+        [class*="to-pink-"], [class*="to-rose-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"], [class*="to-orange-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+        [class*="to-gray-"], [class*="to-slate-"] { --tw-gradient-to: var(--ajj-deep) var(--tw-gradient-to-position) !important; }
+        [class*="via-green-"], [class*="via-emerald-"], [class*="via-yellow-"] { --tw-gradient-via: var(--ajj-emerald) var(--tw-gradient-via-position) !important; }
+</style>
 </head>
 
 <body class="min-h-screen">
@@ -353,7 +401,7 @@
 
     <!-- ══ STATS SECTION ══ -->
     <div class="container mx-auto px-4 py-10 relative -mt-4 z-20">
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto reveal">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto reveal">
             <div class="stat-card reveal-delay-1">
                 <div class="text-3xl mb-2">👥</div>
                 <div class="stat-number text-green-600" id="statMembres">—</div>
@@ -362,13 +410,13 @@
             </div>
             <div class="stat-card reveal-delay-2">
                 <div class="text-3xl mb-2">👩</div>
-                <div class="stat-number text-pink-500" id="statFemmes">—</div>
+                <div class="stat-number text-green-500" id="statFemmes">—</div>
                 <div class="text-xs font-semibold text-gray-500 font-inter mt-1">نساء</div>
                 <div class="text-xs text-gray-400 font-inter">Femmes</div>
             </div>
             <div class="stat-card reveal-delay-4">
                 <div class="text-3xl mb-2">📸</div>
-                <div class="stat-number text-blue-500" id="statPhotos">—</div>
+                <div class="stat-number text-green-500" id="statPhotos">—</div>
                 <div class="text-xs font-semibold text-gray-500 font-inter mt-1">صور</div>
                 <div class="text-xs text-gray-400 font-inter">Photos</div>
             </div>
@@ -396,10 +444,10 @@
 
             <!-- Inscription Femmes -->
             <a href="/inscription-femmes.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-2">
-                <div class="absolute inset-0 bg-gradient-to-br from-pink-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-r from-pink-500 to-rose-500 h-3 w-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="bg-gradient-to-r from-amber-500 to-amber-500 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
-                    <div class="w-20 h-20 mx-auto bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:rotate-6 transition duration-300">
+                    <div class="w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:rotate-6 transition duration-300">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"></path>
                         </svg>
@@ -411,10 +459,10 @@
 
             <!-- Nouveautés -->
             <a href="/nouveautes.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-3">
-                <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 w-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="bg-gradient-to-r from-amber-500 to-amber-500 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
-                    <div class="w-20 h-20 mx-auto bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:-rotate-6 transition duration-300">
+                    <div class="w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:-rotate-6 transition duration-300">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
@@ -440,10 +488,10 @@
 
             <!-- Liste des membres -->
             <a href="/liste-membres.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-4">
-                <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-3 w-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="bg-gradient-to-r from-amber-500 to-amber-500 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
-                    <div class="w-20 h-20 mx-auto bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:-rotate-6 transition duration-300">
+                    <div class="w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:-rotate-6 transition duration-300">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
@@ -454,7 +502,7 @@
             </a>
 
             <!-- Suivi des cotisations -->
-            <a href="/suivi-dons.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-1">
+            <a href="/login.html" class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-1">
                 <div class="absolute inset-0 bg-gradient-to-br from-yellow-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
@@ -485,20 +533,20 @@
 
             <!-- Carte de Membre Numérique -->
             <div class="glass-card rounded-3xl overflow-hidden card-hover group relative reveal reveal-delay-3">
-                <div class="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="bg-gradient-to-r from-teal-500 to-emerald-400 h-3 w-full"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-3 w-full"></div>
                 <div class="p-8 text-center relative z-10">
-                    <div class="w-20 h-20 mx-auto bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition duration-300">
+                    <div class="w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-inner group-hover:scale-110 transition duration-300">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
                         </svg>
                     </div>
                     <a href="/carte.html" class="block">
-                        <h2 class="text-2xl font-bold mb-2 group-hover:text-teal-600 transition-colors">بطاقة العضوية</h2>
+                        <h2 class="text-2xl font-bold mb-2 group-hover:text-green-600 transition-colors">بطاقة العضوية</h2>
                         <p class="text-gray-500 text-sm font-inter">Carte Numérique — Vérifier ma carte</p>
                     </a>
                     <a href="/inscription-hommes.html"
-                        class="mt-4 inline-block bg-teal-500 hover:bg-teal-600 text-white text-sm font-bold px-5 py-2 rounded-xl transition duration-300 shadow-md">
+                        class="mt-4 inline-block bg-green-500 hover:bg-green-600 text-white text-sm font-bold px-5 py-2 rounded-xl transition duration-300 shadow-md">
                         تسجيل / Inscription
                     </a>
                 </div>
@@ -515,25 +563,11 @@
         </div>
     </div>
 
-    <!-- City Autocompletion -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl shadow-lg p-8 max-w-lg mx-auto border border-green-200 text-center card-hover reveal">
-            <h3 class="text-xl font-bold mb-2">🌍 ابحث عن فرعنا في مدينتك</h3>
-            <p class="text-gray-600 text-sm mb-4">Recherchez une ville en Mauritanie (Autocomplétion)</p>
-            <div class="relative text-right">
-                <input type="text" id="cityInput" placeholder="أدخل اسم المدينة... (ex: Nouakchott)"
-                    class="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 outline-none text-right bg-white text-gray-800">
-                <div id="cityDropdown" class="absolute z-50 w-full bg-white border border-gray-200 rounded-xl mt-1 shadow-xl hidden max-h-48 overflow-y-auto"></div>
-            </div>
-            <p id="cityResult" class="text-green-700 font-bold mt-4 hidden"></p>
-        </div>
-    </div>
-
     <!-- Mauritania News Section -->
     <div class="container mx-auto px-4 py-12">
         <div class="flex items-center justify-between mb-8 max-w-6xl mx-auto reveal">
             <h2 class="text-3xl font-bold">📰 أخبار موريتانيا</h2>
-            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full font-inter">مباشر</span>
+            <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full font-inter">مباشر</span>
         </div>
         <div id="newsContainer" class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto reveal">
             <div class="col-span-3 text-center text-gray-500 py-8">جاري تحميل الأخبار...</div>
@@ -607,7 +641,7 @@
 
         // ── PARTICLES (tsParticles) ──
         const isMobile = window.innerWidth < 768;
-        
+
         tsParticles.load("particles", {
             background: { color: { value: "transparent" } },
             particles: {
@@ -677,15 +711,15 @@
         // ── LOGO ──
         const logoImg = document.getElementById('logoImage');
         const logoText = document.getElementById('logoText');
-        
+
         function showLogo() {
             logoText.classList.add('hidden');
             logoImg.classList.remove('hidden');
         }
-        
+
         logoImg.onerror = () => { logoImg.classList.add('hidden'); logoText.classList.remove('hidden'); };
         logoImg.onload = showLogo;
-        
+
         // Correction du bug de cache : Si l'image est DÉJÀ chargée quand le script s'exécute
         if (logoImg.complete && logoImg.naturalWidth > 0) {
             showLogo();
@@ -730,40 +764,6 @@
 
         document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-        // ── CITY AUTOCOMPLETE ──
-        const villesMauritanie = [
-            "Nouakchott (نواكشوط)", "Nouadhibou (نواذيبو)", "Rosso (روصو)",
-            "Kaédi (كيهيدي)", "Boghé (بوكي)", "Kiffa (كيفه)", "Zouérate (ازويرات)",
-            "Atar (أطار)", "Sélibaby (سيلبابي)", "Néma (النعمة)", "Aleg (ألاك)",
-            "Tidjikja (تجكجة)", "Aioun (العيون)", "Akjoujt (أكجوجت)", "Boutilimit (بوتلميت)"
-        ];
-        const cityInput = document.getElementById('cityInput');
-        const cityDropdown = document.getElementById('cityDropdown');
-        const cityResult = document.getElementById('cityResult');
-
-        cityInput.addEventListener('input', function () {
-            const val = this.value.toLowerCase();
-            cityDropdown.innerHTML = '';
-            if (!val) { cityDropdown.classList.add('hidden'); cityResult.classList.add('hidden'); return; }
-            const matches = villesMauritanie.filter(v => v.toLowerCase().includes(val));
-            if (matches.length > 0) {
-                cityDropdown.classList.remove('hidden');
-                matches.forEach(match => {
-                    const div = document.createElement('div');
-                    div.className = "px-4 py-3 hover:bg-green-50 cursor-pointer text-gray-700 border-b border-gray-100 text-right";
-                    div.textContent = match;
-                    div.onclick = () => {
-                        cityInput.value = match;
-                        cityDropdown.classList.add('hidden');
-                        cityResult.innerHTML = `✅ تم اختيار مدينة: <strong>${escapeHtml(match)}</strong>`;
-                        cityResult.classList.remove('hidden');
-                    };
-                    cityDropdown.appendChild(div);
-                });
-            } else { cityDropdown.classList.add('hidden'); }
-        });
-        document.addEventListener('click', e => { if (e.target !== cityInput) cityDropdown.classList.add('hidden'); });
-
         // ── NEWS ──
         async function fetchMauritaniaNews() {
             const newsContainer = document.getElementById('newsContainer');
@@ -780,7 +780,7 @@
                                 <h3 class="font-bold mb-2 line-clamp-2 leading-snug text-right text-sm" dir="rtl">${escapeHtml(item.title)}</h3>
                                 <div class="mt-4 flex justify-between items-center text-xs text-gray-500 font-inter">
                                     <span>${new Date(item.pubDate).toLocaleDateString('ar-MR')}</span>
-                                    <span class="text-blue-600 font-semibold">اقرأ المزيد ←</span>
+                                    <span class="text-green-600 font-semibold">اقرأ المزيد ←</span>
                                 </div>
                             </div>
                         </a>

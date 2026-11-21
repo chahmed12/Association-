@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Membres - Administration</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -117,7 +117,7 @@
         [data-theme="dark"] .divide-gray-200\/50 > * + * { border-color: rgba(51,65,85,0.5) !important; }
         [data-theme="dark"] .divide-gray-100 > * + * { border-color: #334155 !important; }
         [data-theme="dark"] tr.hover\:bg-green-50\/50:hover { background-color: rgba(16,185,129,0.08) !important; }
-        [data-theme="dark"] tr.hover\:bg-pink-50\/50:hover { background-color: rgba(236,72,153,0.08) !important; }
+        [data-theme="dark"] tr.hover\:bg-green-50\/50:hover { background-color: rgba(236,72,153,0.08) !important; }
         [data-theme="dark"] .group-hover\:bg-green-50\/50 { background-color: rgba(30,41,59,0.9) !important; }
 
         /* --- RESPONSIVE MOBILE --- */
@@ -242,7 +242,55 @@
         .print-only {
             display: none;
         }
-    </style>
+
+        /* Palette AJJ unifiée */
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-ajj-emerald"] { color: var(--ajj-emerald) !important; }
+        [class*="text-ajj-deep"] { color: var(--ajj-deep) !important; }
+        [class*="text-ajj-gold"] { color: var(--ajj-gold) !important; }
+        [class*="text-ajj-sand"] { color: var(--ajj-sand) !important; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-purple-"], [class*="text-violet-"], [class*="text-fuchsia-"],
+        [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+        [class*="text-pink-"], [class*="text-rose-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"],
+        [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-fuchsia-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+        [class*="bg-pink-"], [class*="bg-rose-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-teal-50"],
+        [class*="bg-blue-50"], [class*="bg-indigo-50"], [class*="bg-purple-50"],
+        [class*="bg-pink-50"], [class*="bg-rose-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="bg-gray-100"], [class*="bg-gray-200"], [class*="bg-gray-50"],
+        [class*="bg-slate-100"], [class*="bg-slate-200"], [class*="bg-slate-50"] { background-color: #f7f2e8 !important; }
+        [class*="bg-gray-800"], [class*="bg-gray-900"],
+        [class*="bg-slate-800"], [class*="bg-slate-900"] { background-color: var(--ajj-deep) !important; }
+        [class*="border-green-"], [class*="border-emerald-"], [class*="border-teal-"],
+        [class*="border-blue-"], [class*="border-indigo-"], [class*="border-amber-"],
+        [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="border-pink-"], [class*="border-purple-"], [class*="border-rose-"] { border-color: var(--ajj-gold) !important; }
+        [class*="border-gray-"], [class*="border-slate-"] { border-color: rgba(6,44,42,.14) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"], [class*="ring-teal-"],
+        [class*="ring-blue-"], [class*="ring-purple-"], [class*="ring-pink-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"],
+        [class*="from-cyan-"], [class*="from-blue-"], [class*="from-indigo-"],
+        [class*="from-purple-"], [class*="from-violet-"], [class*="from-fuchsia-"],
+        [class*="from-pink-"], [class*="from-rose-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"], [class*="from-orange-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="from-gray-"], [class*="from-slate-"] { --tw-gradient-from: var(--ajj-deep) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"],
+        [class*="to-cyan-"], [class*="to-blue-"], [class*="to-indigo-"],
+        [class*="to-purple-"], [class*="to-violet-"], [class*="to-fuchsia-"],
+        [class*="to-pink-"], [class*="to-rose-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"], [class*="to-orange-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+        [class*="to-gray-"], [class*="to-slate-"] { --tw-gradient-to: var(--ajj-deep) var(--tw-gradient-to-position) !important; }
+        [class*="via-green-"], [class*="via-emerald-"], [class*="via-yellow-"] { --tw-gradient-via: var(--ajj-emerald) var(--tw-gradient-via-position) !important; }
+</style>
 </head>
 
 <body class="min-h-screen flex flex-col">
@@ -305,20 +353,20 @@
     </header>
 
     <div class="container mx-auto px-4 py-8 no-print flex-grow relative z-20">
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 mb-10 max-w-7xl mx-auto hidden"
+        <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6 mb-10 max-w-7xl mx-auto hidden"
             id="statsGrid">
 
             <div
                 class="glass-card rounded-2xl p-5 stats-card card-hover flex flex-col items-center justify-center text-center">
                 <div
-                    class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
+                    class="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-200 text-green-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                         </path>
                     </svg>
                 </div>
-                <p id="totalMembres" class="text-3xl font-extrabold text-blue-600 font-inter">0</p>
+                <p id="totalMembres" class="text-3xl font-extrabold text-green-600 font-inter">0</p>
                 <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mt-1 font-inter">Total Membres</p>
             </div>
 
@@ -338,21 +386,21 @@
             <div
                 class="glass-card rounded-2xl p-5 stats-card card-hover flex flex-col items-center justify-center text-center">
                 <div
-                    class="w-14 h-14 bg-gradient-to-br from-pink-100 to-rose-200 text-pink-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
+                    class="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-200 text-green-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z">
                         </path>
                     </svg>
                 </div>
-                <p id="totalFemmes" class="text-3xl font-extrabold text-pink-600 font-inter">0</p>
+                <p id="totalFemmes" class="text-3xl font-extrabold text-green-600 font-inter">0</p>
                 <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mt-1 font-inter">Femmes</p>
             </div>
 
             <div
                 class="glass-card rounded-2xl p-5 stats-card card-hover flex flex-col items-center justify-center text-center">
                 <div
-                    class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-blue-200 text-indigo-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
+                    class="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-200 text-green-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
@@ -360,7 +408,7 @@
                     </svg>
                 </div>
                 <p id="totalMontant"
-                    class="text-3xl font-extrabold text-indigo-600 font-inter text-sm md:text-xl break-all">0</p>
+                    class="text-3xl font-extrabold text-green-600 font-inter text-sm md:text-xl break-all">0</p>
                 <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mt-1 font-inter">Cotisations (MRO)
                 </p>
             </div>
@@ -368,10 +416,10 @@
             <div
                 class="glass-card rounded-2xl p-5 stats-card card-hover flex flex-col items-center justify-center text-center">
                 <div
-                    class="w-14 h-14 bg-gradient-to-br from-cyan-100 to-teal-200 text-teal-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
+                    class="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-200 text-green-600 rounded-2xl flex items-center justify-center mb-3 shadow-inner">
                     <span class="text-2xl">💼</span>
                 </div>
-                <p id="totalTravaille" class="text-3xl font-extrabold text-teal-600 font-inter">0</p>
+                <p id="totalTravaille" class="text-3xl font-extrabold text-green-600 font-inter">0</p>
                 <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mt-1 font-inter">Travailleurs</p>
             </div>
 
@@ -394,7 +442,7 @@
                         class="tab-button w-1/2 flex-1 active px-6 py-5 text-base font-bold text-green-600 border-b-4 border-green-500 bg-white/60 transition-colors">👨
                         الرجال المسجلين</button>
                     <button id="tabFemmes" onclick="showTab('femmes')"
-                        class="tab-button w-1/2 flex-1 px-6 py-5 text-base font-bold text-gray-500 hover:text-pink-600 border-b-4 border-transparent hover:bg-white/40 transition-colors">👩
+                        class="tab-button w-1/2 flex-1 px-6 py-5 text-base font-bold text-gray-500 hover:text-green-600 border-b-4 border-transparent hover:bg-white/40 transition-colors">👩
                         النساء
                         المسجلات</button>
                 </nav>
@@ -437,16 +485,16 @@
                         </button>
                         <!-- Bouton imprimer -->
                         <button onclick="preparePrint()"
-                            class="w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap">
+                            class="w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-amber-600 hover:from-green-700 hover:to-green-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
                                 </path>
                             </svg>
-                            ���������� / PDF
+                            طباعة / PDF
                         </button>
                         <a href="/api/export/membres.csv"
-                            class="w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap">
+                            class="w-full md:w-auto px-6 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-amber-600 hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap">
                             Exporter les membres
                         </a>
                     </div>
@@ -554,7 +602,7 @@
     </div>
 
     <div id="membreModal" class="fixed inset-0 z-[1500] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4 no-print" role="dialog" aria-modal="true" aria-labelledby="membreModalTitle">
-        <div class="glass-card w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+        <div class="glass-card w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl shadow-2xl">
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200/50 bg-white/40">
                 <h2 id="membreModalTitle" class="text-lg font-extrabold text-green-700">Ajouter un membre</h2>
                 <button type="button" id="membreModalClose" class="w-8 h-8 rounded-full bg-white/60 hover:bg-red-100 text-gray-600 hover:text-red-600 font-bold text-xl leading-none flex items-center justify-center transition" title="Fermer / إغلاق">×</button>
@@ -600,6 +648,44 @@
         </div>
     </div>
 
+    <div id="preuvesModal" class="fixed inset-0 z-[1600] hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4 no-print" role="dialog" aria-modal="true" aria-labelledby="preuvesModalTitle">
+        <div class="glass-card w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl shadow-2xl">
+            <div class="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-200/60 bg-white/85 backdrop-blur">
+                <h2 id="preuvesModalTitle" class="text-base md:text-lg font-extrabold text-green-700">Preuves de cotisation — إثباتات الاشتراك</h2>
+                <button type="button" id="preuvesModalClose" class="w-11 h-11 rounded-full bg-white/70 hover:bg-red-100 text-gray-600 hover:text-red-600 font-bold text-xl leading-none flex items-center justify-center transition" title="Fermer / إغلاق" aria-label="Fermer">×</button>
+            </div>
+            <div class="p-5 space-y-6">
+                <p id="preuvesMembreNom" class="font-bold text-green-700 text-sm md:text-base"></p>
+
+                <section>
+                    <h3 class="text-xs font-extrabold text-gray-500 mb-2">Mois payés — الأشهر المدفوعة</h3>
+                    <div id="preuvesMoisPayes" class="flex flex-wrap gap-2"></div>
+                </section>
+
+                <form id="preuvesForm" class="space-y-3 rounded-2xl border border-ajj-sand/60 bg-ajj-sand/20 p-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label for="preuvesMois" class="block text-xs font-bold text-gray-700">Mois — الشهر
+                            <select id="preuvesMois" class="mt-1 w-full min-w-0 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" required></select>
+                        </label>
+                        <label for="preuvesAnnee" class="block text-xs font-bold text-gray-700">Année — السنة
+                            <input id="preuvesAnnee" type="number" min="2000" max="2100" class="mt-1 w-full min-w-0 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" required>
+                        </label>
+                    </div>
+                    <label for="preuvesImage" class="block text-xs font-bold text-gray-700">Capture — الصورة
+                        <input id="preuvesImage" type="file" accept="image/*" class="mt-1 block w-full min-w-0 text-xs" required>
+                    </label>
+                    <button type="submit" id="preuvesSubmit" class="w-full min-h-[44px] rounded-xl bg-gradient-to-r from-green-600 to-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-green-700 hover:to-emerald-800 disabled:opacity-50">Envoyer la preuve</button>
+                </form>
+
+                <section>
+                    <h3 class="text-xs font-extrabold text-gray-500 mb-2">Captures existantes — الصور المحفوظة</h3>
+                    <div id="preuvesListe" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    <p id="preuvesStatus" class="hidden mt-3 text-xs font-bold text-red-600"></p>
+                </section>
+            </div>
+        </div>
+    </div>
+
     <!-- TABLE CACHÉE POUR IMPRESSION - UTILISE UNIQUEMENT DES STYLES INLINE -->
     <div id="printTable"></div>
 
@@ -609,6 +695,8 @@
         let currentTab = 'hommes';
         let currentDisplayData = [];
         let isAuthenticated = false;
+        let preuvesMembreId = null;
+        const moisPreuves = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
         async function apiRequest(url, options = {}) {
             let response;
@@ -753,6 +841,105 @@
             }
         }
 
+        function moisLabelPreuve(paiement) {
+            const numero = Number(paiement && paiement.mois);
+            const libelle = moisPreuves[numero - 1] || String((paiement && paiement.mois) || '');
+            return `${escapeHtml(libelle)} ${escapeHtml((paiement && paiement.annee) || '')}`.trim();
+        }
+
+        function renderPreuvesMoisPayes(paiements) {
+            const conteneur = document.getElementById('preuvesMoisPayes');
+            if (!paiements.length) {
+                conteneur.innerHTML = '<span class="text-xs text-gray-500">Aucun mois payé enregistré.</span>';
+                return;
+            }
+            conteneur.innerHTML = paiements.map(paiement =>
+                `<span class="rounded-full border border-green-200 bg-green-100 px-3 py-1 text-xs font-bold text-green-800">${moisLabelPreuve(paiement)}</span>`
+            ).join('');
+        }
+
+        function populatePreuvesMois(paiements) {
+            const select = document.getElementById('preuvesMois');
+            select.replaceChildren();
+            for (let mois = 1; mois <= 12; mois++) {
+                const option = document.createElement('option');
+                option.value = String(mois);
+                option.textContent = moisPreuves[mois - 1];
+                select.appendChild(option);
+            }
+            const premier = paiements[0] || null;
+            select.value = premier ? String(premier.mois) : '12';
+            document.getElementById('preuvesAnnee').value = premier && premier.annee
+                ? String(premier.annee)
+                : String(new Date().getFullYear());
+        }
+
+        function renderPreuves(preuves) {
+            const liste = document.getElementById('preuvesListe');
+            if (!Array.isArray(preuves) || preuves.length === 0) {
+                liste.innerHTML = '<p class="col-span-full text-xs text-gray-500">Aucune capture pour ce membre.</p>';
+                return;
+            }
+            liste.innerHTML = preuves.map(preuve => `
+                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white/70">
+                    <a href="${escapeHtml(preuve.image_url)}" target="_blank" rel="noopener noreferrer">
+                        <img src="${escapeHtml(preuve.image_url)}" alt="Preuve ${moisLabelPreuve(preuve)}" class="h-32 w-full object-cover">
+                    </a>
+                    <div class="flex items-center justify-between gap-2 p-3">
+                        <span class="text-xs font-bold text-gray-700">${moisLabelPreuve(preuve)}</span>
+                        <button type="button" data-preuve-supprimer="${escapeHtml(preuve.id)}" class="min-h-[44px] rounded-lg bg-red-100 px-3 py-1.5 text-xs font-bold text-red-700 transition hover:bg-red-200">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function closePreuvesModal() {
+            const modal = document.getElementById('preuvesModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            preuvesMembreId = null;
+        }
+
+        async function openPreuvesModal(id, nom) {
+            if (!isAuthenticated) return;
+            preuvesMembreId = id;
+            document.getElementById('preuvesMembreNom').textContent = nom || `Membre #${id}`;
+            const statut = document.getElementById('preuvesStatus');
+            statut.classList.add('hidden');
+            statut.textContent = '';
+            document.getElementById('preuvesMoisPayes').innerHTML = '<span class="text-xs text-gray-500">Chargement…</span>';
+            document.getElementById('preuvesListe').innerHTML = '<p class="col-span-full text-xs text-gray-500">Chargement…</p>';
+            populatePreuvesMois([]);
+
+            const modal = document.getElementById('preuvesModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            try {
+                const reponseCotisations = await fetch('/api/cotisations');
+                if (reponseCotisations.status === 401 || reponseCotisations.redirected) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                if (!reponseCotisations.ok) throw new Error('Erreur HTTP ' + reponseCotisations.status);
+                const cotisations = await reponseCotisations.json();
+                const donneesMembre = Array.isArray(cotisations)
+                    ? cotisations.find(membre => String(membre.id) === String(id))
+                    : null;
+                const paiements = donneesMembre && Array.isArray(donneesMembre.paiements)
+                    ? donneesMembre.paiements
+                    : [];
+
+                const donneesPreuves = await apiRequest(`/api/membres/${encodeURIComponent(id)}/preuves`);
+                renderPreuvesMoisPayes(paiements);
+                populatePreuvesMois(paiements);
+                renderPreuves(donneesPreuves.proofs || []);
+            } catch (error) {
+                statut.textContent = error.message || 'Impossible de charger les preuves.';
+                statut.classList.remove('hidden');
+            }
+        }
+
         async function handleMembreAction(event) {
             const button = event.target.closest('[data-action]');
             if (!button) return;
@@ -761,6 +948,10 @@
 
             if (button.dataset.action === 'edit') {
                 openMembreModal('edit', id);
+                return;
+            }
+            if (button.dataset.action === 'preuves') {
+                openPreuvesModal(id, button.dataset.nom || '');
                 return;
             }
             if (button.dataset.action === 'archive') {
@@ -799,6 +990,56 @@
             document.getElementById('membreModalCancel').addEventListener('click', closeMembreModal);
             document.getElementById('membreModal').addEventListener('click', (e) => {
                 if (e.target.id === 'membreModal') closeMembreModal();
+            });
+            document.getElementById('preuvesModalClose').addEventListener('click', closePreuvesModal);
+            document.getElementById('preuvesModal').addEventListener('click', (e) => {
+                if (e.target.id === 'preuvesModal') closePreuvesModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !document.getElementById('preuvesModal').classList.contains('hidden')) closePreuvesModal();
+            });
+            document.getElementById('preuvesForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!preuvesMembreId) return;
+                const fichier = document.getElementById('preuvesImage').files[0];
+                if (!fichier) {
+                    showToast('error', 'Choisissez une image.');
+                    return;
+                }
+                const submit = document.getElementById('preuvesSubmit');
+                submit.disabled = true;
+                const donnees = new FormData();
+                donnees.append('image', fichier);
+                donnees.append('mois', document.getElementById('preuvesMois').value);
+                donnees.append('annee', document.getElementById('preuvesAnnee').value);
+                const nomMembre = document.getElementById('preuvesMembreNom').textContent;
+                const idMembre = preuvesMembreId;
+                try {
+                    await apiRequest(`/api/membres/${encodeURIComponent(idMembre)}/preuves`, { method: 'POST', body: donnees });
+                    document.getElementById('preuvesImage').value = '';
+                    await openPreuvesModal(idMembre, nomMembre);
+                    showToast('success', 'Preuve envoyée');
+                } catch (error) {
+                    showToast('error', error.message || 'Erreur lors de l\'envoi');
+                } finally {
+                    submit.disabled = false;
+                }
+            });
+            document.getElementById('preuvesListe').addEventListener('click', async (e) => {
+                const bouton = e.target.closest('[data-preuve-supprimer]');
+                if (!bouton) return;
+                if (!window.confirm('Supprimer cette preuve ?')) return;
+                const nomMembre = document.getElementById('preuvesMembreNom').textContent;
+                const idMembre = preuvesMembreId;
+                bouton.disabled = true;
+                try {
+                    await apiRequest(`/api/preuves/${encodeURIComponent(bouton.dataset.preuveSupprimer)}`, { method: 'DELETE' });
+                    await openPreuvesModal(idMembre, nomMembre);
+                    showToast('success', 'Preuve supprimée');
+                } catch (error) {
+                    bouton.disabled = false;
+                    showToast('error', error.message || 'Erreur lors de la suppression');
+                }
             });
             document.getElementById('membreForm').addEventListener('submit', saveMembre);
             document.getElementById('hommesBody').addEventListener('click', handleMembreAction);
@@ -871,7 +1112,7 @@
                 displayHommes();
             } else {
                 const btn = document.getElementById('tabFemmes');
-                btn.className = 'tab-button w-1/2 flex-1 active px-6 py-5 text-base font-bold text-pink-600 border-b-4 border-pink-500 bg-white/60 transition-colors cursor-pointer';
+                btn.className = 'tab-button w-1/2 flex-1 active px-6 py-5 text-base font-bold text-green-600 border-b-4 border-green-500 bg-white/60 transition-colors cursor-pointer';
                 const content = document.getElementById('tableFemmes');
                 content.classList.remove('hidden');
                 displayFemmes();
@@ -902,11 +1143,11 @@
                         <h2 style="font-size: 16pt; margin-bottom: 8px; color: #666;">Association de la Jeunesse de Jeddetta</h2>
                         <p style="font-size: 11pt; color: #999;">Imprimé le ${dateStr} à ${timeStr}</p>
                     </div>
-                    
+
                     <h2 style="font-size: 16pt; font-weight: bold; text-align: center; margin: 20px 0; color: black;">
                         ${isHommes ? 'قائمة الرجال المسجلين' : 'قائمة النساء المسجلات'}
                     </h2>
-                    
+
                     <table style="width: 100%; border-collapse: collapse; font-size: 9pt; border: 1px solid #333;" dir="rtl">
                         <thead>
                             <tr style="background-color: #e5e7eb;">
@@ -1044,7 +1285,7 @@
                     ? `<a href="https://wa.me/${escapeHtml(whatsappDigits)}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:underline font-bold font-inter" dir="ltr">${escapeHtml(whatsappBrut)}</a>`
                     : '<span class="text-gray-400">—</span>';
                 const numeroHtml = membre.numero_adherent
-                    ? `<span class="font-inter text-xs font-bold text-indigo-600">${escapeHtml(membre.numero_adherent)}</span>`
+                    ? `<span class="font-inter text-xs font-bold text-green-600">${escapeHtml(membre.numero_adherent)}</span>`
                     : '<span class="text-gray-400">—</span>';
                 const copyButton = isAuthenticated ? `<button onclick="copyPhone('${escapeJs(membre.telephone)}')" title="Copier le numéro"
                                 style="width:24px;height:24px;border-radius:50%;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;"
@@ -1056,6 +1297,7 @@
                     <td class="px-4 py-4 whitespace-nowrap text-sm">
                         <div class="flex items-center justify-start gap-2" dir="ltr">
                             <button type="button" data-action="edit" data-id="${membreId}" title="Modifier / تعديل" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 border border-green-200 transition">Modifier</button>
+                            <button type="button" data-action="preuves" data-id="${membreId}" data-nom="${escapeHtml(membre.nom)}" title="Preuves / إثباتات" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200 transition">Preuves</button>
                             <button type="button" data-action="archive" data-id="${membreId}" title="Archiver / أرشفة" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200 transition">Archiver</button>
                         </div>
                     </td>` : '';
@@ -1093,7 +1335,7 @@
                     ? `<a href="https://wa.me/${escapeHtml(whatsappDigits)}" target="_blank" rel="noopener noreferrer" class="text-green-600 hover:underline font-bold font-inter" dir="ltr">${escapeHtml(whatsappBrut)}</a>`
                     : '<span class="text-gray-400">—</span>';
                 const numeroHtml = membre.numero_adherent
-                    ? `<span class="font-inter text-xs font-bold text-indigo-600">${escapeHtml(membre.numero_adherent)}</span>`
+                    ? `<span class="font-inter text-xs font-bold text-green-600">${escapeHtml(membre.numero_adherent)}</span>`
                     : '<span class="text-gray-400">—</span>';
                 const copyButton = isAuthenticated ? `<button onclick="copyPhone('${escapeJs(membre.telephone)}')" title="Copier"
                                 style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;">
@@ -1104,6 +1346,7 @@
                         <span class="member-card-label">إجراءات (Actions)</span>
                         <span class="member-card-value flex items-center gap-2 justify-end" dir="ltr">
                             <button type="button" data-action="edit" data-id="${membreId}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 border border-green-200">Modifier</button>
+                            <button type="button" data-action="preuves" data-id="${membreId}" data-nom="${escapeHtml(membre.nom)}" class="min-h-[44px] px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200">Preuves</button>
                             <button type="button" data-action="archive" data-id="${membreId}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200">Archiver</button>
                         </span>
                     </div>` : '';
@@ -1111,7 +1354,7 @@
                 return `
                 <div class="member-card">
                     <div class="flex justify-between items-start mb-2">
-                        <span class="text-lg font-bold text-blue-600">#${index + 1}</span>
+                        <span class="text-lg font-bold text-green-600">#${index + 1}</span>
                         <span class="px-2 py-1 text-xs font-semibold rounded-full ${membre.situation === 'نعم' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
                             ${membre.situation === 'نعم' ? '💼 Travaille' : '🏠 Sans emploi'}
                         </span>
@@ -1137,7 +1380,7 @@
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">المبلغ (Montant)</span>
-                        <span class="member-card-value font-bold text-blue-600">${escapeHtml(membre.montant)} UM</span>
+                        <span class="member-card-value font-bold text-green-600">${escapeHtml(membre.montant)} UM</span>
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">التاريخ (Date)</span>
@@ -1162,9 +1405,9 @@
 
             // Vue Desktop (Table)
             tbody.innerHTML = data.map((femme, index) => `
-                <tr class="hover:bg-pink-50/50 transition duration-150">
+                <tr class="hover:bg-green-50/50 transition duration-150">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${index + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2"><span class="text-pink-400">👩</span> ${highlight(femme.nom, searchTerm)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2"><span class="text-green-400">👩</span> ${highlight(femme.nom, searchTerm)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${formatDate(femme.date_inscription)}</td>
                 </tr>
             `).join('');
@@ -1173,7 +1416,7 @@
             mobileView.innerHTML = data.map((femme, index) => `
                 <div class="member-card">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="text-lg font-bold text-pink-600">#${index + 1}</span>
+                        <span class="text-lg font-bold text-green-600">#${index + 1}</span>
                         <span class="text-2xl">👩</span>
                     </div>
                     <div class="member-card-row">

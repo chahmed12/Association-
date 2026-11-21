@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suivi des Cotisations - رابطة شباب جدة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/css/app.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- SweetAlert2 pour les notifications "Toast" -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -189,7 +189,55 @@
                 transform: scale(1.1)
             }
         }
-    </style>
+
+        /* Palette AJJ unifiée */
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-ajj-emerald"] { color: var(--ajj-emerald) !important; }
+        [class*="text-ajj-deep"] { color: var(--ajj-deep) !important; }
+        [class*="text-ajj-gold"] { color: var(--ajj-gold) !important; }
+        [class*="text-ajj-sand"] { color: var(--ajj-sand) !important; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-purple-"], [class*="text-violet-"], [class*="text-fuchsia-"],
+        [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+        [class*="text-pink-"], [class*="text-rose-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"],
+        [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-fuchsia-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+        [class*="bg-pink-"], [class*="bg-rose-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-teal-50"],
+        [class*="bg-blue-50"], [class*="bg-indigo-50"], [class*="bg-purple-50"],
+        [class*="bg-pink-50"], [class*="bg-rose-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="bg-gray-100"], [class*="bg-gray-200"], [class*="bg-gray-50"],
+        [class*="bg-slate-100"], [class*="bg-slate-200"], [class*="bg-slate-50"] { background-color: #f7f2e8 !important; }
+        [class*="bg-gray-800"], [class*="bg-gray-900"],
+        [class*="bg-slate-800"], [class*="bg-slate-900"] { background-color: var(--ajj-deep) !important; }
+        [class*="border-green-"], [class*="border-emerald-"], [class*="border-teal-"],
+        [class*="border-blue-"], [class*="border-indigo-"], [class*="border-amber-"],
+        [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="border-pink-"], [class*="border-purple-"], [class*="border-rose-"] { border-color: var(--ajj-gold) !important; }
+        [class*="border-gray-"], [class*="border-slate-"] { border-color: rgba(6,44,42,.14) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"], [class*="ring-teal-"],
+        [class*="ring-blue-"], [class*="ring-purple-"], [class*="ring-pink-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"],
+        [class*="from-cyan-"], [class*="from-blue-"], [class*="from-indigo-"],
+        [class*="from-purple-"], [class*="from-violet-"], [class*="from-fuchsia-"],
+        [class*="from-pink-"], [class*="from-rose-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"], [class*="from-orange-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="from-gray-"], [class*="from-slate-"] { --tw-gradient-from: var(--ajj-deep) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"],
+        [class*="to-cyan-"], [class*="to-blue-"], [class*="to-indigo-"],
+        [class*="to-purple-"], [class*="to-violet-"], [class*="to-fuchsia-"],
+        [class*="to-pink-"], [class*="to-rose-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"], [class*="to-orange-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+        [class*="to-gray-"], [class*="to-slate-"] { --tw-gradient-to: var(--ajj-deep) var(--tw-gradient-to-position) !important; }
+        [class*="via-green-"], [class*="via-emerald-"], [class*="via-yellow-"] { --tw-gradient-via: var(--ajj-emerald) var(--tw-gradient-via-position) !important; }
+</style>
 </head>
 
 <body class="min-h-screen flex flex-col text-gray-800">
@@ -246,7 +294,7 @@
             <div class="relative z-10">
 
                 <!-- Ligne unique : stats publiables -->
-                <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
                     <div class="border-x border-white/20">
                         <p class="text-green-200 text-xs uppercase tracking-wider mb-1">عدد الأعضاء</p>
                         <p class="text-3xl md:text-4xl font-extrabold" id="totalMembers">—</p>
@@ -291,7 +339,7 @@
                         style="display:none;position:absolute;left:10px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:#e5e7eb;border:none;cursor:pointer;align-items:center;justify-content:center;font-size:16px;color:#6b7280;transition:all 0.2s;"
                         title="Effacer la recherche">×</button>
                 </div>
-                
+
                 <button onclick="refreshData()" title="Actualiser"
                     class="w-full md:w-auto px-6 py-4 rounded-xl text-base font-bold text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -397,7 +445,11 @@
         // ── Chargement des deux sources ────────────────────────────────────────
         async function loadAll() {
             try {
-                const response = await fetch('/api/public/cotisations');
+                const response = await fetch('/api/cotisations');
+                if (response.status === 401 || response.redirected) {
+                    window.location.href = '/login.html';
+                    return;
+                }
                 allMembres = await response.json();
 
                 const totalPayments = allMembres.reduce((sum, m) => sum + m.paiements.length, 0);
@@ -437,7 +489,7 @@
             input.addEventListener('input', e => {
                 const term = e.target.value.trim().toLowerCase();
                 if (clearBtn) clearBtn.style.display = term ? 'flex' : 'none';
-                
+
                 if (!term) { renderDesktopTable(allMembres); renderMobileCards(allMembres); results.classList.add('hidden'); return; }
                 const filtered = allMembres.filter(m => m.nom.toLowerCase().includes(term));
                 renderDesktopTable(filtered, term); renderMobileCards(filtered);
@@ -457,7 +509,7 @@
             const tbody = document.getElementById('desktopTableBody');
             if (!membres.length) { tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-500">Aucun membre trouvé</td></tr>'; return; }
             tbody.innerHTML = '';
-            
+
             function highlight(text, term) {
                 const safeText = escapeHtml(text);
                 if (!term || !text) return safeText;
@@ -513,7 +565,7 @@
                             <div class="bg-white h-full" style="width:${progress}%"></div>
                         </div>
                     </div>
-                    <div class="p-4"><div class="grid grid-cols-4 gap-2">`;
+                    <div class="p-4"><div class="grid grid-cols-1 sm:grid-cols-4 gap-2">`;
                 months.forEach(month => {
                     const isPaid = m.paiements.some(p => p.mois === month.num && p.annee === month.year);
                     html += `<div class="text-center">
@@ -541,7 +593,7 @@
 
             btn.innerHTML = originalHtml;
             btn.disabled = false;
-            
+
             const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
             Toast.fire({ icon: 'success', title: 'تم تحديث البيانات ✅' });
         }
