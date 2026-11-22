@@ -117,6 +117,10 @@ const schemas = {
         token: Joi.string().pattern(/^[0-9a-fA-F]{64}$/).required()
     }),
 
+    carteId: Joi.object({
+        id: Joi.number().integer().positive().required()
+    }),
+
     evenementQuery: Joi.object({
         avenir: Joi.string().valid('1'),
         statut: Joi.string().valid('brouillon', 'publie', 'annule')

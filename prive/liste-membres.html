@@ -569,6 +569,9 @@
                                 <th
                                     class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
                                     Date d'inscription</th>
+                                <th
+                                    class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider font-inter">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody id="femmesBody" class="divide-y divide-gray-100">
@@ -948,6 +951,42 @@
             }
         }
 
+        async function handleCarteAction(event) {
+            const button = event.target.closest('[data-action="carte"]');
+            if (!button) return;
+            const id = button.dataset.id;
+            const source = button.dataset.source === 'femmes' ? 'femmes' : 'hommes';
+            const segment = source === 'femmes' ? 'femmes' : 'membres';
+            button.disabled = true;
+
+            try {
+                const carte = await apiRequest(`/api/${segment}/${encodeURIComponent(id)}/carte`);
+                let token = carte.carte && carte.carte.carte_token;
+                if (!token) {
+                    const regen = await apiRequest(`/api/${segment}/${encodeURIComponent(id)}/carte/token`, { method: 'POST' });
+                    token = regen.token;
+                }
+                if (!token) throw new Error('Token indisponible');
+
+                const lien = `${window.location.origin}/carte.html?token=${encodeURIComponent(token)}`;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    try {
+                        await navigator.clipboard.writeText(lien);
+                        showToast('success', 'Lien de la carte copié ✅');
+                    } catch (copyError) {
+                        showToast('success', 'Token de la carte généré ✅');
+                    }
+                } else {
+                    showToast('success', 'Token de la carte généré ✅');
+                }
+                window.prompt('Token / Lien de la carte', `${token}\n${lien}`);
+            } catch (error) {
+                showToast('error', error.message || 'Erreur lors de la génération du token');
+            } finally {
+                button.disabled = false;
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch('/api/check-auth');
@@ -1021,6 +1060,10 @@
             document.getElementById('membreForm').addEventListener('submit', saveMembre);
             document.getElementById('hommesBody').addEventListener('click', handleMembreAction);
             document.getElementById('hommesMobileView').addEventListener('click', handleMembreAction);
+            document.getElementById('hommesBody').addEventListener('click', handleCarteAction);
+            document.getElementById('hommesMobileView').addEventListener('click', handleCarteAction);
+            document.getElementById('femmesBody').addEventListener('click', handleCarteAction);
+            document.getElementById('femmesMobileView').addEventListener('click', handleCarteAction);
 
             try {
                 await loadData();
@@ -1274,6 +1317,7 @@
                     <td class="px-4 py-4 whitespace-nowrap text-sm">
                         <div class="flex items-center justify-start gap-2" dir="ltr">
                             <button type="button" data-action="edit" data-id="${membreId}" title="Modifier / تعديل" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 border border-green-200 transition">Modifier</button>
+                            <button type="button" data-action="carte" data-id="${membreId}" data-source="hommes" title="Token carte" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200 transition">Token carte</button>
                             <button type="button" data-action="preuves" data-id="${membreId}" data-nom="${escapeHtml(membre.nom)}" title="Preuves / إثباتات" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200 transition">Preuves</button>
                             <button type="button" data-action="archive" data-id="${membreId}" title="Archiver / أرشفة" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200 transition">Archiver</button>
                         </div>
@@ -1323,6 +1367,7 @@
                         <span class="member-card-label">إجراءات (Actions)</span>
                         <span class="member-card-value flex items-center gap-2 justify-end" dir="ltr">
                             <button type="button" data-action="edit" data-id="${membreId}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-green-700 bg-green-100 hover:bg-green-200 border border-green-200">Modifier</button>
+                            <button type="button" data-action="carte" data-id="${membreId}" data-source="hommes" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200">Token carte</button>
                             <button type="button" data-action="preuves" data-id="${membreId}" data-nom="${escapeHtml(membre.nom)}" class="min-h-[44px] px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200">Preuves</button>
                             <button type="button" data-action="archive" data-id="${membreId}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 border border-red-200">Archiver</button>
                         </span>
@@ -1375,22 +1420,32 @@
             const mobileView = document.getElementById('femmesMobileView');
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="px-6 py-4 text-center text-gray-500">Aucun résultat</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Aucun résultat</td></tr>';
                 mobileView.innerHTML = '<p class="text-center text-gray-500 py-8">Aucun résultat</p>';
                 return;
             }
 
-            // Vue Desktop (Table)
-            tbody.innerHTML = data.map((femme, index) => `
+            tbody.innerHTML = data.map((femme, index) => {
+                const femmeId = escapeHtml(femme.id);
+                const carteButton = isAuthenticated
+                    ? `<button type="button" data-action="carte" data-id="${femmeId}" data-source="femmes" title="Token carte" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200 transition">Token carte</button>`
+                    : '';
+                return `
                 <tr class="hover:bg-green-50/50 transition duration-150">
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800 flex items-center gap-2"><span class="text-green-400">👩</span> ${highlight(femme.nom, searchTerm)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-inter">${formatDate(femme.date_inscription)}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm">${carteButton}</td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
 
-            // Vue Mobile (Cartes)
-            mobileView.innerHTML = data.map((femme, index) => `
+            mobileView.innerHTML = data.map((femme, index) => {
+                const femmeId = escapeHtml(femme.id);
+                const carteButton = isAuthenticated
+                    ? `<button type="button" data-action="carte" data-id="${femmeId}" data-source="femmes" class="min-h-[44px] px-2.5 py-1.5 rounded-lg text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-200">Token carte</button>`
+                    : '';
+                return `
                 <div class="member-card">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-lg font-bold text-green-600">#${index + 1}</span>
@@ -1404,8 +1459,13 @@
                         <span class="member-card-label">التاريخ (Date)</span>
                         <span class="member-card-value">${formatDate(femme.date_inscription)}</span>
                     </div>
+                    <div class="member-card-row">
+                        <span class="member-card-label">إجراءات (Actions)</span>
+                        <span class="member-card-value flex items-center gap-2 justify-end" dir="ltr">${carteButton}</span>
+                    </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function formatDate(dateString) {

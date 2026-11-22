@@ -236,12 +236,71 @@ function requireInscriptionsOuvertes(req, res, next) {
     next();
 }
 
+const CARTES_TABLES = {
+    hommes: 'membres',
+    femmes: 'femmes'
+};
+
 async function getCarteMembre(token) {
     const result = await queryAsync(
-        'SELECT nom, numero_adherent, carte_expire_le, actif FROM membres WHERE carte_token = $1',
+        `SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, 'hommes' AS source
+         FROM membres WHERE carte_token = $1
+         UNION ALL
+         SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, 'femmes' AS source
+         FROM femmes WHERE carte_token = $1
+         LIMIT 1`,
         [token]
     );
     return result && result.rows ? result.rows[0] || null : null;
+}
+
+async function getCarteAdmin(source, id) {
+    const table = CARTES_TABLES[source];
+    if (!table) return null;
+    const result = await queryAsync(
+        `SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url FROM ${table} WHERE id = $1`,
+        [id]
+    );
+    return result && result.rows ? result.rows[0] || null : null;
+}
+
+async function assurerCarte(source, id) {
+    const table = CARTES_TABLES[source];
+    if (!table) return null;
+    let carte = await getCarteAdmin(source, id);
+    if (!carte) return null;
+
+    if (!carte.carte_token || !carte.numero_adherent || !carte.carte_expire_le) {
+        const token = carte.carte_token || crypto.randomBytes(32).toString('hex');
+        const prefix = source === 'femmes' ? String(2000 + Number(id)).padStart(4, '0') : String(id).padStart(4, '0');
+        const numero = carte.numero_adherent || `MEM-${prefix}`;
+        await queryAsync(
+            `UPDATE ${table}
+             SET carte_token = $1, numero_adherent = $2,
+                 carte_expire_le = COALESCE(carte_expire_le, NOW() + INTERVAL '1 year')
+             WHERE id = $3`,
+            [token, numero, id]
+        );
+        carte = await getCarteAdmin(source, id);
+    }
+    return carte;
+}
+
+function carteAdminResponse(carte, source) {
+    const date = carte.carte_expire_le ? new Date(carte.carte_expire_le) : null;
+    const expire_le = date && !Number.isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : null;
+    return {
+        success: true,
+        carte: {
+            id: carte.id,
+            nom: carte.nom,
+            numero_adherent: carte.numero_adherent,
+            carte_token: carte.carte_token,
+            carte_expire_le: expire_le,
+            photo_url: carte.photo_url || null,
+            source
+        }
+    };
 }
 
 function carteInfo(membre) {
@@ -260,7 +319,26 @@ function carteInfo(membre) {
     };
 }
 
-function renderCartePdf(res, token, membre, info) {
+async function photoCarteBuffer(url) {
+    if (!url || typeof fetch !== 'function') return null;
+    if (!/^https:\/\/res\.cloudinary\.com\//i.test(url)) return null;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) return null;
+        const type = response.headers.get('content-type') || '';
+        if (!/^image\/(jpeg|png|webp)$/i.test(type)) return null;
+        const buffer = Buffer.from(await response.arrayBuffer());
+        return { buffer, type };
+    } catch {
+        return null;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+async function renderCartePdf(res, token, membre, info) {
     const filename = `carte_${encodeURIComponent(info.numero_adherent || 'membre')}.pdf`;
     res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
     res.setHeader('Content-Type', 'application/pdf');
@@ -276,6 +354,8 @@ function renderCartePdf(res, token, membre, info) {
     const fontRegPath = path.join(__dirname, '../fonts/Amiri-Regular.ttf');
     doc.registerFont('Arabic-Bold', fontPath);
     doc.registerFont('Arabic-Regular', fs.existsSync(fontRegPath) ? fontRegPath : fontPath);
+
+    const photo = await photoCarteBuffer(membre && membre.photo_url);
 
     const PAGE_W = 595 - 80;
     doc.rect(0, 0, 595, 110).fill(COLORS.primary);
@@ -314,6 +394,12 @@ function renderCartePdf(res, token, membre, info) {
             .text(String(value), 265, cy + 16, { width: 260, align: 'left' });
         cy += 58;
     });
+
+    if (photo) {
+        roundedRect(doc, 405, cy + 8, 120, 150, 8, COLORS.lightGray, COLORS.border);
+        doc.image(photo.buffer, 413, cy + 16, { fit: [104, 134], align: 'center', valign: 'center' });
+        cy += 170;
+    }
 
     cy += 16;
     divider(doc, 40, cy);
@@ -386,6 +472,22 @@ function handleImageUpload(middleware) {
 
 const uploadImage = handleImageUpload(upload.single('image'));
 const uploadProofImage = handleImageUpload(uploadProof.single('image'));
+
+const carteStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'association_cartes',
+        allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
+    }
+});
+
+const uploadCarte = multer({
+    storage: carteStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: imageFileFilter
+});
+
+const uploadCarteImage = handleImageUpload(uploadCarte.single('image'));
 
 const preuveSelect = `SELECT id, mois, annee, image_url, created_at, uploaded_by FROM payment_proofs`;
 
@@ -715,14 +817,24 @@ router.delete('/preuves/:id', isAuthenticated, validate('preuveId', 'params'), a
     }
 });
 
-router.post('/membres/:id/carte/token', async (req, res) => {
+async function envoyerCarteAdmin(req, res, source) {
     try {
-        const found = await queryAsync('SELECT * FROM membres WHERE id = $1', [req.params.id]);
-        const membre = found && found.rows ? found.rows[0] : null;
-        if (!membre) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        const carte = await assurerCarte(source, req.params.id);
+        if (!carte) return res.status(404).json({ success: false, message: 'Membre introuvable' });
+        res.json(carteAdminResponse(carte, source));
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+}
+
+async function regenererCarteAdmin(req, res, source) {
+    try {
+        const table = CARTES_TABLES[source];
+        const carte = await assurerCarte(source, req.params.id);
+        if (!carte || !table) return res.status(404).json({ success: false, message: 'Membre introuvable' });
         const token = crypto.randomBytes(32).toString('hex');
         const updated = await queryAsync(
-            `UPDATE membres SET carte_token = $1, carte_expire_le = NOW() + INTERVAL '1 year' WHERE id = $2`,
+            `UPDATE ${table} SET carte_token = $1, carte_expire_le = NOW() + INTERVAL '1 year' WHERE id = $2`,
             [token, req.params.id]
         );
         if (updated && updated.rowCount === 0) {
@@ -732,16 +844,22 @@ router.post('/membres/:id/carte/token', async (req, res) => {
     } catch {
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
-});
+}
+
+router.get('/membres/:id/carte', validate('carteId', 'params'), (req, res) => envoyerCarteAdmin(req, res, 'hommes'));
+router.get('/femmes/:id/carte', isAuthenticated, validate('carteId', 'params'), (req, res) => envoyerCarteAdmin(req, res, 'femmes'));
+router.post('/membres/:id/carte/token', validate('carteId', 'params'), (req, res) => regenererCarteAdmin(req, res, 'hommes'));
+router.post('/femmes/:id/carte/token', isAuthenticated, validate('carteId', 'params'), (req, res) => regenererCarteAdmin(req, res, 'femmes'));
 
 router.post('/membres', validate('membreCreate'), (req, res) => {
     const { nom, telephone, situation, email } = req.body;
     const montant = req.body.montant === undefined ? (situation === 'نعم' ? 2000 : 1000) : req.body.montant;
     const whatsapp = normalizePhone(req.body.whatsapp) || null;
+    const carteToken = crypto.randomBytes(32).toString('hex');
 
     db.query(
-        "INSERT INTO membres (nom, telephone, situation, montant, whatsapp, email) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-        [nom, telephone, situation, montant, whatsapp, email || null],
+        "INSERT INTO membres (nom, telephone, situation, montant, whatsapp, email, carte_token, carte_expire_le) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 year') RETURNING id",
+        [nom, telephone, situation, montant, whatsapp, email || null, carteToken],
         (err, result) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
             const id = result && result.rows && result.rows[0] ? result.rows[0].id : null;
@@ -750,7 +868,7 @@ router.post('/membres', validate('membreCreate'), (req, res) => {
             const numeroAdherent = `MEM-${String(id).padStart(4, '0')}`;
             db.query("UPDATE membres SET numero_adherent = $1 WHERE id = $2", [numeroAdherent, id], (err) => {
                 if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
-                res.status(201).json({ success: true, id, numero_adherent: numeroAdherent });
+                res.status(201).json({ success: true, id, numero_adherent: numeroAdherent, carte_token: carteToken });
             });
         }
     );
@@ -921,11 +1039,31 @@ router.post('/inscriptions/:id/rejeter', isAuthenticated, validate('inscriptionD
     }
 });
 
+router.post('/carte/:token/photo', validate('carteToken', 'params'), uploadCarteImage, async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, message: 'Image requise.' });
+        const hommes = await queryAsync(
+            'UPDATE membres SET photo_url = $1, updated_at = NOW() WHERE carte_token = $2',
+            [req.file.path, req.params.token]
+        );
+        if (!hommes.rowCount) {
+            const femmes = await queryAsync(
+                'UPDATE femmes SET photo_url = $1 WHERE carte_token = $2',
+                [req.file.path, req.params.token]
+            );
+            if (!femmes.rowCount) return res.status(404).json({ success: false, message: 'Carte introuvable' });
+        }
+        res.json({ success: true, photo_url: req.file.path });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
 router.get('/carte/:token.pdf', validate('carteToken', 'params'), async (req, res) => {
     try {
         const membre = await getCarteMembre(req.params.token);
         if (!membre) return res.status(404).json({ success: false, message: 'Carte introuvable' });
-        renderCartePdf(res, req.params.token, membre, carteInfo(membre));
+        await renderCartePdf(res, req.params.token, membre, carteInfo(membre));
     } catch {
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }

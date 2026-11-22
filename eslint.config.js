@@ -10,10 +10,15 @@ module.exports = [
             sourceType: 'commonjs',
             globals: {
                 __dirname: 'readonly',
+                AbortController: 'readonly',
+                Buffer: 'readonly',
+                clearTimeout: 'readonly',
                 console: 'readonly',
+                fetch: 'readonly',
                 module: 'writable',
                 process: 'readonly',
-                require: 'readonly'
+                require: 'readonly',
+                setTimeout: 'readonly'
             }
         },
         rules: {

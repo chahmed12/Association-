@@ -15,6 +15,7 @@ const payments = new Set();
 const exportLogs = [];
 const adminHash = bcrypt.hashSync('mot-de-passe-test', 4);
 const carteToken = 'b'.repeat(64);
+const femmeToken = 'd'.repeat(64);
 const expireLe = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 const champsPublicsEvenement = ['id', 'titre', 'description', 'lieu', 'date_debut', 'date_fin', 'image_url', 'capacite'];
 const evenements = [
@@ -73,9 +74,12 @@ function resultFor(sql, params) {
     if (query.includes('SELECT * FROM admins WHERE username = $1')) {
         return { rows: [{ username: 'admin', password: adminHash }] };
     }
-    if (query.includes('SELECT nom, numero_adherent, carte_expire_le, actif FROM membres')) {
+    if (query.includes('FROM membres WHERE carte_token = $1') && query.includes('FROM femmes WHERE carte_token = $1')) {
         if (params[0] === carteToken) {
-            return { rows: [{ nom: 'Alpha', numero_adherent: 'MEM-0001', carte_expire_le: expireLe, actif: true }] };
+            return { rows: [{ nom: 'Alpha', numero_adherent: 'MEM-0001', carte_expire_le: expireLe, actif: true, photo_url: null, source: 'hommes' }] };
+        }
+        if (params[0] === femmeToken) {
+            return { rows: [{ nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_expire_le: expireLe, actif: true, photo_url: null, source: 'femmes' }] };
         }
         return { rows: [] };
     }
@@ -157,6 +161,12 @@ function resultFor(sql, params) {
     if (query.includes('SELECT * FROM membres WHERE telephone')) {
         return { rows: [] };
     }
+    if (query.includes('SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url FROM membres WHERE id = $1')) {
+        return { rows: [{ id: Number(params[0]), nom: 'Alpha', numero_adherent: 'MEM-0001', carte_token: carteToken, carte_expire_le: expireLe, photo_url: null }] };
+    }
+    if (query.includes('SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url FROM femmes WHERE id = $1')) {
+        return { rows: [{ id: Number(params[0]), nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_token: femmeToken, carte_expire_le: expireLe, photo_url: null }] };
+    }
     if (query.includes('SELECT * FROM membres WHERE id = $1')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
     }
@@ -165,6 +175,12 @@ function resultFor(sql, params) {
     }
     if (query.includes('INSERT INTO membres')) {
         return { rows: [{ id: 2 }] };
+    }
+    if (query.includes('UPDATE membres SET carte_token') || query.includes('UPDATE membres SET photo_url')) {
+        return { rowCount: 1, rows: [] };
+    }
+    if (query.includes('UPDATE femmes SET carte_token') || query.includes('UPDATE femmes SET photo_url')) {
+        return { rowCount: 1, rows: [] };
     }
     if (query.includes('UPDATE membres')) {
         return { rows: [] };
@@ -389,6 +405,7 @@ test('les routes sensibles exigent une session', async () => {
         '/api/export/membres.csv', '/api/export/cotisations.csv', '/api/export/depenses.csv',
         '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
         '/api/notifications', '/api/membres/1/preferences', '/api/membres/1/preuves',
+        '/api/membres/1/carte', '/api/femmes/1/carte',
         '/api/admin/evenements', '/api/admin/journal', '/api/evenements/1/rsvps'
     ]) {
         const response = await request(app).get(url).expect(401);
@@ -398,7 +415,7 @@ test('les routes sensibles exigent une session', async () => {
     for (const url of [
         '/api/notifications', '/api/notifications/rappels-cotisations',
         '/api/inscriptions/1/valider', '/api/inscriptions/1/rejeter', '/api/membres/1/carte/token',
-        '/api/membres/1/preuves', '/api/evenements'
+        '/api/femmes/1/carte/token', '/api/membres/1/preuves', '/api/evenements'
     ]) {
         const response = await request(app).post(url).send({ motif: 'Motif valide' }).expect(401);
         assert.equal(response.body.success, false);
@@ -621,6 +638,14 @@ test('la carte publique n expose que les champs autorises', async () => {
     assert.equal(response.body.expire_le, expireLe);
 });
 
+test('la carte publique accepte un token de femme', async () => {
+    const response = await request(app).get(`/api/carte/${femmeToken}`).expect(200);
+    assert.deepEqual(Object.keys(response.body).sort(), ['annee', 'expire_le', 'nom', 'numero_adherent', 'statut']);
+    assert.equal(response.body.nom, 'Beta Femme');
+    assert.equal(response.body.numero_adherent, 'MEM-2001');
+    assert.equal(response.body.statut, 'valide');
+});
+
 test('un token de carte invalide ou inconnu est refuse', async () => {
     await request(app).get('/api/carte/pas-un-token').expect(400);
     await request(app).get(`/api/carte/${'c'.repeat(64)}`).expect(404);
@@ -654,6 +679,24 @@ test('moderation des inscriptions et renouvellement du token de carte', async ()
 
     const carte = await agent.post('/api/membres/1/carte/token').send({}).expect(200);
     assert.match(carte.body.token, /^[0-9a-f]{64}$/);
+});
+
+test('les tokens de carte hommes et femmes sont consultables par un admin', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const homme = await agent.get('/api/membres/1/carte').expect(200);
+    assert.equal(homme.body.carte.carte_token, carteToken);
+    assert.equal(homme.body.carte.source, 'hommes');
+
+    const femme = await agent.get('/api/femmes/1/carte').expect(200);
+    assert.equal(femme.body.carte.carte_token, femmeToken);
+    assert.equal(femme.body.carte.source, 'femmes');
+
+    const regen = await agent.post('/api/femmes/1/carte/token').send({}).expect(200);
+    assert.match(regen.body.token, /^[0-9a-f]{64}$/);
 });
 
 test('check-auth indique etat non connecte puis connecte', async () => {

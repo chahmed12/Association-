@@ -136,6 +136,20 @@
 
             <div id="carteResult" class="hidden mt-6 rounded-2xl border border-green-200 bg-white/90 p-6 shadow-inner"
                 role="status"></div>
+
+            <form id="cartePhotoForm"
+                class="hidden mt-4 rounded-2xl border border-amber-200 bg-white/90 p-4 shadow-inner space-y-3 text-right">
+                <label for="cartePhoto" class="block text-sm font-bold text-gray-700">
+                    صورة العضو (اختيارية) / Photo (optionnelle)
+                </label>
+                <input id="cartePhoto" type="file" accept="image/jpeg,image/png,image/webp"
+                    class="w-full text-xs text-gray-600 font-inter">
+                <button id="cartePhotoBtn" type="submit"
+                    class="w-full bg-gradient-to-r from-amber-500 to-emerald-600 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md">
+                    Enregistrer la photo / حفظ الصورة
+                </button>
+                <p id="cartePhotoStatus" class="hidden text-xs font-bold text-center"></p>
+            </form>
         </div>
 
         <div class="bg-gray-100/80 p-4 text-center text-xs text-gray-500 border-t border-gray-200/50 font-inter">
@@ -154,6 +168,11 @@
         const tokenInput = document.getElementById('carteToken');
         const verifyBtn = document.getElementById('verifyBtn');
         const result = document.getElementById('carteResult');
+        const photoForm = document.getElementById('cartePhotoForm');
+        const photoInput = document.getElementById('cartePhoto');
+        const photoBtn = document.getElementById('cartePhotoBtn');
+        const photoStatus = document.getElementById('cartePhotoStatus');
+        let carteActiveToken = '';
         const tokenParam = new URLSearchParams(window.location.search).get('token');
         if (tokenParam) tokenInput.value = tokenParam;
 
@@ -208,12 +227,45 @@
                         Télécharger la carte PDF / تحميل البطاقة
                     </a>
                 `;
+                carteActiveToken = token;
+                photoInput.value = '';
+                photoStatus.classList.add('hidden');
+                photoForm.classList.remove('hidden');
                 result.classList.remove('hidden');
             } catch (error) {
                 result.innerHTML = `<p class="text-center font-bold text-red-600">${escapeHtml(error.message || 'Erreur réseau / خطأ في الشبكة')}</p>`;
                 result.classList.remove('hidden');
             } finally {
                 verifyBtn.disabled = false;
+            }
+        });
+
+        photoForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const fichier = photoInput.files[0];
+            if (!fichier || !carteActiveToken) return;
+            photoBtn.disabled = true;
+            photoStatus.classList.add('hidden');
+
+            try {
+                const donnees = new FormData();
+                donnees.append('image', fichier);
+                const response = await fetch(`/api/carte/${encodeURIComponent(carteActiveToken)}/photo`, {
+                    method: 'POST',
+                    body: donnees
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) {
+                    throw new Error(apiMessage(data, 'Erreur lors de l’enregistrement / خطأ أثناء الحفظ'));
+                }
+                photoStatus.textContent = 'Photo enregistrée / تم حفظ الصورة';
+                photoStatus.className = 'text-xs font-bold text-center text-green-600';
+            } catch (error) {
+                photoStatus.textContent = error.message || 'Erreur réseau / خطأ في الشبكة';
+                photoStatus.className = 'text-xs font-bold text-center text-red-600';
+            } finally {
+                photoBtn.disabled = false;
+                photoStatus.classList.remove('hidden');
             }
         });
     </script>
