@@ -55,7 +55,7 @@ test('la page carte propose la photo optionnelle', () => {
     assert.match(page, /cartePhotoForm/);
     assert.match(page, /\/api\/carte\/\$\{encodeURIComponent\(carteActiveToken\)\}\/photo/);
     assert.match(page, /Photo \(optionnelle\)/);
-    assert.match(page, /\.pdf\?v=2/);
+    assert.match(page, /\.pdf\?v=3/);
 });
 
 test('l admin affiche le bouton token pour les hommes et les femmes', () => {

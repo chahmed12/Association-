@@ -30,6 +30,13 @@ test('la configuration Vercel inclut les assets de la carte avec un glob string'
     assert.match(includeFiles, /AssociationJJJ\.jpg/);
 });
 
+test('le verso n est pas retourne afin que larabe reste lisible', () => {
+    const source = fs.readFileSync(path.join(__dirname, '..', 'services/membershipCard/cardBack.js'), 'utf8');
+    assert.doesNotMatch(source, /scale\(-1/);
+    assert.doesNotMatch(source, /translate\(CARD\.width/);
+    assert.match(source, /drawNotice\(doc, ctx\)/);
+});
+
 test('la palette est celle de l association', () => {
     assert.equal(PALETTE.deep, '#062C2A');
     assert.equal(PALETTE.emerald, '#087F5B');

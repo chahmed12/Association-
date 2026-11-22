@@ -174,20 +174,12 @@ function drawIdentity(doc, ctx) {
 function drawCardBack(ctx) {
     const { doc } = ctx;
 
-    doc.save();
-    if (ctx.duplex === 'short-edge') {
-        doc.translate(CARD.width, 0);
-        doc.scale(-1, 1);
-    }
-
     doc.rect(0, 0, CARD.width, CARD.height).fill(PALETTE.white);
     drawHeader(doc, ctx);
     drawInfoRows(doc, ctx);
     drawQr(doc, ctx);
     drawNotice(doc, ctx);
     drawIdentity(doc, ctx);
-
-    doc.restore();
 }
 
 module.exports = { drawCardBack };
