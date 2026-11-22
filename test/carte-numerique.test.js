@@ -22,6 +22,18 @@ test('la migration des cartes est idempotente et couvre les femmes', () => {
     assert.match(runner, /sort\(\)/);
 });
 
+test('la migration des identifiants de verification est idempotente', () => {
+    const sql = lire('migrations/003_cartes_verification.sql');
+    assert.match(sql, /ALTER TABLE membres/);
+    assert.match(sql, /ALTER TABLE femmes/);
+    assert.match(sql, /ADD COLUMN IF NOT EXISTS carte_verification_id VARCHAR\(36\)/);
+    assert.match(sql, /CREATE UNIQUE INDEX IF NOT EXISTS idx_membres_carte_verification_id/);
+    assert.match(sql, /CREATE UNIQUE INDEX IF NOT EXISTS idx_femmes_carte_verification_id/);
+    assert.match(sql, /gen_random_uuid\(\)/);
+    assert.match(sql, /WHERE m\.id = v\.row_id/);
+    assert.match(sql, /WHERE f\.id = v\.row_id/);
+});
+
 test('les validateurs acceptent un identifiant de carte', () => {
     const validators = lire('middleware/validators.js');
     assert.match(validators, /carteId: Joi\.object/);

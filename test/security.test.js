@@ -16,7 +16,10 @@ const exportLogs = [];
 const adminHash = bcrypt.hashSync('mot-de-passe-test', 4);
 const carteToken = 'b'.repeat(64);
 const femmeToken = 'd'.repeat(64);
+const verificationId = '11111111-2222-4333-8444-555555555555';
+const femmeVerificationId = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
 const expireLe = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+const dateInscription = '2024-03-15T10:00:00Z';
 const champsPublicsEvenement = ['id', 'titre', 'description', 'lieu', 'date_debut', 'date_fin', 'image_url', 'capacite'];
 const evenements = [
     { id: 1, titre: 'Evenement Publie', description: 'Description', lieu: 'Jeddah', date_debut: '2030-06-01T10:00:00Z', date_fin: null, image_url: null, capacite: 2, statut: 'publie' },
@@ -76,10 +79,19 @@ function resultFor(sql, params) {
     }
     if (query.includes('FROM membres WHERE carte_token = $1') && query.includes('FROM femmes WHERE carte_token = $1')) {
         if (params[0] === carteToken) {
-            return { rows: [{ nom: 'Alpha', numero_adherent: 'MEM-0001', carte_expire_le: expireLe, actif: true, photo_url: null, source: 'hommes' }] };
+            return { rows: [{ nom: 'Alpha', numero_adherent: 'MEM-0001', carte_expire_le: expireLe, actif: true, photo_url: null, date_inscription: dateInscription, carte_verification_id: verificationId, source: 'hommes' }] };
         }
         if (params[0] === femmeToken) {
-            return { rows: [{ nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_expire_le: expireLe, actif: true, photo_url: null, source: 'femmes' }] };
+            return { rows: [{ nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_expire_le: expireLe, actif: true, photo_url: null, date_inscription: dateInscription, carte_verification_id: femmeVerificationId, source: 'femmes' }] };
+        }
+        return { rows: [] };
+    }
+    if (query.includes('FROM membres WHERE carte_verification_id = $1') && query.includes('FROM femmes WHERE carte_verification_id = $1')) {
+        if (params[0] === verificationId) {
+            return { rows: [{ nom: 'Alpha', numero_adherent: 'MEM-0001', carte_expire_le: expireLe, actif: true, photo_url: null, date_inscription: dateInscription, carte_verification_id: verificationId, source: 'hommes' }] };
+        }
+        if (params[0] === femmeVerificationId) {
+            return { rows: [{ nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_expire_le: expireLe, actif: false, photo_url: null, date_inscription: dateInscription, carte_verification_id: femmeVerificationId, source: 'femmes' }] };
         }
         return { rows: [] };
     }
@@ -171,11 +183,11 @@ function resultFor(sql, params) {
     if (query.includes('SELECT * FROM membres WHERE telephone')) {
         return { rows: [] };
     }
-    if (query.includes('SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url FROM membres WHERE id = $1')) {
-        return { rows: [{ id: Number(params[0]), nom: 'Alpha', numero_adherent: 'MEM-0001', carte_token: carteToken, carte_expire_le: expireLe, photo_url: null }] };
+    if (query.includes('SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url, date_inscription, carte_verification_id FROM membres WHERE id = $1')) {
+        return { rows: [{ id: Number(params[0]), nom: 'Alpha', numero_adherent: 'MEM-0001', carte_token: carteToken, carte_expire_le: expireLe, photo_url: null, date_inscription: dateInscription, carte_verification_id: verificationId }] };
     }
-    if (query.includes('SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url FROM femmes WHERE id = $1')) {
-        return { rows: [{ id: Number(params[0]), nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_token: femmeToken, carte_expire_le: expireLe, photo_url: null }] };
+    if (query.includes('SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url, date_inscription, carte_verification_id FROM femmes WHERE id = $1')) {
+        return { rows: [{ id: Number(params[0]), nom: 'Beta Femme', numero_adherent: 'MEM-2001', carte_token: femmeToken, carte_expire_le: expireLe, photo_url: null, date_inscription: dateInscription, carte_verification_id: femmeVerificationId }] };
     }
     if (query.includes('SELECT * FROM membres WHERE id = $1')) {
         return { rows: [{ id: 1, nom: 'Alpha', telephone: '12345678', montant: 2000 }] };
@@ -668,10 +680,44 @@ test('un token de carte invalide ou inconnu est refuse', async () => {
     await request(app).get(`/api/carte/${'c'.repeat(64)}`).expect(404);
 });
 
-test('le PDF de carte est public', async () => {
+test('le PDF de carte est public et contient deux pages CR80', async () => {
     const response = await request(app).get(`/api/carte/${carteToken}.pdf`).expect(200);
     assert.match(response.headers['content-type'], /application\/pdf/);
     assert.ok(response.body && response.body.length > 0);
+    assert.match(response.headers['content-disposition'], /carte_MEM-0001\.pdf/);
+
+    const pdf = response.body.toString('latin1');
+    const boxes = pdf.match(/\/MediaBox \[0 0 [\d.]+ [\d.]+\]/g) || [];
+    assert.equal(boxes.length, 2);
+    const firstBox = boxes[0].match(/\/MediaBox \[0 0 ([\d.]+) ([\d.]+)\]/);
+    assert.ok(Math.abs(Number(firstBox[1]) - 242.65) < 0.1);
+    assert.ok(Math.abs(Number(firstBox[2]) - 153.02) < 0.1);
+    assert.equal((pdf.match(/\/Type \/Page\b/g) || []).length, 2);
+});
+
+test('la verification QR est publique et ne divulgue pas le token', async () => {
+    const response = await request(app).get(`/api/public/cartes/${verificationId}`).expect(200);
+    assert.deepEqual(Object.keys(response.body).sort(), ['carte', 'success']);
+    assert.deepEqual(Object.keys(response.body.carte).sort(), ['annee', 'expire_le', 'nom', 'numero_adherent', 'statut']);
+    assert.equal(response.body.carte.nom, 'Alpha');
+    assert.equal(response.body.carte.statut, 'valide');
+    assert.ok(!JSON.stringify(response.body).includes(carteToken));
+});
+
+test('la verification QR reflète une carte inactive', async () => {
+    const response = await request(app).get(`/api/public/cartes/${femmeVerificationId}`).expect(200);
+    assert.equal(response.body.carte.statut, 'inactif');
+});
+
+test('la verification QR refuse un identifiant invalide ou inconnu', async () => {
+    await request(app).get('/api/public/cartes/pas-un-uuid').expect(400);
+    await request(app).get(`/api/public/cartes/${'22222222-3333-4444-8555-666666666666'}`).expect(404);
+});
+
+test('la page de verification QR est publique', async () => {
+    const response = await request(app).get('/verification-carte.html').expect(200);
+    assert.match(response.text, /\/api\/public\/cartes\//);
+    assert.match(response.text, /ajj-back/);
 });
 
 test('moderation des inscriptions et renouvellement du token de carte', async () => {

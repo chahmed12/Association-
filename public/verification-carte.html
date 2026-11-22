@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحقق من البطاقة — Vérification de carte</title>
+    <link href="/css/app.css" rel="stylesheet">
+    <script src="/js/utils.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: #fbf8f1; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+    </style>
+</head>
+
+<body class="min-h-screen text-gray-800">
+    <a href="/" class="ajj-back ajj-back--fixed" aria-label="العودة للرئيسية / Retour à l’accueil">
+        <svg class="ajj-back__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>الرئيسية</span>
+        <span class="ajj-back__fr" lang="fr">Accueil</span>
+    </a>
+
+    <header class="bg-gradient-to-r from-green-700 to-emerald-500 text-white shadow-2xl">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-extrabold">التحقق من بطاقة العضوية</h1>
+            <p class="text-green-50 text-sm font-inter mt-1">Vérification publique de la carte de membre</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10 max-w-2xl">
+        <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-sand">
+            <p id="verificationStatus" class="text-sm text-gray-500 mb-6" role="status" aria-live="polite">جاري التحقق... — Vérification…</p>
+            <div id="verificationResult" class="hidden space-y-3"></div>
+        </div>
+    </main>
+
+    <script>
+        const statusEl = document.getElementById('verificationStatus');
+        const resultEl = document.getElementById('verificationResult');
+
+        function ligne(label, value) {
+            return `<div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 py-3">
+                <span class="font-bold">${escapeHtml(label)}</span>
+                <span class="font-inter" dir="auto">${escapeHtml(value || '—')}</span>
+            </div>`;
+        }
+
+        async function verifier() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) {
+                statusEl.textContent = 'معرف البطاقة مفقود — Identifiant de carte manquant.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/public/cartes/${encodeURIComponent(id)}`, { credentials: 'same-origin' });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message || 'Erreur');
+
+                const carte = data.carte;
+                const libelles = {
+                    valide: 'سارية — Valide',
+                    expire: 'منتهية — Expirée',
+                    inactif: 'غير نشطة — Inactive'
+                };
+                resultEl.innerHTML = [
+                    ligne('الاسم — Nom', carte.nom),
+                    ligne('رقم العضوية — N° adhérent', carte.numero_adherent),
+                    ligne('الحالة — Statut', libelles[carte.statut] || carte.statut),
+                    ligne('انتهاء الصلاحية — Expiration', carte.expire_le),
+                    ligne('سنة العضوية — Année', carte.annee)
+                ].join('');
+                resultEl.classList.remove('hidden');
+                statusEl.textContent = 'تم التحقق — Vérification effectuée.';
+            } catch {
+                statusEl.textContent = 'تعذر التحقق من البطاقة — Carte introuvable.';
+            }
+        }
+
+        verifier();
+    </script>
+</body>
+
+</html>

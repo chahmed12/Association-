@@ -117,6 +117,12 @@ const schemas = {
         token: Joi.string().pattern(/^[0-9a-fA-F]{64}$/).required()
     }),
 
+    carteVerificationId: Joi.object({
+        verificationId: Joi.string()
+            .pattern(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
+            .required()
+    }),
+
     carteId: Joi.object({
         id: Joi.number().integer().positive().required()
     }),

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const db = require('../config/db');
 const { isAuthenticated } = require('../middleware/auth');
 const { validate } = require('../middleware/validators');
@@ -14,6 +15,14 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { normalizePhone } = require('../utils/phone');
 const { csvBuffer } = require('../utils/csv');
+const { renderMembershipCardPdf } = require('../services/membershipCard');
+
+const verificationLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: process.env.NODE_ENV === 'test' ? 1000 : 60,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false
+});
 
 // Utilisation de la méthode statique directe
 const ArabicShaper = ArabicReshaperModule.ArabicShaper;
@@ -243,13 +252,30 @@ const CARTES_TABLES = {
 
 async function getCarteMembre(token) {
     const result = await queryAsync(
-        `SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, 'hommes' AS source
+        `SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, date_inscription,
+                carte_verification_id, 'hommes' AS source
          FROM membres WHERE carte_token = $1
          UNION ALL
-         SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, 'femmes' AS source
+         SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, date_inscription,
+                carte_verification_id, 'femmes' AS source
          FROM femmes WHERE carte_token = $1
          LIMIT 1`,
         [token]
+    );
+    return result && result.rows ? result.rows[0] || null : null;
+}
+
+async function getCarteByVerificationId(verificationId) {
+    const result = await queryAsync(
+        `SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, date_inscription,
+                carte_verification_id, 'hommes' AS source
+         FROM membres WHERE carte_verification_id = $1
+         UNION ALL
+         SELECT nom, numero_adherent, carte_expire_le, actif, photo_url, date_inscription,
+                carte_verification_id, 'femmes' AS source
+         FROM femmes WHERE carte_verification_id = $1
+         LIMIT 1`,
+        [verificationId]
     );
     return result && result.rows ? result.rows[0] || null : null;
 }
@@ -258,7 +284,7 @@ async function getCarteAdmin(source, id) {
     const table = CARTES_TABLES[source];
     if (!table) return null;
     const result = await queryAsync(
-        `SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url FROM ${table} WHERE id = $1`,
+        `SELECT id, nom, numero_adherent, carte_token, carte_expire_le, photo_url, date_inscription, carte_verification_id FROM ${table} WHERE id = $1`,
         [id]
     );
     return result && result.rows ? result.rows[0] || null : null;
@@ -270,16 +296,18 @@ async function assurerCarte(source, id) {
     let carte = await getCarteAdmin(source, id);
     if (!carte) return null;
 
-    if (!carte.carte_token || !carte.numero_adherent || !carte.carte_expire_le) {
+    if (!carte.carte_token || !carte.numero_adherent || !carte.carte_expire_le || !carte.carte_verification_id) {
         const token = carte.carte_token || crypto.randomBytes(32).toString('hex');
         const prefix = source === 'femmes' ? String(2000 + Number(id)).padStart(4, '0') : String(id).padStart(4, '0');
         const numero = carte.numero_adherent || `MEM-${prefix}`;
+        const verificationId = carte.carte_verification_id || crypto.randomUUID();
         await queryAsync(
             `UPDATE ${table}
              SET carte_token = $1, numero_adherent = $2,
-                 carte_expire_le = COALESCE(carte_expire_le, NOW() + INTERVAL '1 year')
+                 carte_expire_le = COALESCE(carte_expire_le, NOW() + INTERVAL '1 year'),
+                 carte_verification_id = COALESCE(carte_verification_id, $4)
              WHERE id = $3`,
-            [token, numero, id]
+            [token, numero, id, verificationId]
         );
         carte = await getCarteAdmin(source, id);
     }
@@ -353,9 +381,12 @@ function carteInfo(membre) {
     const expires = membre.carte_expire_le ? new Date(membre.carte_expire_le) : null;
     const validDate = expires && !Number.isNaN(expires.getTime()) ? expires : null;
     const expire_le = validDate ? validDate.toISOString().slice(0, 10) : null;
+    const expiryEnd = validDate
+        ? Date.UTC(validDate.getUTCFullYear(), validDate.getUTCMonth(), validDate.getUTCDate(), 23, 59, 59, 999)
+        : null;
     let statut = 'valide';
     if (membre.actif === false) statut = 'inactif';
-    else if (!validDate || validDate.getTime() <= Date.now()) statut = 'expire';
+    else if (expiryEnd === null || expiryEnd < Date.now()) statut = 'expire';
     return {
         nom: membre.nom,
         numero_adherent: membre.numero_adherent,
@@ -384,78 +415,17 @@ async function photoCarteBuffer(url) {
     }
 }
 
-async function renderCartePdf(res, token, membre, info) {
-    const filename = `carte_${encodeURIComponent(info.numero_adherent || 'membre')}.pdf`;
-    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/pdf');
-
-    const doc = new PDFDocument({
-        size: 'A4',
-        margin: 40,
-        info: { Title: 'Carte de membre', Author: 'Association' }
-    });
-    doc.pipe(res);
-
-    const fontPath = path.join(__dirname, '../fonts/Amiri-Bold.ttf');
-    const fontRegPath = path.join(__dirname, '../fonts/Amiri-Regular.ttf');
-    doc.registerFont('Arabic-Bold', fontPath);
-    doc.registerFont('Arabic-Regular', fs.existsSync(fontRegPath) ? fontRegPath : fontPath);
-
+async function renderCartePdf(res, token, membre, info, req) {
     const photo = await photoCarteBuffer(membre && membre.photo_url);
-
-    const PAGE_W = 595 - 80;
-    doc.rect(0, 0, 595, 110).fill(COLORS.primary);
-    doc.rect(0, 80, 595, 30).fill(COLORS.secondary);
-    doc.fillColor(COLORS.white).font('Arabic-Bold').fontSize(22)
-        .text(ar('رابطة شباب جدة'), 40, 18, { width: PAGE_W, align: 'center' });
-    doc.fillColor('#aed6f1').fontSize(10)
-        .text(ar('موريتانيا - جددة'), 40, 46, { width: PAGE_W, align: 'center' });
-    roundedRect(doc, 200, 62, 195, 24, 12, COLORS.accent, null);
-    doc.fillColor(COLORS.white).fontSize(11).font('Arabic-Bold')
-        .text(ar('بطاقة العضو'), 200, 67, { width: 195, align: 'center' });
-
-    let cy = 140;
-    doc.fillColor(COLORS.dark).fontSize(18).font('Arabic-Bold')
-        .text(ar('بطاقة عضوية'), 40, cy, { width: PAGE_W, align: 'center' });
-    cy += 40;
-
-    const fin = info.expire_le ? new Date(`${info.expire_le}T00:00:00Z`) : null;
-    const debut = fin ? new Date(fin.getTime()) : null;
-    if (debut) debut.setUTCFullYear(debut.getUTCFullYear() - 1);
-    const periode = fin && debut
-        ? `${debut.toLocaleDateString('fr-TN')} - ${fin.toLocaleDateString('fr-TN')}`
-        : '-';
-
-    const lignes = [
-        [ar('اسم العضو'), ar(info.nom || '')],
-        [ar('رقم العضوية'), info.numero_adherent || ''],
-        [ar('فترة الصلاحية'), periode],
-        [ar('رمز البطاقة'), token.slice(0, 8)]
-    ];
-    lignes.forEach(([label, value], index) => {
-        roundedRect(doc, 40, cy, PAGE_W, 48, 6, index % 2 === 0 ? COLORS.light : COLORS.white, COLORS.border);
-        doc.fillColor(COLORS.gray).fontSize(10).font('Arabic-Bold')
-            .text(label, 55, cy + 9, { width: 200, align: 'right' });
-        doc.fillColor(COLORS.dark).fontSize(13).font('Arabic-Bold')
-            .text(String(value), 265, cy + 16, { width: 260, align: 'left' });
-        cy += 58;
+    return renderMembershipCardPdf(res, {
+        req,
+        token,
+        membre,
+        info,
+        photo,
+        ar,
+        duplex: 'short-edge'
     });
-
-    if (photo) {
-        roundedRect(doc, 405, cy + 8, 120, 150, 8, COLORS.lightGray, COLORS.border);
-        doc.image(photo.buffer, 413, cy + 16, { fit: [104, 134], align: 'center', valign: 'center' });
-        cy += 170;
-    }
-
-    cy += 16;
-    divider(doc, 40, cy);
-    doc.fillColor(COLORS.gray).fontSize(9).font('Arabic-Regular')
-        .text(ar('تم إنشاء هذه البطاقة تلقائياً بواسطة نظام إدارة رابطة شباب جدة'), 40, cy + 16, { width: PAGE_W, align: 'center' });
-
-    doc.rect(0, 800, 595, 42).fill(COLORS.primary);
-    doc.fillColor(COLORS.white).fontSize(8)
-        .text(`© ${new Date().getFullYear()} - Association Shabab Jeddah`, 40, 815, { width: PAGE_W, align: 'center' });
-    doc.end();
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -607,6 +577,16 @@ router.get('/public/membres', (req, res) => {
         const membres = result ? result.rows : [];
         res.json({ success: true, membres: membres.map(m => m.nom).filter(nom => !nomChenneliLehmoud.test(nom)) });
     });
+});
+
+router.get('/public/cartes/:verificationId', verificationLimiter, validate('carteVerificationId', 'params'), async (req, res) => {
+    try {
+        const membre = await getCarteByVerificationId(req.params.verificationId);
+        if (!membre) return res.status(404).json({ success: false, message: 'Carte introuvable' });
+        res.json({ success: true, carte: carteInfo(membre) });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -902,10 +882,11 @@ router.post('/membres', validate('membreCreate'), (req, res) => {
     const montant = req.body.montant === undefined ? (situation === 'نعم' ? 2000 : 1000) : req.body.montant;
     const whatsapp = normalizePhone(req.body.whatsapp) || null;
     const carteToken = crypto.randomBytes(32).toString('hex');
+    const carteVerificationId = crypto.randomUUID();
 
     db.query(
-        "INSERT INTO membres (nom, telephone, situation, montant, whatsapp, email, carte_token, carte_expire_le) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 year') RETURNING id",
-        [nom, telephone, situation, montant, whatsapp, email || null, carteToken],
+        "INSERT INTO membres (nom, telephone, situation, montant, whatsapp, email, carte_token, carte_verification_id, carte_expire_le) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW() + INTERVAL '1 year') RETURNING id",
+        [nom, telephone, situation, montant, whatsapp, email || null, carteToken, carteVerificationId],
         (err, result) => {
             if (err) return res.status(500).json({ success: false, message: 'Erreur serveur' });
             const id = result && result.rows && result.rows[0] ? result.rows[0].id : null;
@@ -1044,10 +1025,11 @@ router.post('/inscriptions/:id/valider', isAuthenticated, async (req, res) => {
         const membreId = createdRows[0].id;
         const numeroAdherent = `MEM-${String(membreId).padStart(4, '0')}`;
         const carteToken = crypto.randomBytes(32).toString('hex');
+        const carteVerificationId = crypto.randomUUID();
 
         await queryAsync(
-            `UPDATE membres SET numero_adherent = $1, carte_token = $2, carte_expire_le = NOW() + INTERVAL '1 year' WHERE id = $3`,
-            [numeroAdherent, carteToken, membreId]
+            `UPDATE membres SET numero_adherent = $1, carte_token = $2, carte_verification_id = $3, carte_expire_le = NOW() + INTERVAL '1 year' WHERE id = $4`,
+            [numeroAdherent, carteToken, carteVerificationId, membreId]
         );
         await queryAsync(
             `UPDATE inscriptions SET statut = 'valide', membre_id = $1, traite_at = NOW(), traite_par = $2 WHERE id = $3`,
@@ -1109,7 +1091,7 @@ router.get('/carte/:token.pdf', validate('carteToken', 'params'), async (req, re
     try {
         const membre = await getCarteMembre(req.params.token);
         if (!membre) return res.status(404).json({ success: false, message: 'Carte introuvable' });
-        await renderCartePdf(res, req.params.token, membre, carteInfo(membre));
+        await renderCartePdf(res, req.params.token, membre, carteInfo(membre), req);
     } catch {
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }

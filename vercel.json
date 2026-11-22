@@ -3,7 +3,11 @@
   "buildCommand": "npm run build",
   "functions": {
     "server.js": {
-      "includeFiles": "{views,prive}/**/*"
+      "includeFiles": [
+        "{views,prive}/**/*",
+        "fonts/**/*",
+        "public/images/AssociationJJJ.jpg"
+      ]
     }
   },
   "redirects": [
