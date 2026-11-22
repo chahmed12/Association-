@@ -683,6 +683,7 @@ test('un token de carte invalide ou inconnu est refuse', async () => {
 test('le PDF de carte est public et contient deux pages CR80', async () => {
     const response = await request(app).get(`/api/carte/${carteToken}.pdf`).expect(200);
     assert.match(response.headers['content-type'], /application\/pdf/);
+    assert.match(response.headers['cache-control'], /no-store/);
     assert.ok(response.body && response.body.length > 0);
     assert.match(response.headers['content-disposition'], /carte_MEM-0001\.pdf/);
 

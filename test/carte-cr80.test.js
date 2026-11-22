@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 const { PassThrough } = require('node:stream');
 const { CARD, PALETTE, FONT_BOLD_PATH, LOGO_PATH, mmToPt } = require('../services/membershipCard/cardStyles');
 const { buildCardInfo } = require('../services/membershipCard/cardInfo');
@@ -16,6 +17,17 @@ test('les dimensions CR80 sont exactes', () => {
     assert.ok(Math.abs(CARD.height - mmToPt(53.98)) < 1e-9);
     assert.ok(Math.abs(CARD.width - 242.6456692913) < 1e-6);
     assert.ok(Math.abs(CARD.height - 153.0141732283) < 1e-6);
+});
+
+test('la configuration Vercel inclut les assets de la carte avec un glob string', () => {
+    const vercel = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8'));
+    const includeFiles = vercel.functions['server.js'].includeFiles;
+    assert.equal(typeof includeFiles, 'string');
+    assert.ok(includeFiles.length <= 256);
+    assert.match(includeFiles, /views/);
+    assert.match(includeFiles, /prive/);
+    assert.match(includeFiles, /fonts/);
+    assert.match(includeFiles, /AssociationJJJ\.jpg/);
 });
 
 test('la palette est celle de l association', () => {

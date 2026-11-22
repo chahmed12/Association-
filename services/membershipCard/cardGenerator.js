@@ -39,6 +39,7 @@ async function renderMembershipCardPdf(res, options) {
     const filename = `carte_${encodeURIComponent(info.numero_adherent || 'membre')}.pdf`;
     res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
     res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 
     const doc = new PDFDocument({
         size: [CARD.width, CARD.height],
