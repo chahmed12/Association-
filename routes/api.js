@@ -303,6 +303,52 @@ function carteAdminResponse(carte, source) {
     };
 }
 
+const CARTES_SOURCE_LABELS = {
+    hommes: 'Hommes',
+    femmes: 'Femmes'
+};
+
+function lienCarte(req, token) {
+    return `${req.protocol}://${req.get('host')}/carte.html?token=${encodeURIComponent(token)}`;
+}
+
+async function listeTokensCartes(req, source) {
+    const table = CARTES_TABLES[source];
+    if (!table) return [];
+    const result = await queryAsync(
+        `SELECT nom, telephone, numero_adherent, carte_token, carte_expire_le
+         FROM ${table}
+         WHERE carte_token IS NOT NULL AND actif = true
+         ORDER BY nom ASC`
+    );
+    const rows = result && result.rows ? result.rows : [];
+    return rows.map((row) => {
+        const date = row.carte_expire_le ? new Date(row.carte_expire_le) : null;
+        const expire_le = date && !Number.isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '';
+        return {
+            source: CARTES_SOURCE_LABELS[source],
+            nom: row.nom || '',
+            telephone: row.telephone || '',
+            numero_adherent: row.numero_adherent || '',
+            carte_token: row.carte_token,
+            carte_expire_le: expire_le,
+            lien: lienCarte(req, row.carte_token)
+        };
+    });
+}
+
+function lignesCsvCartes(cartes) {
+    return cartes.map(carte => [
+        carte.source,
+        carte.nom,
+        carte.telephone,
+        carte.numero_adherent,
+        carte.carte_token,
+        carte.lien,
+        carte.carte_expire_le
+    ]);
+}
+
 function carteInfo(membre) {
     const expires = membre.carte_expire_le ? new Date(membre.carte_expire_le) : null;
     const validDate = expires && !Number.isNaN(expires.getTime()) ? expires : null;
@@ -1074,6 +1120,48 @@ router.get('/carte/:token', validate('carteToken', 'params'), async (req, res) =
         const membre = await getCarteMembre(req.params.token);
         if (!membre) return res.status(404).json({ success: false, message: 'Carte introuvable' });
         res.json(carteInfo(membre));
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.use('/cartes', isAuthenticated);
+
+router.get('/cartes/hommes.csv', async (req, res) => {
+    try {
+        const cartes = await listeTokensCartes(req, 'hommes');
+        sendCsv(req, res, 'tokens-hommes.csv',
+            ['source', 'nom', 'téléphone', 'numéro adhérent', 'token', 'lien', 'expiration'],
+            lignesCsvCartes(cartes), { source: 'hommes' });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.get('/cartes/femmes.csv', async (req, res) => {
+    try {
+        const cartes = await listeTokensCartes(req, 'femmes');
+        sendCsv(req, res, 'tokens-femmes.csv',
+            ['source', 'nom', 'téléphone', 'numéro adhérent', 'token', 'lien', 'expiration'],
+            lignesCsvCartes(cartes), { source: 'femmes' });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.get('/cartes/hommes', async (req, res) => {
+    try {
+        const cartes = await listeTokensCartes(req, 'hommes');
+        res.json({ success: true, source: 'Hommes', total: cartes.length, cartes });
+    } catch {
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+});
+
+router.get('/cartes/femmes', async (req, res) => {
+    try {
+        const cartes = await listeTokensCartes(req, 'femmes');
+        res.json({ success: true, source: 'Femmes', total: cartes.length, cartes });
     } catch {
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }

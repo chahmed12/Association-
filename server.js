@@ -125,6 +125,8 @@ app.get('/gestion-inscriptions.html', isAuthenticated, (req, res) => res.sendFil
 app.get('/gestion-evenements.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-evenements.html')));
 app.get('/gestion-journal.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'gestion-journal.html')));
 app.get('/suivi-cotisations.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'suivi-cotisations.html')));
+app.get('/tokens-hommes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'tokens-hommes.html')));
+app.get('/tokens-femmes.html', isAuthenticated, (req, res) => res.sendFile(path.join(__dirname, 'prive', 'tokens-femmes.html')));
 
 // 4. ROUTES API
 // On applique le limiteur uniquement sur les requêtes API (et non sur les fichiers statiques)

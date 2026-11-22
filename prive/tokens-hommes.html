@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tokens الرجال — Admin</title>
+    <link href="/css/app.css" rel="stylesheet">
+    <script src="/js/utils.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background: linear-gradient(-45deg, #f0fdf4, #dcfce7, #ecfdf5, #ffffff); background-size: 400% 400%; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255,255,255,.78); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.6); box-shadow: 0 8px 32px rgba(31,38,135,.08); }
+        :root { --ajj-emerald: #087f5b; --ajj-deep: #062c2a; --ajj-gold: #d8aa55; --ajj-sand: #e9d7b4; }
+        [class*="text-green-"], [class*="text-emerald-"], [class*="text-teal-"],
+        [class*="text-cyan-"], [class*="text-blue-"], [class*="text-indigo-"],
+        [class*="text-amber-"], [class*="text-yellow-"] { color: var(--ajj-emerald) !important; }
+        [class*="text-green-50"], [class*="text-emerald-50"],
+        [class*="text-amber-50"], [class*="text-yellow-50"] { color: var(--ajj-sand) !important; }
+        [class*="text-gray-"], [class*="text-slate-"] { color: #425a52 !important; }
+        [class*="bg-green-"], [class*="bg-emerald-"], [class*="bg-teal-"],
+        [class*="bg-cyan-"], [class*="bg-blue-"], [class*="bg-indigo-"] { background-color: var(--ajj-emerald) !important; }
+        [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"] { background-color: var(--ajj-gold) !important; }
+        [class*="bg-green-50"], [class*="bg-emerald-50"], [class*="bg-amber-50"],
+        [class*="bg-yellow-50"] { background-color: rgba(8,127,91,.09) !important; }
+        [class*="border-green-"], [class*="border-emerald-"],
+        [class*="border-amber-"], [class*="border-yellow-"] { border-color: var(--ajj-emerald) !important; }
+        [class*="ring-green-"], [class*="ring-emerald-"] { --tw-ring-color: rgba(8,127,91,.25) !important; }
+        [class*="from-green-"], [class*="from-emerald-"], [class*="from-teal-"] { --tw-gradient-from: var(--ajj-emerald) var(--tw-gradient-from-position) !important; }
+        [class*="from-amber-"], [class*="from-yellow-"] { --tw-gradient-from: var(--ajj-gold) var(--tw-gradient-from-position) !important; }
+        [class*="to-green-"], [class*="to-emerald-"], [class*="to-teal-"] { --tw-gradient-to: var(--ajj-emerald) var(--tw-gradient-to-position) !important; }
+        [class*="to-amber-"], [class*="to-yellow-"] { --tw-gradient-to: var(--ajj-gold) var(--tw-gradient-to-position) !important; }
+    </style>
+</head>
+
+<body class="min-h-screen text-gray-800">
+    <a href="/admin.html" class="ajj-back ajj-back--fixed" aria-label="العودة إلى لوحة التحكم / Retour au tableau de bord">
+  <svg class="ajj-back__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+  <span>لوحة التحكم</span>
+  <span class="ajj-back__fr" lang="fr">Retour Dashboard</span>
+</a>
+    <header class="bg-gradient-to-r from-green-700 to-emerald-500 text-white shadow-2xl">
+        <div class="container mx-auto px-4 py-8 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold">بطاقات الرجال — Tokens Hommes</h1>
+                <p class="text-green-50 text-sm font-inter mt-1">Liste stable en lecture seule — aucun token n'est modifié.</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="/api/cartes/hommes.csv"
+                    class="rounded-full bg-amber-400 hover:bg-amber-500 text-green-950 px-5 py-2 text-sm font-bold transition">⬇ تصدير CSV</a>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 rounded-full px-5 py-2 text-sm font-bold transition">خروج — Déconnexion</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10">
+        <div class="glass-card rounded-3xl p-6 md:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold">رموز البطاقات — Tokens des cartes</h2>
+                    <p class="text-gray-500 text-xs font-inter">Copier le token ou le lien et l'envoyer manuellement au membre.</p>
+                </div>
+                <label class="flex flex-wrap items-center gap-3 text-sm w-full md:w-auto">
+                    <span class="font-bold">بحث — Recherche</span>
+                    <input id="tokenSearch" type="search" placeholder="Nom, téléphone, n°, token"
+                        class="w-full md:w-72 rounded-xl border border-gray-300 px-4 py-2 bg-white">
+                </label>
+            </div>
+
+            <p id="tokenStatus" class="text-sm text-gray-500 mb-4" role="status" aria-live="polite">جاري التحميل... — Chargement…</p>
+
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-right border-b-2 border-green-100">
+                            <th class="py-3 px-2">#</th>
+                            <th class="py-3 px-2">الاسم — Nom</th>
+                            <th class="py-3 px-2">الهاتف — Téléphone</th>
+                            <th class="py-3 px-2">الرقم — N°</th>
+                            <th class="py-3 px-2">Token</th>
+                            <th class="py-3 px-2">الرابط — Lien</th>
+                            <th class="py-3 px-2">انتهاء — Expiration</th>
+                            <th class="py-3 px-2">إجراءات — Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tokenRows"></tbody>
+                </table>
+            </div>
+
+            <div id="tokenCards" class="md:hidden space-y-3"></div>
+        </div>
+    </main>
+
+    <script>
+        const SOURCE = 'hommes';
+        const API = `/api/cartes/${SOURCE}`;
+        let cartes = [];
+
+        const statusEl = document.getElementById('tokenStatus');
+        const searchEl = document.getElementById('tokenSearch');
+        const rowsEl = document.getElementById('tokenRows');
+        const cardsEl = document.getElementById('tokenCards');
+
+        function bold(value) {
+            return `<strong class="font-bold">${escapeHtml(value || '—')}</strong>`;
+        }
+
+        function appliquerFiltre() {
+            const terme = searchEl.value.trim().toLocaleLowerCase('fr');
+            const liste = cartes.filter(carte => {
+                const texte = [carte.nom, carte.telephone, carte.numero_adherent, carte.carte_token]
+                    .join(' ')
+                    .toLocaleLowerCase('fr');
+                return texte.includes(terme);
+            });
+
+            rowsEl.innerHTML = liste.map((carte, index) => `
+                <tr class="border-b border-green-100 hover:bg-green-50">
+                    <td class="py-3 px-2 font-inter">${index + 1}</td>
+                    <td class="py-3 px-2">${bold(carte.nom)}</td>
+                    <td class="py-3 px-2 font-inter" dir="ltr">${escapeHtml(carte.telephone || '—')}</td>
+                    <td class="py-3 px-2 font-inter" dir="ltr">${escapeHtml(carte.numero_adherent || '—')}</td>
+                    <td class="py-3 px-2 font-inter" dir="ltr">${escapeHtml(carte.carte_token)}</td>
+                    <td class="py-3 px-2 font-inter text-xs" dir="ltr">${escapeHtml(carte.lien)}</td>
+                    <td class="py-3 px-2 font-inter" dir="ltr">${escapeHtml(carte.carte_expire_le || '—')}</td>
+                    <td class="py-3 px-2">
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" data-copy="token" data-token="${escapeHtml(carte.carte_token)}"
+                                class="rounded-full bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-xs font-bold">Copier token</button>
+                            <button type="button" data-copy="lien" data-token="${escapeHtml(carte.carte_token)}"
+                                class="rounded-full bg-amber-500 hover:bg-amber-600 text-green-950 px-3 py-1.5 text-xs font-bold">Copier lien</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            cardsEl.innerHTML = liste.map((carte, index) => `
+                <div class="border border-green-100 rounded-2xl p-4 bg-white/70">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="font-bold">${index + 1}. ${escapeHtml(carte.nom || '—')}</p>
+                            <p class="text-xs text-gray-500 font-inter" dir="ltr">${escapeHtml(carte.telephone || '—')} · ${escapeHtml(carte.numero_adherent || '—')}</p>
+                        </div>
+                        <span class="text-xs text-gray-500 font-inter" dir="ltr">${escapeHtml(carte.carte_expire_le || '—')}</span>
+                    </div>
+                    <p class="mt-3 text-xs font-inter break-all" dir="ltr"><span class="font-bold">Token :</span> ${escapeHtml(carte.carte_token)}</p>
+                    <p class="mt-1 text-xs font-inter break-all" dir="ltr"><span class="font-bold">Lien :</span> ${escapeHtml(carte.lien)}</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button type="button" data-copy="token" data-token="${escapeHtml(carte.carte_token)}"
+                            class="rounded-full bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-xs font-bold">Copier token</button>
+                        <button type="button" data-copy="lien" data-token="${escapeHtml(carte.carte_token)}"
+                            class="rounded-full bg-amber-500 hover:bg-amber-600 text-green-950 px-3 py-1.5 text-xs font-bold">Copier lien</button>
+                    </div>
+                </div>
+            `).join('');
+
+            statusEl.textContent = `${liste.length} token${liste.length > 1 ? 's' : ''} — ${liste.length} / ${cartes.length}`;
+        }
+
+        async function copier(texte, label) {
+            try {
+                await navigator.clipboard.writeText(texte);
+                statusEl.textContent = `${label} copié.`;
+            } catch {
+                window.prompt(`${label} — copier :`, texte);
+            }
+        }
+
+        async function charger() {
+            try {
+                const response = await fetch(API, { credentials: 'same-origin' });
+                if (response.status === 401) {
+                    window.location.href = '/admin.html';
+                    return;
+                }
+                const data = await response.json();
+                if (!data.success) throw new Error('Erreur API');
+                cartes = data.cartes || [];
+                appliquerFiltre();
+            } catch {
+                statusEl.textContent = 'Erreur de chargement — Unable to load tokens.';
+            }
+        }
+
+        searchEl.addEventListener('input', appliquerFiltre);
+
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-copy]');
+            if (!button) return;
+            const carte = cartes.find(item => item.carte_token === button.dataset.token);
+            if (!carte) return;
+            if (button.dataset.copy === 'token') copier(carte.carte_token, 'Token');
+            if (button.dataset.copy === 'lien') copier(carte.lien, 'Lien');
+        });
+
+        charger();
+    </script>
+</body>
+
+</html>

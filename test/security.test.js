@@ -83,6 +83,16 @@ function resultFor(sql, params) {
         }
         return { rows: [] };
     }
+    if (query.includes('SELECT nom, telephone, numero_adherent, carte_token, carte_expire_le') && query.includes('FROM membres')) {
+        return { rows: [
+            { nom: 'Alpha', telephone: '12345678', numero_adherent: 'MEM-0001', carte_token: carteToken, carte_expire_le: expireLe }
+        ] };
+    }
+    if (query.includes('SELECT nom, telephone, numero_adherent, carte_token, carte_expire_le') && query.includes('FROM femmes')) {
+        return { rows: [
+            { nom: 'Beta Femme', telephone: '87654321', numero_adherent: 'MEM-2001', carte_token: femmeToken, carte_expire_le: expireLe }
+        ] };
+    }
     if (query.includes('SELECT * FROM inscriptions WHERE id = $1')) {
         return { rows: [{ id: 1, nom: 'Candidat Test', telephone: '12345678', situation: 'لا', montant: 1000, whatsapp: null, email: null, statut: 'en_attente' }] };
     }
@@ -406,10 +416,17 @@ test('les routes sensibles exigent une session', async () => {
         '/api/recus/7', '/api/recus/membre/1?mois=1&annee=2027',
         '/api/notifications', '/api/membres/1/preferences', '/api/membres/1/preuves',
         '/api/membres/1/carte', '/api/femmes/1/carte',
+        '/api/cartes/hommes', '/api/cartes/hommes.csv',
+        '/api/cartes/femmes', '/api/cartes/femmes.csv',
         '/api/admin/evenements', '/api/admin/journal', '/api/evenements/1/rsvps'
     ]) {
         const response = await request(app).get(url).expect(401);
         assert.equal(response.body.success, false);
+    }
+
+    for (const url of ['/tokens-hommes.html', '/tokens-femmes.html']) {
+        const response = await request(app).get(url).expect(302);
+        assert.match(response.headers.location, /\/login\.html/);
     }
 
     for (const url of [
@@ -697,6 +714,46 @@ test('les tokens de carte hommes et femmes sont consultables par un admin', asyn
 
     const regen = await agent.post('/api/femmes/1/carte/token').send({}).expect(200);
     assert.match(regen.body.token, /^[0-9a-f]{64}$/);
+});
+
+test('les listes de tokens hommes et femmes sont separees et exportables', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/login')
+        .send({ username: 'admin', password: 'mot-de-passe-test' })
+        .expect(200);
+
+    const hommes = await agent.get('/api/cartes/hommes').expect(200);
+    assert.equal(hommes.body.source, 'Hommes');
+    assert.equal(hommes.body.total, 1);
+    assert.deepEqual(Object.keys(hommes.body.cartes[0]).sort(), [
+        'carte_expire_le', 'carte_token', 'lien', 'nom', 'numero_adherent', 'source', 'telephone'
+    ]);
+    assert.equal(hommes.body.cartes[0].source, 'Hommes');
+    assert.equal(hommes.body.cartes[0].carte_token, carteToken);
+    assert.match(hommes.body.cartes[0].lien, /\/carte\.html\?token=/);
+
+    const femmes = await agent.get('/api/cartes/femmes').expect(200);
+    assert.equal(femmes.body.source, 'Femmes');
+    assert.equal(femmes.body.total, 1);
+    assert.equal(femmes.body.cartes[0].carte_token, femmeToken);
+    assert.equal(femmes.body.cartes[0].source, 'Femmes');
+
+    const csvHommes = await agent.get('/api/cartes/hommes.csv').expect(200);
+    assert.match(csvHommes.headers['content-type'], /text\/csv/);
+    assert.ok(csvHommes.text.startsWith('\uFEFF'));
+    assert.match(csvHommes.text, /source,nom,téléphone,numéro adhérent,token,lien,expiration/);
+    assert.ok(csvHommes.text.includes(carteToken));
+    assert.ok(!csvHommes.text.includes(femmeToken));
+
+    const csvFemmes = await agent.get('/api/cartes/femmes.csv').expect(200);
+    assert.ok(csvFemmes.text.includes(femmeToken));
+    assert.ok(!csvFemmes.text.includes(carteToken));
+
+    assert.equal(exportLogs.length, 2);
+    assert.deepEqual(exportLogs.map(log => log.filters), [
+        JSON.stringify({ source: 'hommes' }),
+        JSON.stringify({ source: 'femmes' })
+    ]);
 });
 
 test('check-auth indique etat non connecte puis connecte', async () => {
